@@ -1,0 +1,37 @@
+'use client'
+
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { LayoutDashboard, Users, ShoppingBag, AlertTriangle, Building2, UserCheck } from 'lucide-react'
+
+const NAV = [
+  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
+  { href: '/admin/providers', icon: UserCheck, label: 'Provider' },
+  { href: '/admin/customers', icon: Users, label: 'Pelanggan' },
+  { href: '/admin/bookings', icon: ShoppingBag, label: 'Booking' },
+  { href: '/admin/sos', icon: AlertTriangle, label: 'SOS Events' },
+  { href: '/admin/ngos', icon: Building2, label: 'NGO' },
+]
+
+export default function SidebarNav() {
+  const pathname = usePathname()
+
+  return (
+    <nav className="flex-1 px-3 py-4 space-y-0.5">
+      {NAV.map(({ href, icon: Icon, label, exact }) => {
+        const active = exact ? pathname === href : pathname.startsWith(href)
+        return (
+          <Link key={href} href={href}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors group ${
+              active
+                ? 'bg-[#6366F1] text-white'
+                : 'text-white/60 hover:text-white hover:bg-white/8'
+            }`}>
+            <Icon className={`w-4 h-4 transition-colors ${active ? 'text-white' : 'group-hover:text-[#818CF8]'}`} />
+            {label}
+          </Link>
+        )
+      })}
+    </nav>
+  )
+}
