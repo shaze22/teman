@@ -20,6 +20,11 @@ export async function requireAdmin() {
   return { user, role: u.role as 'super_admin' | 'ngo_admin' }
 }
 
+export async function isAdmin(userId: string): Promise<boolean> {
+  const { data } = await supabaseAdmin.from('users').select('role').eq('id', userId).single()
+  return !!data && (data.role === 'super_admin' || data.role === 'ngo_admin')
+}
+
 export async function requireSuperAdmin() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

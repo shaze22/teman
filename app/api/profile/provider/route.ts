@@ -62,22 +62,27 @@ export async function PATCH(request: NextRequest) {
     )
   }
 
-  // Upsert pricing
-  const { data: existing } = await supabaseAdmin
+  // Upsert pricing for all service types — same base price per hour
+  const ALL_TYPES = ['job', 'food', 'learning', 'business', 'ibadah', 'repair', 'riadah', 'kombo']
+  const { data: existingPricing } = await supabaseAdmin
     .from('provider_pricing')
-    .select('id')
+    .select('id, service_type')
     .eq('profile_id', profile.id)
-    .eq('service_type', 'job')
-    .single()
 
-  if (existing) {
-    await supabaseAdmin.from('provider_pricing').update({ price: data.pricePerHour, updated_at: now }).eq('id', existing.id)
-  } else {
-    await supabaseAdmin.from('provider_pricing').insert({
-      id: crypto.randomUUID(), profile_id: profile.id,
-      service_type: 'job', pricing_type: 'per_hour',
-      price: data.pricePerHour, updated_at: now,
-    })
+  const existingMap = Object.fromEntries((existingPricing ?? []).map(p => [p.service_type, p.id]))
+
+  for (const type of ALL_TYPES) {
+    if (existingMap[type]) {
+      await supabaseAdmin.from('provider_pricing')
+        .update({ price: data.pricePerHour, updated_at: now })
+        .eq('id', existingMap[type])
+    } else {
+      await supabaseAdmin.from('provider_pricing').insert({
+        id: crypto.randomUUID(), profile_id: profile.id,
+        service_type: type, pricing_type: 'per_hour',
+        price: data.pricePerHour, is_active: true, updated_at: now,
+      })
+    }
   }
 
   return NextResponse.json({ success: true })

@@ -39,6 +39,7 @@ type FormData = {
   emergencyName: string
   emergencyRelation: string
   emergencyPhone: string
+  ngoReferralCode: string
 }
 
 const initial: FormData = {
@@ -59,6 +60,7 @@ const initial: FormData = {
   emergencyName: '',
   emergencyRelation: '',
   emergencyPhone: '',
+  ngoReferralCode: '',
 }
 
 export default function CustomerRegisterPage() {
@@ -228,6 +230,15 @@ export default function CustomerRegisterPage() {
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E] transition-all"
                   placeholder="Minimum 8 aksara" />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Kod Rujukan NGO <span className="text-gray-400 font-normal">(pilihan)</span>
+                </label>
+                <input type="text" value={form.ngoReferralCode} onChange={(e) => update('ngoReferralCode', e.target.value.toUpperCase())}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E] transition-all font-mono uppercase"
+                  placeholder="Contoh: PITM1234" />
+                <p className="text-xs text-gray-400 mt-1">Jika anda didaftar oleh sesebuah NGO, masukkan kod mereka di sini.</p>
+              </div>
             </div>
           )}
 
@@ -337,6 +348,7 @@ export default function CustomerRegisterPage() {
                 <Row label="Bandar" value={form.locationCity} />
                 <Row label="Perkhidmatan" value={form.needs.map((n) => NEEDS.find((nd) => nd.id === n)?.label).join(', ')} />
                 <Row label="Kenalan Kecemasan" value={`${form.emergencyName} (${form.emergencyPhone})`} />
+                {form.ngoReferralCode && <Row label="Kod NGO" value={form.ngoReferralCode} />}
               </div>
             </div>
           )}

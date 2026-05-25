@@ -58,16 +58,16 @@ export default async function AdminDashboard() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={Users} label="Jumlah Provider" value={String(totalProviders ?? 0)} color="bg-[#EEF2FF] text-[#6366F1]" />
-        <StatCard icon={Users} label="Jumlah Pelanggan" value={String(totalCustomers ?? 0)} color="bg-[#FFF1F2] text-[#F43F5E]" />
-        <StatCard icon={ShoppingBag} label="Jumlah Booking" value={String(totalBookings ?? 0)} color="bg-blue-50 text-blue-600" />
-        <StatCard icon={DollarSign} label="Hasil Bulan Ini" value={`RM${monthlyRevenue.toFixed(0)}`} color="bg-emerald-50 text-emerald-600" />
+        <StatCard icon={Users} label="Jumlah Provider" value={String(totalProviders ?? 0)} color="bg-[#EEF2FF] text-[#6366F1]" href="/admin/providers" />
+        <StatCard icon={Users} label="Jumlah Pelanggan" value={String(totalCustomers ?? 0)} color="bg-[#FFF1F2] text-[#F43F5E]" href="/admin/customers" />
+        <StatCard icon={ShoppingBag} label="Jumlah Booking" value={String(totalBookings ?? 0)} color="bg-blue-50 text-blue-600" href="/admin/bookings" />
+        <StatCard icon={DollarSign} label="Hasil Bulan Ini" value={`RM${monthlyRevenue.toFixed(0)}`} color="bg-emerald-50 text-emerald-600" href="/admin/bookings" />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <MiniStat icon={Clock} label="Booking Aktif" value={String(activeBookings ?? 0)} color="text-yellow-600" />
-        <MiniStat icon={AlertTriangle} label="SOS Aktif" value={String(activeSOS ?? 0)} color="text-red-600" urgent={!!activeSOS} />
-        <MiniStat icon={CheckCircle} label="Perlu Verify" value={String(pendingVerifications ?? 0)} color="text-orange-600" />
+        <MiniStat icon={Clock} label="Booking Aktif" value={String(activeBookings ?? 0)} color="text-yellow-600" href="/admin/bookings" />
+        <MiniStat icon={AlertTriangle} label="SOS Aktif" value={String(activeSOS ?? 0)} color="text-red-600" urgent={!!activeSOS} href="/admin/sos" />
+        <MiniStat icon={CheckCircle} label="Perlu Verify" value={String(pendingVerifications ?? 0)} color="text-orange-600" href="/admin/providers" />
         <MiniStat icon={TrendingUp} label="Kadar Platform" value="15%" color="text-[#6366F1]" />
       </div>
 
@@ -101,28 +101,42 @@ export default async function AdminDashboard() {
   )
 }
 
-function StatCard({ icon: Icon, label, value, color }: { icon: typeof Users; label: string; value: string; color: string }) {
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+function StatCard({ icon: Icon, label, value, color, href }: { icon: typeof Users; label: string; value: string; color: string; href?: string }) {
+  const inner = (
+    <>
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${color}`}>
         <Icon className="w-5 h-5" />
       </div>
       <div className="text-2xl font-bold text-gray-900">{value}</div>
       <div className="text-xs text-gray-500 mt-0.5">{label}</div>
-    </div>
+      {href && <div className="text-xs text-[#6366F1] mt-2 opacity-0 group-hover:opacity-100 transition-opacity font-medium">Lihat semua →</div>}
+    </>
   )
+  if (href) return (
+    <a href={href} className="group bg-white rounded-2xl border border-gray-100 p-5 block hover:border-[#6366F1]/30 hover:shadow-md transition-all">
+      {inner}
+    </a>
+  )
+  return <div className="bg-white rounded-2xl border border-gray-100 p-5">{inner}</div>
 }
 
-function MiniStat({ icon: Icon, label, value, color, urgent }: { icon: typeof Users; label: string; value: string; color: string; urgent?: boolean }) {
-  return (
-    <div className={`bg-white rounded-2xl border p-4 flex items-center gap-3 ${urgent ? 'border-red-200 bg-red-50' : 'border-gray-100'}`}>
+function MiniStat({ icon: Icon, label, value, color, urgent, href }: { icon: typeof Users; label: string; value: string; color: string; urgent?: boolean; href?: string }) {
+  const inner = (
+    <>
       <Icon className={`w-5 h-5 flex-shrink-0 ${color}`} />
       <div>
         <div className={`text-lg font-bold ${color}`}>{value}</div>
         <div className="text-xs text-gray-500">{label}</div>
       </div>
-    </div>
+    </>
   )
+  const base = `bg-white rounded-2xl border p-4 flex items-center gap-3 ${urgent ? 'border-red-200 bg-red-50' : 'border-gray-100'}`
+  if (href) return (
+    <a href={href} className={`${base} hover:border-[#6366F1]/30 hover:shadow-md transition-all`}>
+      {inner}
+    </a>
+  )
+  return <div className={base}>{inner}</div>
 }
 
 const STATUS_COLORS: Record<string, string> = {

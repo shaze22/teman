@@ -88,14 +88,18 @@ export async function POST(request: NextRequest) {
       if (skillsError) throw new Error(skillsError.message)
     }
 
-    const { error: pricingError } = await supabaseAdmin.from('provider_pricing').insert({
-      id: crypto.randomUUID(),
-      profile_id: profile.id,
-      service_type: 'job',
-      pricing_type: 'per_hour',
-      price: parseFloat(data.pricePerHour),
-      updated_at: now,
-    })
+    const price = parseFloat(data.pricePerHour)
+    const { error: pricingError } = await supabaseAdmin.from('provider_pricing').insert(
+      ['job', 'food', 'learning', 'business', 'ibadah', 'repair', 'riadah', 'kombo'].map(type => ({
+        id: crypto.randomUUID(),
+        profile_id: profile.id,
+        service_type: type,
+        pricing_type: 'per_hour',
+        price,
+        is_active: true,
+        updated_at: now,
+      }))
+    )
     if (pricingError) throw new Error(pricingError.message)
   } catch (err) {
     console.error('[register/provider]', err)

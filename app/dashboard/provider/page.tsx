@@ -1,5 +1,6 @@
 ﻿import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import {
@@ -102,8 +103,8 @@ export default async function ProviderDashboard() {
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-8">
           {profile.user.avatarUrl ? (
-            <img src={profile.user.avatarUrl} alt={profile.user.fullName}
-              className="w-14 h-14 rounded-full object-cover" />
+            <Image src={profile.user.avatarUrl} alt={profile.user.fullName}
+              width={56} height={56} className="w-14 h-14 rounded-full object-cover" />
           ) : (
             <div className="w-14 h-14 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-xl font-bold">
               {initials}

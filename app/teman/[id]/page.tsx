@@ -1,8 +1,11 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import Image from 'next/image'
 import { Heart, Star, MapPin, Clock, CheckCircle, Phone, ArrowLeft } from 'lucide-react'
 import BookingButton from './_booking-button'
+import { SERVICE_LABELS, SERVICE_SCOPE } from '@/lib/services'
+import ServiceScopeModal from './_service-scope-modal'
 
 const SKILL_LABELS: Record<string, string> = {
   cooking: 'Memasak', sewing: 'Menjahit', massage: 'Urut', elderly_care: 'Jaga Orang Tua',
@@ -11,8 +14,8 @@ const SKILL_LABELS: Record<string, string> = {
 }
 
 const PRICING_LABELS: Record<string, string> = {
-  per_hour: 'per jam', per_session: 'per sesi', per_day: 'per hari',
-  per_task: 'per tugas', per_meal: 'per hidangan',
+  per_hour: 'jam', per_session: 'sesi', per_day: 'hari',
+  per_task: 'tugas', per_meal: 'hidangan',
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -97,7 +100,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <div className="flex gap-4">
                 {u.avatar_url ? (
-                  <img src={u.avatar_url} alt={u.full_name} className="w-20 h-20 rounded-full object-cover flex-shrink-0" />
+                  <Image src={u.avatar_url} alt={u.full_name} width={80} height={80} className="w-20 h-20 rounded-full object-cover flex-shrink-0" />
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-2xl font-bold flex-shrink-0">
                     {initials}
@@ -211,18 +214,10 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
 
           <div className="lg:col-span-1">
             <div className="sticky top-20 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <div className="space-y-3 mb-4">
-                {pricing.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500 capitalize">{SKILL_LABELS[p.service_type] ?? p.service_type}</span>
-                    <span className="font-bold text-[#6366F1]">
-                      RM{parseFloat(String(p.price)).toFixed(0)}<span className="text-xs text-gray-400 font-normal">/{PRICING_LABELS[p.pricing_type]}</span>
-                    </span>
-                  </div>
-                ))}
-              </div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Harga Perkhidmatan</p>
+              <ServiceScopeModal pricing={pricing} pricingLabels={PRICING_LABELS} serviceLabels={SERVICE_LABELS} serviceScope={SERVICE_SCOPE} />
               <div className="text-xs text-gray-400 bg-gray-50 rounded-lg p-3 mb-4">
-                Platform fee 15-20% akan dikenakan semasa checkout. Bayaran selamat melalui escrow.
+                Platform fee 15% akan dikenakan semasa checkout. Bayaran selamat melalui escrow.
               </div>
               <BookingButton providerId={id} providerName={u.full_name} />
               <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2 text-sm text-gray-500">

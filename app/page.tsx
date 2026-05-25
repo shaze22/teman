@@ -34,7 +34,7 @@ const safety = [
 ]
 
 const testimonials = [
-  { name: 'Pak Hassan, 72', role: 'Warga Emas · Damansara', text: 'Sebelum ni sunyi duduk rumah sorang. Sekarang ada Kak Siti datang tengahari, masak, bercerita. Saya rasa dihargai.', rating: 5 },
+  { name: 'Makcik Rohani, 68', role: 'Warga Emas · Damansara', text: 'Sebelum ni sunyi duduk rumah sorang. Sekarang ada Kak Siti datang tengahari, masak, bercerita. Saya rasa dihargai.', rating: 5 },
   { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Boleh kerja dengan tenang tahu ayah ada orang jaga. Update harian dari Teman sangat membantu. Harga pun berpatutan.', rating: 5 },
   { name: 'Kak Siti, 35', role: 'Ibu Tunggal · Puchong', text: 'Pendapatan RM1,200 sebulan kerja separuh masa. Boleh jaga anak, boleh cari duit. Terima kasih Teman!', rating: 5 },
 ]

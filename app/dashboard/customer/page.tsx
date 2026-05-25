@@ -9,6 +9,7 @@ import {
 import SignOutButton from '../_sign-out-button'
 import NotificationBell from '../_notification-bell'
 import SosButton from './_sos-button'
+import PendingReviews from './_pending-reviews'
 
 const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-700',
@@ -64,6 +65,29 @@ export default async function CustomerDashboard() {
     .eq('customer_id', user.id)
     .order('created_at', { ascending: false })
     .limit(10)
+
+  // Fetch completed bookings pending review
+  const { data: completedBookings } = await supabaseAdmin
+    .from('bookings')
+    .select('id, scheduled_date, service_type, provider:users!bookings_provider_id_fkey(full_name)')
+    .eq('customer_id', user.id)
+    .eq('status', 'completed')
+    .order('scheduled_date', { ascending: false })
+    .limit(20)
+
+  const { data: myReviews } = await supabaseAdmin
+    .from('reviews')
+    .select('booking_id')
+    .eq('reviewer_id', user.id)
+
+  const reviewedIds = new Set((myReviews ?? []).map(r => r.booking_id))
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pendingReviews = (completedBookings ?? []).filter(b => !reviewedIds.has(b.id)).map((b: any) => ({
+    id: b.id as string,
+    providerName: (b.provider?.full_name ?? '') as string,
+    scheduledDate: b.scheduled_date as string,
+    serviceType: b.service_type as string,
+  }))
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const bookings = (rawBookings ?? []).map((b: any) => ({
@@ -127,6 +151,10 @@ export default async function CustomerDashboard() {
 
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
+            {pendingReviews.length > 0 && (
+              <PendingReviews bookings={pendingReviews} />
+            )}
+
             {activeBookings.length > 0 && (
               <div>
                 <h2 className="text-lg font-bold text-gray-900 mb-3">Booking Aktif</h2>

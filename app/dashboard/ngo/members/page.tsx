@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { Star, ShoppingBag, MapPin } from 'lucide-react'
+import { Star, ShoppingBag, MapPin, Users, Heart } from 'lucide-react'
+import Link from 'next/link'
 import MemberVerifyButton from './_member-verify-button'
 
-export default async function NgoMembersPage() {
+export default async function NgoMembersPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -19,19 +20,32 @@ export default async function NgoMembersPage() {
     .single()
   if (!ngo) redirect('/register/ngo')
 
-  const { data: rawMembers } = await supabaseAdmin
-    .from('single_mother_profiles')
-    .select(`
-      id, verified_by_ngo, verified_by_admin, background_check_status,
-      location_city, location_state, rating_avg, total_reviews, total_bookings,
-      is_active, created_at,
-      users!inner(id, full_name, email, status)
-    `)
-    .eq('ngo_id', ngo.id)
-    .order('created_at', { ascending: false })
+  const { tab } = await searchParams
+  const activeTab = tab === 'customers' ? 'customers' : 'providers'
+
+  const [{ data: rawProviders }, { data: rawCustomers }] = await Promise.all([
+    supabaseAdmin
+      .from('single_mother_profiles')
+      .select(`
+        id, verified_by_ngo, verified_by_admin, background_check_status,
+        location_city, location_state, rating_avg, total_reviews, total_bookings,
+        is_active, created_at,
+        users!inner(id, full_name, email, status)
+      `)
+      .eq('ngo_id', ngo.id)
+      .order('created_at', { ascending: false }),
+    supabaseAdmin
+      .from('customer_profiles')
+      .select(`
+        id, is_for_self, mobility_status, location_city, location_state, created_at,
+        users!inner(id, full_name, email, status)
+      `)
+      .eq('ngo_id', ngo.id)
+      .order('created_at', { ascending: false }),
+  ])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const members = (rawMembers ?? []).map((m: any) => ({
+  const providers = (rawProviders ?? []).map((m: any) => ({
     id: m.id as string,
     userId: m.users.id as string,
     fullName: m.users.full_name as string,
@@ -40,64 +54,138 @@ export default async function NgoMembersPage() {
     verifiedByAdmin: m.verified_by_admin as boolean,
     bgCheck: m.background_check_status as string,
     locationCity: m.location_city as string,
-    locationState: m.location_state as string,
     ratingAvg: parseFloat(String(m.rating_avg)),
-    totalReviews: m.total_reviews as number,
     totalBookings: m.total_bookings as number,
     isActive: m.is_active as boolean,
-    createdAt: new Date(m.created_at as string),
   }))
 
-  const pending = members.filter(m => !m.verifiedByNgo)
-  const verified = members.filter(m => m.verifiedByNgo)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const customers = (rawCustomers ?? []).map((c: any) => ({
+    id: c.id as string,
+    userId: c.users.id as string,
+    fullName: c.users.full_name as string,
+    email: c.users.email as string,
+    isForSelf: c.is_for_self as boolean,
+    mobilityStatus: c.mobility_status as string,
+    locationCity: c.location_city as string,
+    locationState: c.location_state as string,
+    status: c.users.status as string,
+  }))
+
+  const pendingProviders = providers.filter(m => !m.verifiedByNgo)
+  const verifiedProviders = providers.filter(m => m.verifiedByNgo)
+
+  const MOBILITY_LABELS: Record<string, string> = {
+    independent: 'Berjalan sendiri',
+    walking_stick: 'Tongkat',
+    wheelchair: 'Kerusi roda',
+    bedridden: 'Tidak bergerak',
+  }
 
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Ahli Provider</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Ahli NGO</h1>
         <p className="text-sm text-gray-500 mt-1">
-          {members.length} ahli terdaftar di bawah {ngo.name}
+          {ngo.name}
           {ngo.referral_code && (
             <span> · Kod: <span className="font-mono font-semibold text-[#6366F1]">{ngo.referral_code}</span></span>
           )}
         </p>
       </div>
 
-      {pending.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-sm font-semibold text-orange-600 uppercase tracking-wider mb-3">Menunggu Pengesahan NGO ({pending.length})</h2>
-          <div className="space-y-3">
-            {pending.map(m => <MemberRow key={m.id} member={m} ngoId={ngo.id} />)}
+      {/* Tabs */}
+      <div className="flex gap-2 mb-6">
+        <Link
+          href="/dashboard/ngo/members"
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${activeTab === 'providers' ? 'bg-[#6366F1] text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+        >
+          <Users className="w-4 h-4" /> Provider ({providers.length})
+        </Link>
+        <Link
+          href="/dashboard/ngo/members?tab=customers"
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${activeTab === 'customers' ? 'bg-[#F43F5E] text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+        >
+          <Heart className="w-4 h-4" /> Pelanggan ({customers.length})
+        </Link>
+      </div>
+
+      {/* Providers tab */}
+      {activeTab === 'providers' && (
+        <>
+          {pendingProviders.length > 0 && (
+            <section className="mb-8">
+              <h2 className="text-sm font-semibold text-orange-600 uppercase tracking-wider mb-3">Menunggu Pengesahan NGO ({pendingProviders.length})</h2>
+              <div className="space-y-3">
+                {pendingProviders.map(m => <ProviderRow key={m.id} member={m} ngoId={ngo.id} />)}
+              </div>
+            </section>
+          )}
+
+          <section>
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+              {verifiedProviders.length > 0 ? `Disahkan (${verifiedProviders.length})` : `Semua Provider (${providers.length})`}
+            </h2>
+            <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
+              {(verifiedProviders.length > 0 ? verifiedProviders : providers).map(m => (
+                <ProviderRow key={m.id} member={m} ngoId={ngo.id} inline />
+              ))}
+              {providers.length === 0 && (
+                <div className="p-8 text-center">
+                  <div className="text-3xl mb-2">👥</div>
+                  <p className="text-sm text-gray-500">Belum ada ahli provider. Kongsikan kod rujukan kepada ibu tunggal.</p>
+                </div>
+              )}
+            </div>
+          </section>
+        </>
+      )}
+
+      {/* Customers tab */}
+      {activeTab === 'customers' && (
+        <section>
+          <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
+            {customers.map(c => (
+              <div key={c.id} className="p-4 flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-[#F43F5E] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                  {c.fullName.charAt(0)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-gray-900 text-sm">{c.fullName}</span>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${c.isForSelf ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'}`}>
+                      {c.isForSelf ? 'Diri Sendiri' : 'Waris'}
+                    </span>
+                    {c.status === 'suspended' && <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">Suspended</span>}
+                  </div>
+                  <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
+                    <span>{c.email}</span>
+                    {c.locationCity && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{c.locationCity}</span>}
+                    <span>{MOBILITY_LABELS[c.mobilityStatus] ?? c.mobilityStatus}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {customers.length === 0 && (
+              <div className="p-8 text-center">
+                <div className="text-3xl mb-2">🧓</div>
+                <p className="text-sm text-gray-500">Belum ada ahli pelanggan. Kongsikan kod rujukan <span className="font-mono font-bold text-[#6366F1]">{ngo.referral_code}</span> kepada warga emas untuk daftar.</p>
+              </div>
+            )}
           </div>
         </section>
       )}
-
-      <section>
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-          {verified.length > 0 ? `Disahkan (${verified.length})` : `Semua Ahli (${members.length})`}
-        </h2>
-        <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
-          {(verified.length > 0 ? verified : members).map(m => <MemberRow key={m.id} member={m} ngoId={ngo.id} inline />)}
-          {members.length === 0 && (
-            <div className="p-8 text-center">
-              <div className="text-3xl mb-2">👥</div>
-              <p className="text-sm text-gray-500">Belum ada ahli. Kongsikan kod rujukan kepada ibu tunggal.</p>
-            </div>
-          )}
-        </div>
-      </section>
     </div>
   )
 }
 
-function MemberRow({ member: m, ngoId, inline }: {
+function ProviderRow({ member: m, ngoId, inline }: {
   member: { id: string; fullName: string; email: string; verifiedByNgo: boolean; verifiedByAdmin: boolean; locationCity: string; ratingAvg: number; totalBookings: number; isActive: boolean }
   ngoId: string
   inline?: boolean
 }) {
-  const base = 'flex items-center gap-4'
   return (
-    <div className={inline ? `p-4 ${base}` : `p-4 rounded-2xl bg-orange-50 border border-orange-100 ${base}`}>
+    <div className={`flex items-center gap-4 ${inline ? 'p-4' : 'p-4 rounded-2xl bg-orange-50 border border-orange-100'}`}>
       <div className="w-10 h-10 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
         {m.fullName.charAt(0)}
       </div>

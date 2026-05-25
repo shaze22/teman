@@ -75,7 +75,7 @@ export default function AboutPage() {
         <div className="bg-white rounded-3xl border border-gray-100 p-8 space-y-4">
           <h2 className="text-2xl font-bold text-[#0F0E17]">Kisah Kami</h2>
           <p className="text-gray-600 leading-relaxed">
-            Teman bermula daripada pemerhatian mudah — ibu kepada pengasas kami memerlukan teman selepas pembedahan, dan kami sedar betapa sukarnya untuk mencari seseorang yang boleh dipercayai, pada harga yang berpatutan, dalam masa yang singkat.
+            Teman bermula daripada pemerhatian mudah — jiran kami, seorang warga emas yang tinggal bersendirian, memerlukan teman selepas pembedahan, dan kami sedar betapa sukarnya untuk mencari seseorang yang boleh dipercayai, pada harga yang berpatutan, dalam masa yang singkat.
           </p>
           <p className="text-gray-600 leading-relaxed">
             Pada masa yang sama, jiran kami, seorang ibu tunggal dengan dua anak, terpaksa bekerja tiga kerja part-time yang tidak menentu. Kami terfikir — bagaimana jika kami dapat menghubungkan mereka berdua?

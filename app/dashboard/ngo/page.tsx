@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { Users, CheckCircle, Clock, Star, Copy } from 'lucide-react'
+import { Users, CheckCircle, Clock, Star, Heart } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function NgoDashboard() {
@@ -20,14 +20,21 @@ export default async function NgoDashboard() {
 
   if (!ngo) redirect('/register/ngo')
 
-  const { data: members } = await supabaseAdmin
-    .from('single_mother_profiles')
-    .select('id, verified_by_ngo, verified_by_admin, rating_avg, total_bookings, is_active, created_at, users!inner(full_name, email)')
-    .eq('ngo_id', ngo.id)
-    .order('created_at', { ascending: false })
+  const [{ data: rawProviders }, { data: rawCustomers }] = await Promise.all([
+    supabaseAdmin
+      .from('single_mother_profiles')
+      .select('id, verified_by_ngo, verified_by_admin, rating_avg, total_bookings, is_active, created_at, users!inner(full_name)')
+      .eq('ngo_id', ngo.id)
+      .order('created_at', { ascending: false }),
+    supabaseAdmin
+      .from('customer_profiles')
+      .select('id, is_for_self, mobility_status, created_at, users!inner(full_name)')
+      .eq('ngo_id', ngo.id)
+      .order('created_at', { ascending: false }),
+  ])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const memberList = (members ?? []).map((m: any) => ({
+  const providers = (rawProviders ?? []).map((m: any) => ({
     id: m.id as string,
     fullName: m.users.full_name as string,
     verifiedByNgo: m.verified_by_ngo as boolean,
@@ -37,10 +44,18 @@ export default async function NgoDashboard() {
     isActive: m.is_active as boolean,
   }))
 
-  const verifiedCount = memberList.filter(m => m.verifiedByNgo).length
-  const pendingCount = memberList.filter(m => !m.verifiedByNgo).length
-  const avgRating = memberList.length > 0
-    ? (memberList.reduce((s, m) => s + m.ratingAvg, 0) / memberList.length).toFixed(1)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const customers = (rawCustomers ?? []).map((c: any) => ({
+    id: c.id as string,
+    fullName: c.users.full_name as string,
+    isForSelf: c.is_for_self as boolean,
+    mobilityStatus: c.mobility_status as string,
+  }))
+
+  const verifiedCount = providers.filter(m => m.verifiedByNgo).length
+  const pendingCount = providers.filter(m => !m.verifiedByNgo).length
+  const avgRating = providers.length > 0
+    ? (providers.reduce((s, m) => s + m.ratingAvg, 0) / providers.length).toFixed(1)
     : '—'
 
   return (
@@ -60,7 +75,7 @@ export default async function NgoDashboard() {
             <div className="bg-[#EEF2FF] rounded-2xl px-4 py-3 text-center">
               <div className="text-xs text-gray-500 mb-1">Kod Rujukan NGO</div>
               <div className="font-mono font-bold text-[#6366F1] text-lg tracking-wider">{ngo.referral_code}</div>
-              <div className="text-xs text-gray-400 mt-1">Kongsi kepada provider</div>
+              <div className="text-xs text-gray-400 mt-1">Kongsi kepada provider & warga emas</div>
             </div>
           )}
         </div>
@@ -78,43 +93,73 @@ export default async function NgoDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={Users} label="Jumlah Ahli" value={String(memberList.length)} color="bg-[#EEF2FF] text-[#6366F1]" />
-        <StatCard icon={CheckCircle} label="Sudah Disahkan" value={String(verifiedCount)} color="bg-emerald-50 text-emerald-600" />
-        <StatCard icon={Clock} label="Menunggu Verify" value={String(pendingCount)} color="bg-yellow-50 text-yellow-600" />
+        <StatCard icon={Users} label="Ahli Provider" value={String(providers.length)} color="bg-[#EEF2FF] text-[#6366F1]" />
+        <StatCard icon={Heart} label="Ahli Pelanggan" value={String(customers.length)} color="bg-[#FFF1F2] text-[#F43F5E]" />
+        <StatCard icon={CheckCircle} label="Provider Disahkan" value={String(verifiedCount)} color="bg-emerald-50 text-emerald-600" />
         <StatCard icon={Star} label="Rating Purata" value={avgRating} color="bg-yellow-50 text-yellow-500" />
       </div>
 
-      {/* Recent members */}
-      <div className="bg-white rounded-2xl border border-gray-100">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="font-semibold text-gray-900">Ahli Terkini</h2>
-          <Link href="/dashboard/ngo/members" className="text-xs text-[#6366F1] font-medium hover:underline">Lihat semua</Link>
-        </div>
-        <div className="divide-y divide-gray-50">
-          {memberList.slice(0, 6).map(m => (
-            <div key={m.id} className="px-6 py-3 flex items-center gap-4">
-              <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
-                {m.fullName.charAt(0)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900">{m.fullName}</div>
-                <div className="text-xs text-gray-500">{m.totalBookings} booking · Rating {m.ratingAvg > 0 ? m.ratingAvg.toFixed(1) : 'Baru'}</div>
-              </div>
-              <div className="flex items-center gap-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Providers */}
+        <div className="bg-white rounded-2xl border border-gray-100">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <div>
+              <h2 className="font-semibold text-gray-900">Ahli Provider</h2>
+              <p className="text-xs text-gray-400 mt-0.5">{pendingCount} menunggu pengesahan</p>
+            </div>
+            <Link href="/dashboard/ngo/members" className="text-xs text-[#6366F1] font-medium hover:underline">Lihat semua</Link>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {providers.slice(0, 5).map(m => (
+              <div key={m.id} className="px-6 py-3 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                  {m.fullName.charAt(0)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900">{m.fullName}</div>
+                  <div className="text-xs text-gray-500">{m.totalBookings} booking · {m.ratingAvg > 0 ? m.ratingAvg.toFixed(1) : 'Baru'}</div>
+                </div>
                 {m.verifiedByNgo
-                  ? <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Verified NGO</span>
-                  : <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Belum Verify</span>}
-                {m.verifiedByAdmin && <span className="text-xs bg-[#E0E7FF] text-[#6366F1] px-2 py-0.5 rounded-full">Admin ✓</span>}
+                  ? <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex-shrink-0">Verified</span>
+                  : <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full flex-shrink-0">Pending</span>}
               </div>
+            ))}
+            {providers.length === 0 && (
+              <div className="px-6 py-8 text-center text-sm text-gray-400">
+                Belum ada ahli provider. Kongsikan kod <span className="font-mono font-bold text-[#6366F1]">{ngo.referral_code}</span> kepada ibu tunggal.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Customers */}
+        <div className="bg-white rounded-2xl border border-gray-100">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <div>
+              <h2 className="font-semibold text-gray-900">Ahli Pelanggan (Warga Emas)</h2>
+              <p className="text-xs text-gray-400 mt-0.5">{customers.length} warga emas berdaftar</p>
             </div>
-          ))}
-          {memberList.length === 0 && (
-            <div className="px-6 py-8 text-center">
-              <div className="text-3xl mb-2">👥</div>
-              <div className="text-sm font-medium text-gray-900 mb-1">Belum ada ahli</div>
-              <div className="text-xs text-gray-500">Kongsikan kod rujukan <span className="font-mono font-bold text-[#6366F1]">{ngo.referral_code}</span> kepada ibu tunggal untuk mendaftar sebagai provider di bawah NGO anda.</div>
-            </div>
-          )}
+            <Link href="/dashboard/ngo/members?tab=customers" className="text-xs text-[#F43F5E] font-medium hover:underline">Lihat semua</Link>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {customers.slice(0, 5).map(c => (
+              <div key={c.id} className="px-6 py-3 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#F43F5E] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                  {c.fullName.charAt(0)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900">{c.fullName}</div>
+                  <div className="text-xs text-gray-500">{c.isForSelf ? 'Diri sendiri' : 'Waris'} · {c.mobilityStatus === 'independent' ? 'Berjalan sendiri' : c.mobilityStatus === 'walking_stick' ? 'Tongkat' : c.mobilityStatus === 'wheelchair' ? 'Kerusi roda' : 'Tidak bergerak'}</div>
+                </div>
+                <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full flex-shrink-0">Pelanggan</span>
+              </div>
+            ))}
+            {customers.length === 0 && (
+              <div className="px-6 py-8 text-center text-sm text-gray-400">
+                Belum ada ahli pelanggan. Kongsikan kod <span className="font-mono font-bold text-[#6366F1]">{ngo.referral_code}</span> kepada warga emas.
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

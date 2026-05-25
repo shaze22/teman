@@ -7,6 +7,15 @@ async function isSuperAdmin(userId: string) {
   return data?.role === 'super_admin'
 }
 
+export async function GET() {
+  const { data } = await supabaseAdmin
+    .from('ngos')
+    .select('id, name')
+    .eq('status', 'active')
+    .order('name')
+  return NextResponse.json(data ?? [])
+}
+
 export async function PATCH(req: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

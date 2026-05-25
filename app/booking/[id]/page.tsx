@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { isAdmin } from '@/lib/admin-auth'
 import { Heart, ArrowLeft, Calendar, Clock, MapPin, User, Phone, CheckCircle, AlertCircle, XCircle } from 'lucide-react'
 import BookingDetailActions from './_booking-detail-actions'
 import PayButton from './_pay-button'
@@ -15,8 +16,9 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof
 }
 
 const SERVICE_LABELS: Record<string, string> = {
-  job: 'Teman Kerja / Penjagaan', food: 'Teman Makan',
-  learning: 'Teman Belajar', business: 'Teman Bisnes',
+  job: 'Teman Kerja', food: 'Teman Makan', learning: 'Teman Belajar',
+  business: 'Teman Bisnes', ibadah: 'Teman Ibadah', repair: 'Teman Repair',
+  riadah: 'Teman Riadah', kombo: 'Teman Kombo',
 }
 
 export default async function BookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -37,8 +39,8 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
 
   if (!b) notFound()
 
-  // Only allow customer or provider to view
-  if (b.customer_id !== user.id && b.provider_id !== user.id) notFound()
+  const adminUser = await isAdmin(user.id)
+  if (!adminUser && b.customer_id !== user.id && b.provider_id !== user.id) notFound()
 
   const { data: existingReview } = await supabaseAdmin
     .from('reviews')
@@ -54,6 +56,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
   const StatusIcon = status.icon
   const isCustomer = b.customer_id === user.id
   const isProvider = b.provider_id === user.id
+  const fundsReleased = (b as any).funds_released ?? false
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -165,8 +168,15 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
               <span className="text-[#6366F1]">RM{parseFloat(String(b.total_amount)).toFixed(2)}</span>
             </div>
           </div>
-          <div className={`mt-3 text-xs px-3 py-1.5 rounded-full inline-block font-medium ${b.payment_status === 'paid' ? 'bg-[#E0E7FF] text-[#3730A3]' : 'bg-yellow-100 text-yellow-700'}`}>
-            {b.payment_status === 'paid' ? 'Dibayar' : 'Belum Dibayar'}
+          <div className="flex flex-wrap gap-2 mt-3">
+            <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${b.payment_status === 'paid' ? 'bg-[#E0E7FF] text-[#3730A3]' : 'bg-yellow-100 text-yellow-700'}`}>
+              {b.payment_status === 'paid' ? 'Dibayar' : 'Belum Dibayar'}
+            </span>
+            {b.payment_status === 'paid' && b.status === 'completed' && (
+              <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${fundsReleased ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                {fundsReleased ? '✓ Dana Dilepaskan' : '⏳ Dana Dalam Escrow'}
+              </span>
+            )}
           </div>
         </div>
 
@@ -189,6 +199,8 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
             status={b.status}
             isProvider={isProvider}
             hasReview={!!existingReview}
+            fundsReleased={fundsReleased}
+            paymentStatus={b.payment_status}
           />
         )}
 

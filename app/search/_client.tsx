@@ -3,16 +3,21 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
+import Image from 'next/image'
 import {
   Heart, Search, Filter, Star, MapPin, Clock, ChevronDown, ArrowLeft,
 } from 'lucide-react'
 
 const SERVICE_TYPES = [
-  { id: 'all', label: 'Semua' },
-  { id: 'job', label: 'Teman Kerja' },
-  { id: 'food', label: 'Teman Makan' },
+  { id: 'all',      label: 'Semua' },
+  { id: 'job',      label: 'Teman Kerja' },
+  { id: 'food',     label: 'Teman Makan' },
   { id: 'learning', label: 'Teman Belajar' },
   { id: 'business', label: 'Teman Bisnes' },
+  { id: 'ibadah',   label: 'Teman Ibadah' },
+  { id: 'repair',   label: 'Teman Repair' },
+  { id: 'riadah',   label: 'Teman Riadah' },
+  { id: 'kombo',    label: 'Teman Kombo' },
 ]
 
 const SKILL_LABELS: Record<string, string> = {
@@ -212,7 +217,7 @@ function ProviderCard({ provider: p }: { provider: Provider }) {
       <div className="p-4">
         <div className="flex items-start gap-3 mb-3">
           {p.avatarUrl ? (
-            <img src={p.avatarUrl} alt={p.fullName} className="w-14 h-14 rounded-full object-cover flex-shrink-0" />
+            <Image src={p.avatarUrl} alt={p.fullName} width={56} height={56} className="w-14 h-14 rounded-full object-cover flex-shrink-0" />
           ) : (
             <div className="w-14 h-14 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
               {initials}

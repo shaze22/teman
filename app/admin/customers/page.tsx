@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { MapPin, ShoppingBag } from 'lucide-react'
+import Link from 'next/link'
 import UserSuspendButton from './_user-suspend-button'
 
 export default async function AdminCustomersPage() {
@@ -49,26 +50,28 @@ export default async function AdminCustomersPage() {
       <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
         {customers.map(c => (
           <div key={c.id} className="p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-[#F43F5E] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
-              {c.fullName.charAt(0)}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-gray-900 text-sm">{c.fullName}</span>
-                {c.isForSelf
-                  ? <span className="text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full">Untuk Diri</span>
-                  : <span className="text-xs bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full">Waris</span>}
-                {c.status === 'suspended' && <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">Suspended</span>}
+            <Link href={`/admin/customers/${c.userId}`} className="flex items-center gap-4 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+              <div className="w-10 h-10 rounded-full bg-[#F43F5E] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                {c.fullName.charAt(0)}
               </div>
-              <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
-                <span>{c.email}</span>
-                <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{c.locationCity}</span>
-                <span className="flex items-center gap-1"><ShoppingBag className="w-3 h-3" />{c.bookingCount} booking</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-semibold text-gray-900 text-sm">{c.fullName}</span>
+                  {c.isForSelf
+                    ? <span className="text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full">Untuk Diri</span>
+                    : <span className="text-xs bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full">Waris</span>}
+                  {c.status === 'suspended' && <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">Suspended</span>}
+                </div>
+                <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
+                  <span>{c.email}</span>
+                  <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{c.locationCity}</span>
+                  <span className="flex items-center gap-1"><ShoppingBag className="w-3 h-3" />{c.bookingCount} booking</span>
+                </div>
               </div>
-            </div>
-            <div className="text-xs text-gray-400 flex-shrink-0 mr-4">
-              {c.createdAt.toLocaleDateString('ms-MY')}
-            </div>
+              <div className="text-xs text-gray-400 flex-shrink-0 mr-4">
+                {c.createdAt.toLocaleDateString('ms-MY')}
+              </div>
+            </Link>
             <UserSuspendButton userId={c.userId} isActive={c.status !== 'suspended'} />
           </div>
         ))}

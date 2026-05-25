@@ -43,10 +43,9 @@ export async function POST(request: NextRequest) {
     .single()
 
   const SERVICE_LABELS: Record<string, string> = {
-    job: 'Teman Kerja / Penjagaan',
-    food: 'Teman Makan',
-    learning: 'Teman Belajar',
-    business: 'Teman Bisnes',
+    job: 'Teman Kerja', food: 'Teman Makan', learning: 'Teman Belajar',
+    business: 'Teman Bisnes', ibadah: 'Teman Ibadah', repair: 'Teman Repair',
+    riadah: 'Teman Riadah', kombo: 'Teman Kombo',
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'

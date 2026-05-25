@@ -84,16 +84,16 @@ export async function notifyBookingStatusChange({
       notifs.push({
         userId: customerId,
         type: 'booking_completed',
-        title: 'Sesi Selesai ✅',
-        message: `Sesi dengan ${providerName} telah tamat. Sila beri ulasan!`,
+        title: 'Sesi Selesai — Sila Sahkan ✅',
+        message: `Sesi dengan ${providerName} telah tamat. Sila sahkan untuk lepaskan bayaran.`,
         actionUrl: url,
         data: { bookingId, bookingCode },
       })
       notifs.push({
         userId: providerId,
         type: 'booking_completed',
-        title: 'Sesi Selesai ✅',
-        message: `Sesi dengan ${customerName} telah tamat. Pendapatan telah dikreditkan.`,
+        title: 'Sesi Selesai — Menunggu Pengesahan 🕐',
+        message: `Sesi dengan ${customerName} selesai. Menunggu pelanggan sahkan untuk lepaskan bayaran.`,
         actionUrl: url,
         data: { bookingId, bookingCode },
       })
@@ -120,6 +120,24 @@ export async function notifyNewBooking({
     message: `${customerName} telah membuat booking untuk ${date}. Sila sahkan atau tolak.`,
     actionUrl: `/booking/${bookingId}`,
     data: { bookingId, bookingCode },
+  })
+}
+
+export async function notifyFundsReleased({
+  bookingId, bookingCode, providerId, amount,
+}: {
+  bookingId: string
+  bookingCode: string
+  providerId: string
+  amount: number
+}) {
+  await createNotification({
+    userId: providerId,
+    type: 'funds_released',
+    title: 'Bayaran Dilepaskan! 💰',
+    message: `RM${amount.toFixed(2)} daripada booking #${bookingCode} telah dikreditkan ke wallet anda.`,
+    actionUrl: `/dashboard/provider/earnings`,
+    data: { bookingId, bookingCode, amount },
   })
 }
 

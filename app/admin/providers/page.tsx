@@ -1,7 +1,9 @@
 import { requireAdmin } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { CheckCircle, XCircle, Star, MapPin, Clock } from 'lucide-react'
+import { Star, MapPin, Clock } from 'lucide-react'
+import Link from 'next/link'
 import ProviderActions from './_provider-actions'
+import AssignNgoButton from '../_assign-ngo-button'
 
 export default async function AdminProvidersPage() {
   await requireAdmin()
@@ -11,7 +13,7 @@ export default async function AdminProvidersPage() {
     .select(`
       id, verified_by_ngo, verified_by_admin, background_check_status,
       location_city, location_state, rating_avg, total_reviews, total_bookings,
-      is_active, created_at,
+      is_active, created_at, ngo_id,
       users!inner(id, full_name, email, status)
     `)
     .order('created_at', { ascending: false })
@@ -33,6 +35,7 @@ export default async function AdminProvidersPage() {
     totalBookings: p.total_bookings as number,
     isActive: p.is_active as boolean,
     createdAt: new Date(p.created_at as string),
+    ngoId: p.ngo_id as string | null,
   }))
 
   const pending = providers.filter(p => !p.verifiedByAdmin)
@@ -74,27 +77,30 @@ export default async function AdminProvidersPage() {
 function ProviderRow({ provider: p, highlight }: { provider: ReturnType<typeof mapProvider>; highlight?: boolean }) {
   return (
     <div className={`p-4 rounded-2xl flex items-center gap-4 ${highlight ? 'bg-orange-50 border border-orange-100' : 'bg-white border border-gray-100'}`}>
-      <div className="w-10 h-10 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
-        {p.fullName.charAt(0)}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-semibold text-gray-900 text-sm">{p.fullName}</span>
-          {p.verifiedByNgo && <span className="text-xs bg-[#E0E7FF] text-[#6366F1] px-1.5 py-0.5 rounded-full">NGO ✓</span>}
-          {p.verifiedByAdmin && <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">Admin ✓</span>}
-          {!p.isActive && <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">Suspended</span>}
+      <Link href={`/teman/${p.id}`} className="flex items-center gap-4 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+        <div className="w-10 h-10 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+          {p.fullName.charAt(0)}
         </div>
-        <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
-          <span>{p.email}</span>
-          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{p.locationCity}</span>
-          <span className="flex items-center gap-1"><Star className="w-3 h-3 text-yellow-400" fill="currentColor" />{p.ratingAvg > 0 ? p.ratingAvg.toFixed(1) : 'Baru'}</span>
-          <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{p.totalBookings} booking</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-semibold text-gray-900 text-sm">{p.fullName}</span>
+            {p.verifiedByNgo && <span className="text-xs bg-[#E0E7FF] text-[#6366F1] px-1.5 py-0.5 rounded-full">NGO ✓</span>}
+            {p.verifiedByAdmin && <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">Admin ✓</span>}
+            {!p.isActive && <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">Suspended</span>}
+          </div>
+          <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
+            <span>{p.email}</span>
+            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{p.locationCity}</span>
+            <span className="flex items-center gap-1"><Star className="w-3 h-3 text-yellow-400" fill="currentColor" />{p.ratingAvg > 0 ? p.ratingAvg.toFixed(1) : 'Baru'}</span>
+            <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{p.totalBookings} booking</span>
+          </div>
         </div>
-      </div>
+      </Link>
       <div className="flex items-center gap-2 flex-shrink-0">
         <span className={`text-xs px-2 py-1 rounded-full font-medium ${p.bgCheck === 'approved' ? 'bg-emerald-100 text-emerald-700' : p.bgCheck === 'rejected' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-700'}`}>
           BG: {p.bgCheck}
         </span>
+        <AssignNgoButton type="provider" profileId={p.id} currentNgoId={p.ngoId} />
         <ProviderActions profileId={p.id} userId={p.userId} verifiedByAdmin={p.verifiedByAdmin} isActive={p.isActive} bgCheck={p.bgCheck} />
       </div>
     </div>

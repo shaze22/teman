@@ -1,6 +1,7 @@
 import { requireSuperAdmin } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { Building2, Users, MapPin } from 'lucide-react'
+import Link from 'next/link'
 import NgoActions from './_ngo-actions'
 
 export default async function AdminNgosPage() {
@@ -51,23 +52,25 @@ export default async function AdminNgosPage() {
         <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
           {ngos.map(n => (
             <div key={n.id} className="p-4 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] flex items-center justify-center flex-shrink-0">
-                <Building2 className="w-5 h-5 text-[#6366F1]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-gray-900 text-sm">{n.name}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${n.status === 'active' ? 'bg-emerald-100 text-emerald-700' : n.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}`}>
-                    {n.status === 'active' ? 'Aktif' : n.status === 'pending' ? 'Menunggu' : 'Digantung'}
-                  </span>
+              <Link href={`/admin/ngos/${n.id}`} className="flex items-center gap-4 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+                <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] flex items-center justify-center flex-shrink-0">
+                  <Building2 className="w-5 h-5 text-[#6366F1]" />
                 </div>
-                <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
-                  {n.regNumber && <span>Reg: {n.regNumber}</span>}
-                  {n.city && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{n.city}</span>}
-                  <span className="flex items-center gap-1"><Users className="w-3 h-3" />{n.totalMembers} ahli</span>
-                  {n.referralCode && <span className="font-mono text-[#6366F1]">#{n.referralCode}</span>}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-gray-900 text-sm">{n.name}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${n.status === 'active' ? 'bg-emerald-100 text-emerald-700' : n.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}`}>
+                      {n.status === 'active' ? 'Aktif' : n.status === 'pending' ? 'Menunggu' : 'Digantung'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
+                    {n.regNumber && <span>Reg: {n.regNumber}</span>}
+                    {n.city && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{n.city}</span>}
+                    <span className="flex items-center gap-1"><Users className="w-3 h-3" />{n.totalMembers} ahli</span>
+                    {n.referralCode && <span className="font-mono text-[#6366F1]">#{n.referralCode}</span>}
+                  </div>
                 </div>
-              </div>
+              </Link>
               <NgoActions ngoId={n.id} status={n.status} />
             </div>
           ))}

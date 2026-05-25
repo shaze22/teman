@@ -19,6 +19,7 @@ const schema = z.object({
   emergencyName: z.string().min(2),
   emergencyRelation: z.string().optional(),
   emergencyPhone: z.string().min(8),
+  ngoReferralCode: z.string().optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -38,6 +39,18 @@ export async function POST(request: NextRequest) {
   const now = new Date().toISOString()
 
   try {
+    // Resolve NGO from referral code if provided
+    let ngoId: string | null = null
+    if (data.ngoReferralCode) {
+      const { data: ngo } = await supabaseAdmin
+        .from('ngos')
+        .select('id')
+        .eq('referral_code', data.ngoReferralCode.trim().toUpperCase())
+        .eq('status', 'active')
+        .single()
+      if (ngo) ngoId = ngo.id
+    }
+
     // Remove orphaned record if previous registration failed mid-way
     await supabaseAdmin.from('users').delete().eq('email', data.email).neq('id', data.userId)
 
@@ -66,6 +79,7 @@ export async function POST(request: NextRequest) {
         location_postcode: data.locationPostcode ?? null,
         mobility_status: data.mobilityStatus,
         needs: data.needs,
+        ngo_id: ngoId,
         updated_at: now,
       })
       .select('id')

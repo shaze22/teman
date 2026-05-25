@@ -79,7 +79,7 @@ export default function PrivacyPage() {
 
         <div className="mt-12 pt-8 border-t border-gray-100 flex gap-4 text-sm">
           <Link href="/terms" className="text-[#6366F1] hover:underline">Terma Perkhidmatan</Link>
-          <Link href="/" className="text-gray-400 hover:text-gray-600">Kembali ke Laman Utama</Link>
+          <Link href="/" prefetch={false} className="text-gray-400 hover:text-gray-600">Kembali ke Laman Utama</Link>
         </div>
       </div>
     </div>

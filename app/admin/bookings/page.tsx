@@ -84,10 +84,8 @@ export default async function AdminBookingsPage() {
         </div>
         <div className="divide-y divide-gray-50">
           {bookings.map(b => (
-            <div key={b.id} className="grid grid-cols-[auto_1fr_1fr_auto_auto_auto_auto] gap-0 px-4 py-3 items-center hover:bg-gray-50 transition-colors">
-              <div className="w-28">
-                <Link href={`/booking/${b.id}`} className="text-xs font-mono text-[#6366F1] hover:underline">{b.bookingCode}</Link>
-              </div>
+            <Link key={b.id} href={`/booking/${b.id}`} className="grid grid-cols-[auto_1fr_1fr_auto_auto_auto_auto] gap-0 px-4 py-3 items-center hover:bg-[#EEF2FF] transition-colors cursor-pointer">
+              <div className="w-28 text-xs font-mono text-[#6366F1]">{b.bookingCode}</div>
               <div className="text-sm text-gray-900 truncate pr-2">{b.customerName}</div>
               <div className="text-sm text-gray-900 truncate pr-2">{b.providerName}</div>
               <div className="w-24 text-center">
@@ -101,7 +99,7 @@ export default async function AdminBookingsPage() {
                   {STATUS_LABELS[b.status] ?? b.status}
                 </span>
               </div>
-            </div>
+            </Link>
           ))}
           {bookings.length === 0 && (
             <div className="p-8 text-center text-sm text-gray-400">Tiada booking lagi</div>

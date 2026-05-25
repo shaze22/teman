@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { stripe } from '@/lib/stripe'
 import { sendPaymentReceiptCustomer, sendPaymentNotifyProvider } from '@/lib/email'
+import { createNotification } from '@/lib/notifications'
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
@@ -36,13 +37,14 @@ export async function POST(request: NextRequest) {
       .eq('transaction_id', session.id)
       .single()
 
+    const now = new Date().toISOString()
     await Promise.all([
       payment
         ? supabaseAdmin.from('payments').update({ status: 'paid' }).eq('id', payment.id)
         : Promise.resolve(),
       supabaseAdmin
         .from('bookings')
-        .update({ payment_status: 'paid', payment_method: 'stripe', updated_at: new Date().toISOString() })
+        .update({ status: 'confirmed', payment_status: 'paid', payment_method: 'stripe', updated_at: now })
         .eq('id', bookingId),
     ])
 
@@ -78,6 +80,18 @@ export async function POST(request: NextRequest) {
       const providerName = b.provider?.full_name ?? ''
       const totalAmount = parseFloat(String(b.total_amount))
       const providerAmount = parseFloat(String(b.provider_price)) * 0.85
+
+      // In-app notification to provider
+      if (providerUser) {
+        createNotification({
+          userId: providerUser.id,
+          type: 'booking_confirmed',
+          title: 'Booking Baru Disahkan',
+          message: `${customerName} telah membuat booking #${b.booking_code}. Pembayaran berjaya diterima.`,
+          actionUrl: `/booking/${bookingId}`,
+          data: { bookingId },
+        }).catch(() => {})
+      }
 
       if (customerEmail) {
         sendPaymentReceiptCustomer({

@@ -1,17 +1,11 @@
 'use client'
 
-import { useState, use } from 'react'
+import { useState, use, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Heart, ArrowLeft, Calendar, Clock, MapPin, Loader2, CheckCircle } from 'lucide-react'
+import { Heart, ArrowLeft, Calendar, Clock, MapPin, Loader2, HelpCircle, X, AlertCircle } from 'lucide-react'
 import { generateBookingCode, formatRM } from '@/lib/utils'
-
-const SERVICE_OPTIONS = [
-  { id: 'job', label: 'Teman Kerja / Penjagaan' },
-  { id: 'food', label: 'Teman Makan' },
-  { id: 'learning', label: 'Teman Belajar' },
-  { id: 'business', label: 'Teman Bisnes' },
-]
+import { SERVICE_TYPES, SERVICE_SCOPE } from '@/lib/services'
 
 const DURATION_OPTIONS = [2, 3, 4, 5, 6, 8]
 
@@ -27,19 +21,28 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
   const [address, setAddress] = useState('')
   const [requirements, setRequirements] = useState('')
   const [loading, setLoading] = useState(false)
-  const [booked, setBooked] = useState(false)
-  const [bookingCode, setBookingCode] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [pricePerHour, setPricePerHour] = useState(35)
+  const [scopeModal, setScopeModal] = useState<string | null>(null)
 
-  const pricePerHour = 35
+  useEffect(() => {
+    fetch(`/api/providers/${id}/pricing?type=${serviceType}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.price) setPricePerHour(parseFloat(d.price)) })
+      .catch(() => {})
+  }, [id, serviceType])
+
   const platformFee = pricePerHour * duration * 0.15
   const providerPrice = pricePerHour * duration
   const total = providerPrice + platformFee
 
   async function handleBook() {
     setLoading(true)
+    setError(null)
     const code = generateBookingCode()
 
-    const res = await fetch('/api/bookings', {
+    // Step 1: create booking
+    const bookingRes = await fetch('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -57,42 +60,33 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
       }),
     })
 
-    if (res.ok) {
-      setBookingCode(code)
-      setBooked(true)
+    if (!bookingRes.ok) {
+      const d = await bookingRes.json().catch(() => ({}))
+      setError(d.message ?? 'Gagal buat booking. Cuba lagi.')
+      setLoading(false)
+      return
     }
-    setLoading(false)
-  }
 
-  if (booked) {
-    return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-4">
-        <div className="max-w-sm w-full text-center">
-          <div className="w-20 h-20 bg-[#E0E7FF] rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-[#6366F1]" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Booking Berjaya!</h1>
-          <p className="text-gray-500 mb-4">Kod booking anda:</p>
-          <div className="bg-[#6366F1] text-white font-mono text-lg font-bold px-6 py-3 rounded-xl mb-6">
-            {bookingCode}
-          </div>
-          <p className="text-sm text-gray-500 mb-8">
-            Teman akan menyemak dan mengesahkan booking anda dalam masa 2 jam.
-            Anda akan mendapat notifikasi melalui email.
-          </p>
-          <div className="flex flex-col gap-3">
-            <Link href="/dashboard/customer"
-              className="w-full bg-[#6366F1] text-white font-semibold py-3 rounded-xl hover:bg-[#4F46E5] transition-colors">
-              Ke Dashboard Saya
-            </Link>
-            <Link href="/search"
-              className="w-full border-2 border-gray-200 text-gray-600 font-medium py-3 rounded-xl hover:bg-gray-50 transition-colors">
-              Cari Teman Lain
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
+    const { id: bookingId } = await bookingRes.json()
+
+    // Step 2: create Stripe checkout session
+    const payRes = await fetch('/api/payment/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId }),
+    })
+
+    if (!payRes.ok) {
+      const d = await payRes.json().catch(() => ({}))
+      setError(d.message ?? 'Gagal cipta sesi pembayaran. Cuba lagi.')
+      setLoading(false)
+      return
+    }
+
+    const { billUrl } = await payRes.json()
+
+    // Step 3: redirect to Stripe
+    window.location.href = billUrl
   }
 
   return (
@@ -111,19 +105,53 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
         </div>
       </nav>
 
+      {scopeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setScopeModal(null)}>
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="font-bold text-gray-900">{SERVICE_TYPES.find(s => s.id === scopeModal)?.label}</h3>
+              <button onClick={() => setScopeModal(null)} className="p-1 text-gray-400 hover:text-gray-600 rounded-lg">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-sm text-gray-500 mb-4">{SERVICE_SCOPE[scopeModal]?.desc}</p>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Skop termasuk:</p>
+            <ul className="space-y-2 mb-5">
+              {SERVICE_SCOPE[scopeModal]?.items.map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                  <span className="text-[#6366F1] font-bold mt-0.5 flex-shrink-0">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <button onClick={() => setScopeModal(null)}
+              className="w-full py-2.5 bg-[#6366F1] text-white rounded-xl font-medium text-sm hover:bg-[#4F46E5] transition-colors">
+              Faham, tutup
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
           {step === 0 && (
             <div className="space-y-5">
               <h2 className="text-xl font-bold text-gray-900">Pilih Perkhidmatan</h2>
               <div className="space-y-2">
-                {SERVICE_OPTIONS.map((opt) => (
-                  <button key={opt.id} type="button" onClick={() => setServiceType(opt.id)}
-                    className={`w-full text-left px-4 py-3 rounded-xl border-2 font-medium transition-all ${
-                      serviceType === opt.id ? 'border-[#6366F1] bg-[#EEF2FF] text-[#6366F1]' : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                    }`}>
-                    {opt.label}
-                  </button>
+                {SERVICE_TYPES.map((opt) => (
+                  <div key={opt.id} className="flex items-center gap-2">
+                    <button type="button" onClick={() => setServiceType(opt.id)}
+                      className={`flex-1 text-left px-4 py-3 rounded-xl border-2 font-medium transition-all ${
+                        serviceType === opt.id ? 'border-[#6366F1] bg-[#EEF2FF] text-[#6366F1]' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}>
+                      {opt.label}
+                    </button>
+                    <button type="button" onClick={() => setScopeModal(opt.id)}
+                      title="Lihat skop perkhidmatan"
+                      className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-[#6366F1] hover:border-[#6366F1] transition-colors flex-shrink-0">
+                      <HelpCircle className="w-4 h-4" />
+                    </button>
+                  </div>
                 ))}
               </div>
 
@@ -184,7 +212,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
               <h2 className="text-xl font-bold text-gray-900">Semak Booking</h2>
 
               <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-                <Row label="Perkhidmatan" value={SERVICE_OPTIONS.find((o) => o.id === serviceType)?.label ?? serviceType} />
+                <Row label="Perkhidmatan" value={SERVICE_TYPES.find((o) => o.id === serviceType)?.label ?? serviceType} />
                 <Row label="Tarikh" value={new Date(date).toLocaleDateString('ms-MY')} />
                 <Row label="Masa" value={`${startTime} (${duration} jam)`} />
                 <Row label="Alamat" value={address} />
@@ -210,11 +238,18 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                 Bayaran akan ditahan dalam escrow dan dilepaskan kepada Teman hanya selepas sesi selesai.
               </div>
 
+              {error && (
+                <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  {error}
+                </div>
+              )}
+
               <button type="button" onClick={handleBook}
                 disabled={loading}
                 className="w-full bg-[#6366F1] text-white font-semibold py-3 rounded-xl hover:bg-[#4F46E5] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
-                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Bayar & Hantar Booking
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {loading ? 'Menuju ke pembayaran...' : 'Teruskan ke Pembayaran'}
               </button>
 
               <p className="text-xs text-center text-gray-400">
