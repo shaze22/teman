@@ -83,6 +83,22 @@ Backup: https://teman-sigma.vercel.app
 - `NEXT_PUBLIC_APP_URL=https://seniocare.app`
 - Stripe webhook: `https://seniocare.app/api/payment/webhook` (ID: `we_1TacHVCCttq0bxpO5qZ4p2ua`)
 
+## User Roles (UserRole enum)
+| Role | Hala tuju | Daftar di |
+|---|---|---|
+| `single_mother` | `/dashboard/provider` | `/register/provider` |
+| `customer` | `/dashboard/customer` | `/register/customer` (is_for_self=true) |
+| `waris` | `/dashboard/customer` | `/register/customer` (is_for_self=false) |
+| `ngo_admin` | `/dashboard/ngo` | `/register/ngo` |
+| `care_center` | `/dashboard/care-center` | `/register/care-center` |
+| `super_admin` | `/admin` | — |
+
+## Pusat Penjagaan (care_center)
+- Table: `care_center_profiles` — center_name, center_type, address, pic_name, resident_capacity, is_verified
+- Booking: field `recipient_name` (nama penghuni), `booked_by_care_center`
+- Admin verify: `/admin/care-centers` → POST `/api/admin/care-centers/verify`
+- Status `pending` until admin verify → then `active`
+
 ## Known Issues
 - Privacy page (`/privacy`) ada extra content dari homepage bila navigate client-side — belum fix
 - FPX payments disabled — aktif semula bila Stripe account Malaysia verified
