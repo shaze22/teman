@@ -85,5 +85,8 @@ Backup: https://teman-sigma.vercel.app
 
 ## Known Issues
 - Privacy page (`/privacy`) ada extra content dari homepage bila navigate client-side — belum fix
-- GitHub repo belum push (local only, deploy via Vercel CLI)
 - FPX payments disabled — aktif semula bila Stripe account Malaysia verified
+
+## Git
+- Repo: https://github.com/syedshazni/teman
+- Push: `git push origin master`
