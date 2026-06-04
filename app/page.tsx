@@ -15,9 +15,9 @@ export default async function LandingPage() {
   const t = translations[lang]
 
   const stats = [
-    { value: '500+', label: t.stats.providers },
-    { value: '1,200+', label: t.stats.customers },
-    { value: '10+', label: t.stats.ngos },
+    { value: '50+', label: t.stats.providers },
+    { value: '200+', label: t.stats.customers },
+    { value: '8', label: t.stats.ngos },
     { value: '4.8★', label: t.stats.rating },
   ]
 
@@ -96,7 +96,7 @@ export default async function LandingPage() {
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto mb-10 leading-relaxed">
             {t.hero.subtitle}
           </p>
 
@@ -105,10 +105,17 @@ export default async function LandingPage() {
               className="inline-flex items-center justify-center gap-2 bg-[#6366F1] text-white font-semibold px-10 py-4 rounded-full hover:bg-[#4F46E5] transition-all shadow-xl shadow-indigo-500/30 text-base">
               {t.hero.cta} <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href="/register?role=provider"
-              className="text-white/50 text-sm hover:text-white/80 transition-colors underline underline-offset-4">
-              {t.hero.ctaSub}
-            </Link>
+            <div className="flex items-center gap-4 text-sm">
+              <Link href="/register/companion"
+                className="text-white/60 hover:text-white/90 transition-colors underline underline-offset-4">
+                {t.hero.ctaSub}
+              </Link>
+              <span className="text-white/20">·</span>
+              <Link href="/login"
+                className="text-white/60 hover:text-white/90 transition-colors">
+                {lang === 'en' ? 'Log In' : 'Log Masuk'} →
+              </Link>
+            </div>
           </div>
 
           {/* Floating preview cards */}
@@ -166,39 +173,50 @@ export default async function LandingPage() {
             </h2>
             <p className="text-gray-500 max-w-lg mx-auto">{t.services.subheading}</p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {SERVICE_TYPES.filter(s => s.id !== 'medical_care').map((s) => {
-              if (s.active) {
-                const serviceKey = s.id as keyof typeof t.services
-                const serviceData = typeof t.services[serviceKey] === 'object' ? t.services[serviceKey] as { title: string; desc: string } : null
-                return (
-                  <Link key={s.id} href={`/search?type=${s.id}`}
-                    className="group bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-2 border-[#6366F1]/30 hover:border-[#6366F1]">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-[#EEF2FF] text-[#6366F1]">
-                      <ChefHat className="w-5 h-5" />
-                    </div>
-                    <h3 className="font-bold text-[#0F0E17] text-sm mb-1">{s.label}</h3>
-                    {serviceData && <p className="text-xs text-gray-500 leading-relaxed mb-3">{serviceData.desc}</p>}
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#6366F1] group-hover:gap-2 transition-all">
-                      {lang === 'en' ? 'Book now' : 'Book sekarang'} <ArrowRight className="w-3 h-3" />
-                    </span>
-                  </Link>
-                )
-              }
-              return (
-                <div key={s.id} className="relative bg-white rounded-2xl p-5 border border-gray-100 opacity-60">
-                  <div className="absolute top-3 right-3">
-                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
-                      <Clock className="w-2.5 h-2.5" /> {comingSoonLabel}
-                    </span>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-gray-100 text-gray-400">
-                    <HandHeart className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-bold text-gray-400 text-sm">{s.label}</h3>
+          {/* Featured active service — Teman Makan */}
+          <Link href="/search?type=food"
+            className="group block bg-gradient-to-br from-[#EEF2FF] to-[#E0E7FF] rounded-3xl p-7 border-2 border-[#6366F1]/40 hover:border-[#6366F1] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-5">
+                <div className="w-16 h-16 rounded-2xl bg-[#6366F1] flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-200">
+                  <ChefHat className="w-8 h-8 text-white" />
                 </div>
-              )
-            })}
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-xl font-bold text-[#0F0E17]">Teman Makan</h3>
+                    <span className="text-xs bg-emerald-500 text-white px-2.5 py-1 rounded-full font-semibold">
+                      {lang === 'en' ? '✓ Available Now' : '✓ Aktif Sekarang'}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed max-w-lg">
+                    {lang === 'en'
+                      ? 'Home cooking, dining companion, grocery shopping. A warm meal shared is a moment cherished.'
+                      : 'Masak di rumah, teman waktu makan, teman ke pasar. Makanan bersama lebih bermakna.'}
+                  </p>
+                </div>
+              </div>
+              <span className="inline-flex items-center gap-2 bg-[#6366F1] text-white font-semibold px-6 py-3 rounded-full group-hover:bg-[#4F46E5] transition-colors text-sm flex-shrink-0 shadow-md shadow-indigo-200">
+                {lang === 'en' ? 'Find Now' : 'Cari Sekarang'} <ArrowRight className="w-4 h-4" />
+              </span>
+            </div>
+          </Link>
+
+          {/* Coming soon services */}
+          <p className="text-xs text-gray-400 font-medium uppercase tracking-widest mb-3">
+            {lang === 'en' ? 'Coming Soon' : 'Akan Datang'}
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {SERVICE_TYPES.filter(s => s.id !== 'medical_care' && !s.active).map((s) => (
+              <div key={s.id} className="bg-white rounded-2xl p-4 border border-gray-100 opacity-50 select-none">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3 bg-gray-100 text-gray-400">
+                  <HandHeart className="w-4 h-4" />
+                </div>
+                <h3 className="font-semibold text-gray-400 text-xs mb-1">{s.label}</h3>
+                <span className="text-xs text-gray-300 flex items-center gap-1">
+                  <Clock className="w-2.5 h-2.5" /> {comingSoonLabel}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -298,11 +316,13 @@ export default async function LandingPage() {
                 <div className="w-12 h-12 rounded-2xl bg-[#6366F1] flex items-center justify-center mb-5">
                   <Users className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-[#0F0E17] mb-2">{t.nav.search}</h3>
+                <h3 className="text-xl font-bold text-[#0F0E17] mb-2">
+                  {lang === 'en' ? 'Find a Meal Companion' : 'Cari Teman Makan'}
+                </h3>
                 <p className="text-gray-600 mb-5 text-sm leading-relaxed">
                   {lang === 'en'
-                    ? 'Verified profiles, affordable rates, trusted caregivers for your loved ones.'
-                    : 'Profil terverifikasi, harga berpatutan, penjaga dipercayai untuk orang tersayang anda.'}
+                    ? 'Verified companions who cook, dine with, and bring warmth to your loved one.'
+                    : 'Rakan Teman terverifikasi yang masak, teman makan, dan bawa semangat untuk warga emas anda.'}
                 </p>
                 <div className="space-y-2 mb-7">
                   {ctaCustomerFeatures.map(f => (

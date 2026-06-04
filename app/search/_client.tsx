@@ -82,14 +82,7 @@ export default function SearchPageClient() {
 
   const SERVICE_TYPES = [
     { id: 'all', label: lang === 'en' ? 'All' : 'Semua' },
-    { id: 'job', label: t.services.job.title },
-    { id: 'food', label: t.services.food.title },
-    { id: 'learning', label: t.services.learning.title },
-    { id: 'business', label: t.services.business.title },
-    { id: 'ibadah', label: lang === 'en' ? 'Worship Companion' : 'Teman Ibadah' },
-    { id: 'repair', label: lang === 'en' ? 'Repair Companion' : 'Teman Repair' },
-    { id: 'riadah', label: lang === 'en' ? 'Wellness Companion' : 'Teman Riadah' },
-    { id: 'kombo', label: lang === 'en' ? 'Combo Companion' : 'Teman Kombo' },
+    { id: 'food', label: lang === 'en' ? 'Meal Companion' : 'Teman Makan' },
   ]
 
   const LANGUAGES = [
@@ -537,6 +530,8 @@ function ProviderCard({ provider: p }: { provider: Provider }) {
   const { lang, t } = useLang()
   const price = p.pricing[0]
   const initials = p.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+  const avatarColors = ['bg-[#6366F1]','bg-[#F43F5E]','bg-emerald-500','bg-amber-500','bg-purple-500','bg-cyan-500','bg-pink-500','bg-teal-500']
+  const avatarBg = avatarColors[p.fullName.charCodeAt(0) % avatarColors.length]
 
   return (
     <Link href={`/carer/${p.id}`} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 group overflow-hidden">
@@ -545,7 +540,7 @@ function ProviderCard({ provider: p }: { provider: Provider }) {
           {p.avatarUrl ? (
             <Image src={p.avatarUrl} alt={p.fullName} width={56} height={56} className="w-14 h-14 rounded-full object-cover flex-shrink-0" />
           ) : (
-            <div className="w-14 h-14 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
+            <div className={`w-14 h-14 rounded-full ${avatarBg} text-white flex items-center justify-center text-lg font-bold flex-shrink-0`}>
               {initials}
             </div>
           )}
@@ -596,12 +591,9 @@ function ProviderCard({ provider: p }: { provider: Provider }) {
 
         {price && (
           <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-            <div className="flex items-center gap-1 text-xs text-gray-400">
-              <Clock className="w-3.5 h-3.5" />
-              <span>{lang === 'en' ? 'hourly rate' : 'kadar sejam'}</span>
-            </div>
-            <span className="font-bold text-[#6366F1] text-lg">
-              RM{parseFloat(price.price).toFixed(0)}<span className="text-sm font-normal text-gray-400"> / jam</span>
+            <span className="text-xs text-gray-400">{lang === 'en' ? 'per hour' : 'sejam'}</span>
+            <span className="font-bold text-[#6366F1] text-xl">
+              RM{parseFloat(price.price).toFixed(0)}
             </span>
           </div>
         )}

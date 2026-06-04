@@ -43,7 +43,7 @@ function GoogleButton({ label }: { label: string }) {
   }
   return (
     <button onClick={handleGoogle} disabled={loading}
-      className="w-full flex items-center justify-center gap-3 border border-gray-200 bg-white text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-60 text-sm">
+      className="w-full flex items-center justify-center gap-3 border-2 border-gray-200 bg-white text-gray-800 font-semibold py-3.5 rounded-xl hover:border-gray-300 hover:shadow-md transition-all disabled:opacity-60 text-sm shadow-sm">
       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -173,13 +173,15 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center px-4 py-12">
+      <div className="absolute top-4 right-4">
+        <LangToggle />
+      </div>
       <div className="w-full max-w-sm">
-        <div className="flex items-center justify-center gap-3 mb-8">
+        <div className="flex items-center justify-center mb-8">
           <Link href="/" className="flex items-center gap-2">
             <Heart className="w-8 h-8 text-[#6366F1]" fill="currentColor" />
             <span className="text-2xl font-bold text-[#6366F1]">SenioCare</span>
           </Link>
-          <LangToggle />
         </div>
         <LoginForm />
       </div>
