@@ -154,12 +154,19 @@ Backup: https://teman-sigma.vercel.app
 - Redirect URI: `https://vhervzbbptbqhmebfspq.supabase.co/auth/v1/callback`
 - **Note:** Credentials perlu di-rotate (terdedah dalam chat) — buat di Google Cloud Console bila ada masa
 
-## Known Issues
-- Privacy page (`/privacy`) ada extra content dari homepage bila navigate client-side — belum fix
-- FPX payments disabled — aktif semula bila Stripe account Malaysia verified
-- Stripe masih test mode — belum production keys
-- RLS disabled pada 22 tables Supabase — perlu enable sebelum launch penuh
+## UI/UX Round 6 (2026-06-05)
+- Search: tabs Semua + Teman Makan sahaja; price RM lebih besar; avatar warna pelbagai via name hash
+- Landing: Teman Makan featured full-width card + emerald badge; hero subtitle contrast; stats jujur (50+/200+/8)
+- Landing: dual CTA 'Cari Teman Makan' vs 'Jadi Rakan Teman'; Log Masuk link dalam hero
+- Login: Google button prominent (border-2, shadow-sm); LangToggle pindah ke top-right corner
+- Register: NGO/CareCenter collapsed under toggle; hanya Customer + Rakan Teman by default
 
+## Known Issues
+- Google OAuth credentials perlu di-rotate (terdedah dalam chat)
+- Privacy page extra content dari homepage bila navigate client-side
+- FPX payments disabled
+- Stripe masih test mode
+- RLS disabled pada 22 tables Supabase
 ## Git
 - Repo: https://github.com/syedshazni/teman
 - Push: `git push origin master`
