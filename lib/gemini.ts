@@ -97,3 +97,36 @@ Tulis ringkasan 2-3 ayat dalam Bahasa Malaysia yang menonjolkan kekuatan utama d
 
   return geminiGenerate(prompt);
 }
+
+export interface SelfieVerifyResult {
+  faceMatch: boolean
+  confidence: 'high' | 'medium' | 'low'
+  icAuthentic: boolean
+  isAdult: boolean
+  issues: string[]
+}
+
+export async function compareFaceWithIC(
+  icBase64: string, icMimeType: string,
+  selfieBase64: string, selfieMimeType: string,
+): Promise<SelfieVerifyResult> {
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+  const icPart: Part = { inlineData: { data: icBase64, mimeType: icMimeType } }
+  const selfiePart: Part = { inlineData: { data: selfieBase64, mimeType: selfieMimeType } }
+  const prompt = `Kau adalah sistem verifikasi identiti. Gambar pertama ialah MyKad/IC Malaysia. Gambar kedua ialah selfie pengguna.
+
+Analisa dan balas JSON sahaja:
+{
+  "faceMatch": <true jika muka dalam selfie adalah orang yang sama dalam IC>,
+  "confidence": <"high"|"medium"|"low">,
+  "icAuthentic": <true jika IC nampak sah, bukan gambar skrin atau palsu>,
+  "isAdult": <true jika orang nampak berumur 18 tahun ke atas>,
+  "issues": ["senarai masalah jika ada"]
+}`
+
+  const result = await model.generateContent([icPart, selfiePart, prompt])
+  const text = result.response.text()
+  const match = text.match(/\{[\s\S]*\}/)
+  if (!match) throw new Error('Invalid Gemini response')
+  return JSON.parse(match[0]) as SelfieVerifyResult
+}
