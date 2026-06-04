@@ -175,7 +175,7 @@ export default async function ProviderEarningsPage() {
           </h2>
           {(walletTx ?? []).length === 0 ? (
             <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
-              <div className="text-4xl mb-3">ðŸ'°</div>
+              <div className="text-4xl mb-3">💰</div>
               <h3 className="font-semibold text-gray-900 mb-1">{ep.noEarnings}</h3>
               <p className="text-sm text-gray-500">{ep.noEarningsDesc}</p>
             </div>

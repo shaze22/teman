@@ -241,7 +241,7 @@ export const translations = {
       creditBalance: 'Baki Kredit',
       shareReferral: 'Kongsi Kod Rujukan',
       customerNav: '· Pelanggan',
-      providerNav: '· Provider',
+      providerNav: '· Pengasuh',
       greetSelf: 'Hai',
       greetGuardian: 'Pantau',
       subtitleCustomer: 'Dashboard Pelanggan',

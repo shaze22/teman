@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
+import { useLang } from '@/lib/lang-context'
 import Link from 'next/link'
 import { Star, Loader2, MapPin, Navigation } from 'lucide-react'
 import 'leaflet/dist/leaflet.css'
@@ -41,6 +42,7 @@ function makeIcon(color = '#6366F1') {
 }
 
 export default function MapView() {
+  const { lang } = useLang()
   const mapRef = useRef<L.Map | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [providers, setProviders] = useState<Provider[]>([])
@@ -141,7 +143,7 @@ export default function MapView() {
       {!loading && (
         <div className="absolute top-4 left-4 z-10 bg-white border border-gray-200 shadow-sm px-3 py-1.5 rounded-full text-xs font-medium text-gray-600">
           <MapPin className="w-3.5 h-3.5 inline mr-1 text-[#6366F1]" />
-          {providers.length} Teman di peta
+          {providers.length} {lang === 'en' ? 'Caregivers on map' : 'Pengasuh di peta'}
         </div>
       )}
 

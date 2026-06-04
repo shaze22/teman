@@ -77,7 +77,7 @@ export default async function ProviderBookingsPage() {
       <div className="max-w-3xl mx-auto px-4 py-6">
         {bookings.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-            <div className="text-5xl mb-4">ðŸ"‹</div>
+            <div className="text-5xl mb-4">📋</div>
             <h3 className="font-semibold text-gray-900 mb-2">{dc.noBookings}</h3>
             <p className="text-sm text-gray-500">{dc.bookingsFromCustomer}</p>
           </div>

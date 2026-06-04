@@ -252,7 +252,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
           const contactName = isCustomer ? provider.full_name : customer.full_name
           const waPhone = formatWAPhone(contactPhone)
           const waMsg = encodeURIComponent(
-            `Hai ${contactName.split(' ')[0]}! Saya menghubungi berkenaan booking Teman #${b.booking_code} pada ${new Date(b.scheduled_date).toLocaleDateString(dateLocale)}. 😊`
+            `Hai ${contactName.split(' ')[0]}! Saya menghubungi berkenaan booking SenioCare #${b.booking_code} pada ${new Date(b.scheduled_date).toLocaleDateString(dateLocale)}. 😊`
           )
           return (
             <div className="bg-[#6366F1]/10 border border-[#6366F1]/30 rounded-2xl p-5">
