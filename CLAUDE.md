@@ -99,6 +99,15 @@ Backup: https://teman-sigma.vercel.app
 - Admin verify: `/admin/care-centers` → POST `/api/admin/care-centers/verify`
 - Status `pending` until admin verify → then `active`
 
+## Locum Professional (single_mother_profiles)
+- Fields: `is_locum`, `locum_cert_type`, `locum_cert_url`, `locum_verified`, `locum_verified_at`
+- Provider upload sijil: `/dashboard/provider/profile` → section Locum
+- API upload: `POST /api/profile/provider/locum-cert` → `{ certType, file }`
+- API verify: `POST /api/admin/providers/verify-locum` → `{ profileId, action: 'approve'|'reject' }`
+- Search filter: `?locum=1` → hanya locum_verified providers
+- Service type `medical_care` hanya visible dalam booking form jika provider is_locum + locum_verified
+- Badge `🩺 Locum ✓` dalam search cards + `/carer/[id]` profile page
+
 ## Branding Rules
 - Guna **"Pengasuh"** untuk peranan provider dalam semua UI text (bukan "Teman")
 - "Teman" (BM word) hanya boleh appear dalam nama servis: "Teman Kerja", "Teman Makan" dll
