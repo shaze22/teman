@@ -198,6 +198,8 @@ export const translations = {
       loggedOut: '✓ Anda telah berjaya log keluar.',
       linkExpired: 'Pautan telah tamat tempoh.',
       requestAgain: 'Minta semula',
+      googleLogin: 'Log Masuk dengan Google',
+      googleRegister: 'Daftar dengan Google',
     },
     register: {
       title: 'Daftar Akaun Baru',
@@ -906,6 +908,8 @@ export const translations = {
       loggedOut: '✓ You have successfully logged out.',
       linkExpired: 'Link has expired.',
       requestAgain: 'Request again',
+      googleLogin: 'Continue with Google',
+      googleRegister: 'Register with Google',
     },
     register: {
       title: 'Create New Account',
