@@ -16,7 +16,7 @@ export default async function LandingPage() {
   const stats = [
     { value: '500+', label: t.stats.providers },
     { value: '1,200+', label: t.stats.customers },
-    { value: '10', label: t.stats.ngos },
+    { value: '10+', label: t.stats.ngos },
     { value: '4.8★', label: t.stats.rating },
   ]
 
@@ -112,13 +112,13 @@ export default async function LandingPage() {
             {t.hero.subtitle}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+          <div className="flex flex-col items-center gap-4 justify-center mb-16">
             <Link href="/search"
-              className="inline-flex items-center justify-center gap-2 bg-[#6366F1] text-white font-semibold px-8 py-4 rounded-full hover:bg-[#4F46E5] transition-all shadow-xl shadow-indigo-500/30 text-base">
+              className="inline-flex items-center justify-center gap-2 bg-[#6366F1] text-white font-semibold px-10 py-4 rounded-full hover:bg-[#4F46E5] transition-all shadow-xl shadow-indigo-500/30 text-base">
               {t.hero.cta} <ArrowRight className="w-4 h-4" />
             </Link>
             <Link href="/register?role=provider"
-              className="inline-flex items-center justify-center gap-2 bg-white/8 backdrop-blur-sm text-white font-semibold px-8 py-4 rounded-full hover:bg-white/15 transition-all border border-white/15 text-base">
+              className="text-white/50 text-sm hover:text-white/80 transition-colors underline underline-offset-4">
               {t.hero.ctaSub}
             </Link>
           </div>

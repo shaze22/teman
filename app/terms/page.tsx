@@ -89,7 +89,7 @@ export default function TermsPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-[#0F0E17]">10. Hubungi Kami</h2>
-            <p>Untuk sebarang pertanyaan: <a href="mailto:support@teman.my" className="text-[#6366F1] hover:underline">support@teman.my</a></p>
+            <p>Untuk sebarang pertanyaan: <a href="mailto:support@seniocare.app" className="text-[#6366F1] hover:underline">support@seniocare.app</a></p>
           </section>
         </div>
 
