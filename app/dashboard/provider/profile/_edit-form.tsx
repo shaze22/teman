@@ -48,6 +48,10 @@ interface Props {
     icSubmittedAt?: string | null
     icVerified?: boolean
     icRejectedReason?: string | null
+    isLocum?: boolean
+    locumCertType?: string | null
+    locumCertUrl?: string | null
+    locumVerified?: boolean
     gallery?: { id: string; image_url: string; title: string | null }[]
   }
 }
@@ -80,6 +84,12 @@ export default function ProviderEditForm({ initial }: Props) {
   const [icBack, setIcBack] = useState<File | null>(null)
   const [icLoading, setIcLoading] = useState(false)
   const [icMsg, setIcMsg] = useState<string | null>(null)
+
+  const [locumCertType, setLocumCertType] = useState(initial.locumCertType ?? '')
+  const [locumFile, setLocumFile] = useState<File | null>(null)
+  const [locumLoading, setLocumLoading] = useState(false)
+  const [locumMsg, setLocumMsg] = useState<string | null>(null)
+  const [locumVerified, setLocumVerified] = useState(initial.locumVerified ?? false)
 
   const [gallery, setGallery] = useState(initial.gallery ?? [])
   const [galleryLoading, setGalleryLoading] = useState(false)
@@ -130,6 +140,21 @@ export default function ProviderEditForm({ initial }: Props) {
     const data = await res.json()
     setIcMsg(res.ok ? pf.icSuccess : data.message)
     setIcLoading(false)
+    if (res.ok) router.refresh()
+  }
+
+  async function submitLocumCert(e: React.FormEvent) {
+    e.preventDefault()
+    if (!locumFile || !locumCertType) { setLocumMsg('Sila pilih jenis sijil dan muat naik fail'); return }
+    setLocumLoading(true)
+    setLocumMsg(null)
+    const fd = new FormData()
+    fd.append('certType', locumCertType)
+    fd.append('file', locumFile)
+    const res = await fetch('/api/profile/provider/locum-cert', { method: 'POST', body: fd })
+    const data = await res.json()
+    setLocumMsg(res.ok ? 'Sijil berjaya dimuat naik. Menunggu pengesahan admin.' : data.message)
+    setLocumLoading(false)
     if (res.ok) router.refresh()
   }
 
@@ -376,6 +401,49 @@ export default function ProviderEditForm({ initial }: Props) {
         )}
         {initial.icVerified && (
           <p className="text-sm text-emerald-600">{pf.icVerifiedNote}</p>
+        )}
+      </div>
+
+      {/* Locum Cert */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">🩺</span>
+          <h2 className="font-semibold text-gray-900">Perkhidmatan Locum Profesional</h2>
+          {locumVerified && <span className="text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full font-medium">Locum ✓ Disahkan</span>}
+          {initial.isLocum && !locumVerified && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Menunggu pengesahan</span>}
+        </div>
+        <p className="text-sm text-gray-500">Jika anda berkelayakan (jururawat, paramedik, pengasuh bertauliah), muat naik sijil untuk dapatkan badge <strong>Locum ✓</strong> dan tawarkan Penjagaan Perubatan.</p>
+
+        {!locumVerified && (
+          <form onSubmit={submitLocumCert} className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Jenis Sijil / Kelayakan</label>
+              <select value={locumCertType} onChange={e => setLocumCertType(e.target.value)} required
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white">
+                <option value="">-- Pilih jenis --</option>
+                <option value="nurse">Sijil / Diploma Jururawat</option>
+                <option value="paramedic">Sijil Paramedik</option>
+                <option value="caregiver_cert">Sijil Pengasuh (CIAST / HRDF)</option>
+                <option value="medical_assistant">Pembantu Perubatan (MA)</option>
+                <option value="physiotherapy">Fisioterapi</option>
+                <option value="other">Lain-lain kelayakan berkaitan</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Muat Naik Sijil (PDF / Gambar)</label>
+              <input type="file" accept="image/*,.pdf" onChange={e => setLocumFile(e.target.files?.[0] ?? null)}
+                className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 transition-all" required />
+            </div>
+            {locumMsg && <p className={`text-sm rounded-lg px-3 py-2 ${locumMsg.includes('berjaya') ? 'bg-teal-50 text-teal-700' : 'bg-red-50 text-red-600'}`}>{locumMsg}</p>}
+            <button type="submit" disabled={locumLoading}
+              className="flex items-center gap-2 px-4 py-2.5 bg-teal-600 text-white text-sm font-semibold rounded-xl hover:bg-teal-700 disabled:opacity-50 transition-colors">
+              {locumLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>🩺</span>}
+              Hantar untuk Pengesahan
+            </button>
+          </form>
+        )}
+        {locumVerified && (
+          <p className="text-sm text-teal-600">Sijil anda telah disahkan. Anda kini boleh menawarkan perkhidmatan Penjagaan Perubatan.</p>
         )}
       </div>
 

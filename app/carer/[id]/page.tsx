@@ -49,6 +49,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
     .select(`
       id, user_id, bio, location_city, location_state, rating_avg, total_reviews, total_bookings,
       verified_by_ngo, verified_by_admin, ic_verified, ngo_id,
+      is_locum, locum_verified, locum_cert_type,
       users!inner(full_name, avatar_url, created_at),
       provider_skills(*),
       provider_pricing(*),
@@ -146,6 +147,11 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                     {(raw as any).ic_verified && (
                       <span className="flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
                         <CheckCircle className="w-3 h-3" /> IC Verified
+                      </span>
+                    )}
+                    {(raw as any).is_locum && (raw as any).locum_verified && (
+                      <span className="flex items-center gap-1 text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded-full font-medium">
+                        🩺 Locum Profesional
                       </span>
                     )}
                     {ngoName && (

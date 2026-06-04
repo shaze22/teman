@@ -23,6 +23,7 @@ export default async function ProviderProfilePage() {
       languages, has_transport, children_count, can_bring_children,
       bangsa, age_range,
       ic_number, ic_submitted_at, ic_verified, ic_rejected_reason,
+      is_locum, locum_cert_type, locum_cert_url, locum_verified,
       users!inner(full_name, phone),
       provider_skills(skill_name),
       provider_pricing(price, service_type),
@@ -61,6 +62,10 @@ export default async function ProviderProfilePage() {
     icSubmittedAt: (raw.ic_submitted_at as string | null) ?? null,
     icVerified: (raw.ic_verified as boolean) ?? false,
     icRejectedReason: (raw.ic_rejected_reason as string | null) ?? null,
+    isLocum: (raw.is_locum as boolean) ?? false,
+    locumCertType: (raw.locum_cert_type as string | null) ?? null,
+    locumCertUrl: (raw.locum_cert_url as string | null) ?? null,
+    locumVerified: (raw.locum_verified as boolean) ?? false,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     gallery: ((raw as any).provider_portfolios ?? []) as { id: string; image_url: string; title: string | null }[],
   }

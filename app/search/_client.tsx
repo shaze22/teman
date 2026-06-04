@@ -44,6 +44,9 @@ type Provider = {
   bio: string | null
   verifiedByNgo: boolean
   icVerified: boolean
+  isLocum: boolean
+  locumVerified: boolean
+  locumCertType: string | null
 }
 
 type Filters = {
@@ -56,6 +59,7 @@ type Filters = {
   bangsa: string
   ageRange: string
   verified: boolean
+  locum: boolean
 }
 
 const EMPTY_FILTERS: Filters = {
@@ -68,6 +72,7 @@ const EMPTY_FILTERS: Filters = {
   bangsa: '',
   ageRange: '',
   verified: false,
+  locum: false,
 }
 
 export default function SearchPageClient() {
@@ -104,7 +109,7 @@ export default function SearchPageClient() {
   const [pendingFilters, setPendingFilters] = useState<Filters>(EMPTY_FILTERS)
 
   const activeFilterCount = Object.entries(filters).filter(([k, v]) =>
-    k === 'verified' ? v === true : v !== ''
+    k === 'verified' || k === 'locum' ? v === true : v !== ''
   ).length
 
   const fetchProviders = useCallback(async () => {
@@ -121,6 +126,7 @@ export default function SearchPageClient() {
     if (filters.bangsa) params.set('bangsa', filters.bangsa)
     if (filters.ageRange) params.set('ageRange', filters.ageRange)
     if (filters.verified) params.set('verified', '1')
+    if (filters.locum) params.set('locum', '1')
     params.set('sort', sortBy)
 
     const res = await fetch(`/api/providers?${params}`)
@@ -265,6 +271,7 @@ export default function SearchPageClient() {
             {filters.bangsa && <FilterChip label={`👤 ${filters.bangsa}`} onRemove={() => setFilters(f => ({ ...f, bangsa: '' }))} />}
             {filters.ageRange && <FilterChip label={`🎂 ${filters.ageRange} ${lang === 'en' ? 'yrs' : 'thn'}`} onRemove={() => setFilters(f => ({ ...f, ageRange: '' }))} />}
             {filters.verified && <FilterChip label={lang === 'en' ? '✓ Verified only' : '✓ Verified sahaja'} onRemove={() => setFilters(f => ({ ...f, verified: false }))} />}
+            {filters.locum && <FilterChip label={lang === 'en' ? '🩺 Locum only' : '🩺 Locum sahaja'} onRemove={() => setFilters(f => ({ ...f, locum: false }))} />}
           </div>
         )}
 
@@ -454,6 +461,27 @@ export default function SearchPageClient() {
                   </div>
                 </button>
               </FilterSection>
+
+              {/* Locum */}
+              <FilterSection title={lang === 'en' ? 'Locum Professional' : 'Locum Profesional'}>
+                <button
+                  onClick={() => setPendingFilters(f => ({ ...f, locum: !f.locum }))}
+                  className={`w-full flex items-center justify-between py-3 px-4 rounded-xl border transition-colors ${pendingFilters.locum ? 'bg-emerald-50 border-emerald-500' : 'border-gray-200 hover:border-gray-300'}`}
+                >
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-base">🩺</span>
+                    <div>
+                      <span className={`block font-medium ${pendingFilters.locum ? 'text-emerald-700' : 'text-gray-700'}`}>
+                        {lang === 'en' ? 'Locum verified only' : 'Locum disahkan sahaja'}
+                      </span>
+                      <span className="text-xs text-gray-400">{lang === 'en' ? 'Nurse, paramedic, certified caregiver' : 'Jururawat, paramedik, pengasuh bertauliah'}</span>
+                    </div>
+                  </div>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${pendingFilters.locum ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300'}`}>
+                    {pendingFilters.locum && <div className="w-2 h-2 bg-white rounded-full" />}
+                  </div>
+                </button>
+              </FilterSection>
             </div>
 
             {/* Footer buttons */}
@@ -529,6 +557,9 @@ function ProviderCard({ provider: p }: { provider: Provider }) {
               )}
               {p.icVerified && (
                 <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">IC ✓</span>
+              )}
+              {p.isLocum && p.locumVerified && (
+                <span className="text-xs bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">🩺 Locum ✓</span>
               )}
             </div>
             <div className="flex items-center gap-1 text-sm text-gray-500 mt-0.5">

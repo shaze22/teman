@@ -30,6 +30,10 @@ type Provider = {
   icFrontUrl: string | null
   icBackUrl: string | null
   icRejectedReason: string | null
+  isLocum: boolean
+  locumCertType: string | null
+  locumCertUrl: string | null
+  locumVerified: boolean
 }
 
 export default function ProvidersListClient({ providers }: { providers: Provider[] }) {
@@ -178,9 +182,46 @@ function ProviderRow({
         {!p.icSubmittedAt && (
           <span className="text-xs text-gray-400 flex items-center gap-1"><ShieldAlert className="w-3 h-3" /> No IC</span>
         )}
+        {p.isLocum && !p.locumVerified && p.locumCertUrl && (
+          <LocumVerifyActions profileId={p.id} certType={p.locumCertType} certUrl={p.locumCertUrl} />
+        )}
+        {p.isLocum && p.locumVerified && (
+          <span className="text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded-full font-medium">🩺 Locum ✓</span>
+        )}
         <AssignNgoButton type="provider" profileId={p.id} currentNgoId={p.ngoId} />
         <ProviderActions profileId={p.id} userId={p.userId} verifiedByAdmin={p.verifiedByAdmin} isActive={p.isActive} bgCheck={p.bgCheck} />
       </div>
+    </div>
+  )
+}
+
+function LocumVerifyActions({ profileId, certType, certUrl }: { profileId: string; certType: string | null; certUrl: string }) {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+
+  async function act(action: 'approve' | 'reject') {
+    setLoading(true)
+    await fetch('/api/admin/providers/verify-locum', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profileId, action }),
+    })
+    router.refresh()
+    setLoading(false)
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      <a href={certUrl} target="_blank" rel="noreferrer"
+        className="text-xs text-teal-600 underline hover:text-teal-800">{certType ?? 'Sijil'}</a>
+      <button onClick={() => act('approve')} disabled={loading}
+        className="flex items-center gap-1 px-2 py-1 bg-teal-600 text-white text-xs font-medium rounded-lg hover:bg-teal-700 disabled:opacity-60">
+        {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />} Locum ✓
+      </button>
+      <button onClick={() => act('reject')} disabled={loading}
+        className="px-2 py-1 bg-red-100 text-red-600 text-xs font-medium rounded-lg hover:bg-red-200 disabled:opacity-60">
+        Tolak
+      </button>
     </div>
   )
 }

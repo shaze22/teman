@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
   const bangsa = searchParams.get('bangsa')
   const ageRange = searchParams.get('ageRange')
   const verified = searchParams.get('verified') === '1'
+  const locumOnly = searchParams.get('locum') === '1'
   const sort = searchParams.get('sort') ?? 'rating'
 
   const orderCol = sort === 'most_booked' ? 'total_bookings' : sort === 'newest' ? 'created_at' : 'rating_avg'
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
     .select(`
       id, location_city, location_state, rating_avg, total_reviews, bio,
       verified_by_ngo, ic_verified, languages, has_transport, bangsa, age_range,
+      is_locum, locum_verified, locum_cert_type,
       users!inner(full_name, avatar_url),
       provider_skills(skill_category),
       provider_pricing(price, pricing_type, service_type, is_active)
@@ -104,6 +106,10 @@ export async function GET(request: NextRequest) {
     providers = providers.filter((p) => p.verified_by_ngo || p.ic_verified)
   }
 
+  if (locumOnly) {
+    providers = providers.filter((p) => p.is_locum && p.locum_verified)
+  }
+
   if (sort === 'price_asc') {
     providers.sort((a, b) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -125,6 +131,9 @@ export async function GET(request: NextRequest) {
     bio: p.bio as string | null,
     verifiedByNgo: p.verified_by_ngo as boolean,
     icVerified: p.ic_verified as boolean,
+    isLocum: p.is_locum as boolean ?? false,
+    locumVerified: p.locum_verified as boolean ?? false,
+    locumCertType: p.locum_cert_type as string | null,
     bangsa: p.bangsa as string | null,
     ageRange: p.age_range as string | null,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

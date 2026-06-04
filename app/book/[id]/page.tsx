@@ -71,6 +71,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
   const [availLoaded, setAvailLoaded] = useState(false)
   const [creditBalance, setCreditBalance] = useState(0)
   const [useCredit, setUseCredit] = useState(false)
+  const [providerIsLocum, setProviderIsLocum] = useState(false)
   const [calMonth, setCalMonth] = useState(() => {
     const now = new Date()
     return new Date(now.getFullYear(), now.getMonth(), 1)
@@ -82,6 +83,13 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
       .then(d => { if (d?.price) setPricePerHour(parseFloat(d.price)) })
       .catch(() => {})
   }, [id, serviceType])
+
+  useEffect(() => {
+    fetch(`/api/providers/${id}/profile`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.is_locum && d?.locum_verified) setProviderIsLocum(true) })
+      .catch(() => {})
+  }, [id])
 
   useEffect(() => {
     fetch(`/api/providers/${id}/availability`)
@@ -266,7 +274,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
             <div className="space-y-5">
               <h2 className="text-xl font-bold text-gray-900">{t.bookingPage.step1}</h2>
               <div className="space-y-2">
-                {SERVICE_TYPES.map((opt) => (
+                {SERVICE_TYPES.filter(opt => opt.id !== 'medical_care' || providerIsLocum).map((opt) => (
                   <div key={opt.id} className="flex items-center gap-2">
                     <button type="button" onClick={() => setServiceType(opt.id)}
                       className={`flex-1 text-left px-4 py-3 rounded-xl border-2 font-medium transition-all ${

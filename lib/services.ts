@@ -7,6 +7,7 @@ export const SERVICE_TYPES = [
   { id: 'repair',   label: 'Teman Repair' },
   { id: 'riadah',   label: 'Teman Riadah' },
   { id: 'kombo',    label: 'Teman Kombo' },
+  { id: 'medical_care', label: 'Penjagaan Perubatan' },
 ]
 
 export const SERVICE_LABELS: Record<string, string> = Object.fromEntries(

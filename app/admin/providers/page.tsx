@@ -12,6 +12,7 @@ export default async function AdminProvidersPage() {
       location_city, location_state, rating_avg, total_reviews, total_bookings,
       is_active, created_at, ngo_id,
       ic_number, ic_submitted_at, ic_verified, ic_front_url, ic_back_url, ic_rejected_reason,
+      is_locum, locum_cert_type, locum_cert_url, locum_verified,
       users!inner(id, full_name, email, status)
     `)
     .order('created_at', { ascending: false })
@@ -39,6 +40,10 @@ export default async function AdminProvidersPage() {
     icFrontUrl: p.ic_front_url as string | null,
     icBackUrl: p.ic_back_url as string | null,
     icRejectedReason: p.ic_rejected_reason as string | null,
+    isLocum: p.is_locum as boolean ?? false,
+    locumCertType: p.locum_cert_type as string | null,
+    locumCertUrl: p.locum_cert_url as string | null,
+    locumVerified: p.locum_verified as boolean ?? false,
   }))
 
   const pending = providers.filter(p => !p.verifiedByAdmin)
