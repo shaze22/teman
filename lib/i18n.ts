@@ -113,6 +113,7 @@ export const translations = {
       teaching: 'Mengajar',
       companionship: 'Teman Berbual',
       shopping: 'Teman Membeli-belah',
+      other: 'Kemahiran Lain',
     },
     map: {
       title: 'Peta Pengasuh',
@@ -820,6 +821,7 @@ export const translations = {
       teaching: 'Teaching',
       companionship: 'Companionship',
       shopping: 'Shopping',
+      other: 'Other Skills',
     },
     map: {
       title: 'Companion Map',

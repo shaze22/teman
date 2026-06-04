@@ -34,6 +34,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
     job: bd.serviceJob, food: bd.serviceFood, learning: bd.serviceLearning,
     business: bd.serviceBusiness, ibadah: bd.serviceIbadah, repair: bd.serviceRepair,
     riadah: bd.serviceRiadah, kombo: bd.serviceKombo,
+    medical_care: lang === 'en' ? 'Medical Care' : 'Penjagaan Perubatan',
   }
 
   const PRICING_LABELS: Record<string, string> = lang === 'en'
@@ -196,20 +197,38 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
             </div>
 
             {/* Availability */}
-            {availabilities.filter((a) => a.is_available).length > 0 && (
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <h2 className="font-semibold text-gray-900 mb-3">{t.profilePage.availability}</h2>
-                <div className="space-y-2">
-                  {availabilities.filter((a) => a.is_available).map((a) => (
-                    <div key={a.id} className="flex items-center gap-3 text-sm">
-                      <Clock className="w-4 h-4 text-[#6366F1] flex-shrink-0" />
-                      <span className="font-medium text-gray-900 w-20">{dayNames[a.day_of_week]}</span>
-                      <span className="text-gray-500">{a.start_time} – {a.end_time}</span>
-                    </div>
-                  ))}
-                </div>
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center gap-2 mb-4">
+                <Clock className="w-4 h-4 text-[#6366F1]" />
+                <h2 className="font-semibold text-gray-900">{t.profilePage.availability}</h2>
               </div>
-            )}
+              {availabilities.filter((a) => a.is_available).length > 0 ? (
+                <div className="space-y-3">
+                  {/* Day chips */}
+                  <div className="flex flex-wrap gap-2">
+                    {[0,1,2,3,4,5,6].map(day => {
+                      const avail = availabilities.find(a => a.day_of_week === day && a.is_available)
+                      return (
+                        <span key={day} className={`text-xs px-3 py-1.5 rounded-full font-medium ${avail ? 'bg-[#EEF2FF] text-[#6366F1]' : 'bg-gray-100 text-gray-300'}`}>
+                          {dayNames[day]}
+                        </span>
+                      )
+                    })}
+                  </div>
+                  {/* Time details */}
+                  <div className="space-y-1.5">
+                    {availabilities.filter((a) => a.is_available).map((a) => (
+                      <div key={a.id} className="flex items-center gap-3 text-sm">
+                        <span className="font-medium text-gray-700 w-20">{dayNames[a.day_of_week]}</span>
+                        <span className="text-gray-400">{a.start_time.slice(0,5)} – {a.end_time.slice(0,5)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-400">{lang === 'en' ? 'Schedule not set — contact after booking to confirm.' : 'Jadual belum ditetapkan — hubungi selepas booking untuk sahkan masa.'}</p>
+              )}
+            </div>
 
             {/* Portfolio */}
             {portfolio.length > 0 && (
