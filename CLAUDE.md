@@ -147,7 +147,15 @@ Backup: https://teman-sigma.vercel.app
 - `lib/gemini.ts` → `compareFaceWithIC()` returns `SelfieVerifyResult { faceMatch, confidence, icAuthentic, isAdult, issues }`
 - Auto-approve jika: `faceMatch && icAuthentic && isAdult` (semua true)
 
+## Google OAuth
+- Login + customer register ada butang Google
+- Auth callback (`/auth/callback/route.ts`) auto-create `customer` + `customer_profiles` untuk new Google users
+- **Setup manual diperlukan:**
+  1. Google Cloud Console → OAuth 2.0 Client ID → redirect URI: `https://vhervzbbptbqhmebfspq.supabase.co/auth/v1/callback`
+  2. Supabase dashboard → Authentication → Providers → Google → paste Client ID + Secret
+
 ## Known Issues
+- **Google OAuth** — perlu enable Google provider dalam Supabase dashboard (manual, belum dibuat)
 - Privacy page (`/privacy`) ada extra content dari homepage bila navigate client-side — belum fix
 - FPX payments disabled — aktif semula bila Stripe account Malaysia verified
 - Stripe masih test mode — belum production keys
