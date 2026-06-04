@@ -111,14 +111,14 @@ Backup: https://teman-sigma.vercel.app
 ## GTM Pivot (2026-06-04)
 - **Servis aktif:** `food` (Teman Makan) sahaja — semua lain `active: false` → "Segera Hadir" di UI
 - **Companion role:** Terbuka kepada semua warganegara Malaysia 18+, bukan lagi single mother sahaja
-- **UI term:** "Rakan Teman" untuk provider/companion role (bukan "Pengasuh" lagi)
+- **UI term:** "Meal Companion" untuk provider/companion role dan nama servis aktif (bukan "Rakan Teman" atau "Teman Makan")
 - **Verification:** IC + selfie real-time (Fasa 2) — bukan NGO
 - **`/register/companion`** → redirect ke `/register/provider` sementara (Fasa 2 bina flow baru)
 - `lib/services.ts` ada `active` flag — hanya `food: true`
 
 ## Branding Rules
-- Guna **"Rakan Teman"** untuk peranan provider/companion dalam semua UI text
-- "Teman" (BM word) kekal dalam nama servis: "Teman Makan", "Teman Kerja" dll
+- Guna **"Meal Companion"** untuk peranan provider/companion dan nama servis aktif dalam semua UI text (BM dan EN)
+- "Rakan Teman" dan "Teman Makan" tidak digunakan lagi sebagai label branding
 - Map default: center KL (3.139, 101.687), zoom 11
 
 ## Skill Tags
