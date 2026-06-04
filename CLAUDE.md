@@ -122,9 +122,16 @@ Backup: https://teman-sigma.vercel.app
 - Booking form filter SERVICE_TYPES to only active ones for that provider
 - `medical_care` only shown if `is_locum && locum_verified`
 
+## Encoding Notes
+- PowerShell `Set-Content -Encoding utf8` adds BOM — jangan guna untuk edit files
+- Emoji corruption: bytes misread sebagai Windows-1252 — fix guna binary replacement Node.js
+- Corrupted emoji pattern: `ðŸ...` = UTF-8 bytes dibaca sebagai Latin-1 lalu di-encode semula
+
 ## Known Issues
 - Privacy page (`/privacy`) ada extra content dari homepage bila navigate client-side — belum fix
 - FPX payments disabled — aktif semula bila Stripe account Malaysia verified
+- Stripe masih test mode — belum production keys
+- RLS disabled pada 22 tables Supabase — perlu enable sebelum launch penuh
 
 ## Git
 - Repo: https://github.com/syedshazni/teman
