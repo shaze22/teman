@@ -209,6 +209,8 @@ export const translations = {
       customerSub: 'Ingin tempah pengasuh untuk orang tua / diri sendiri',
       ngoTitle: 'Saya Pengurus NGO / Persatuan',
       ngoSub: 'Daftarkan ahli ibu tunggal & urus verifikasi platform',
+      careCenterTitle: 'Saya Pengurus Pusat Penjagaan',
+      careCenterSub: 'Nursing home, pusat jagaan harian, atau pusat kebajikan',
     },
     status: {
       pending: 'Menunggu',
@@ -914,6 +916,8 @@ export const translations = {
       customerSub: 'Book a caregiver for my parent or myself',
       ngoTitle: 'I am an NGO / Association Manager',
       ngoSub: 'Register single mother members & manage verification',
+      careCenterTitle: 'I Manage a Care Centre',
+      careCenterSub: 'Nursing home, day care centre, or welfare centre',
     },
     status: {
       pending: 'Pending',

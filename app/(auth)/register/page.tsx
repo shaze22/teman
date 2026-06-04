@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
-import { Heart, HandHeart, Users, Building2, ArrowRight } from 'lucide-react'
+import { Heart, HandHeart, Users, Building2, ArrowRight, HousePlus } from 'lucide-react'
 import { useLang } from '@/lib/lang-context'
 import LangToggle from '@/app/_lang-toggle'
 
@@ -39,6 +39,15 @@ function RegisterContent() {
       color: 'border-blue-500 bg-blue-50',
       iconColor: 'text-blue-600 bg-blue-100',
       href: '/register/ngo',
+    },
+    {
+      id: 'care_center',
+      icon: HousePlus,
+      title: t.register.careCenterTitle,
+      subtitle: t.register.careCenterSub,
+      color: 'border-amber-500 bg-amber-50',
+      iconColor: 'text-amber-600 bg-amber-100',
+      href: '/register/care-center',
     },
   ]
 

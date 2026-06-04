@@ -15,6 +15,7 @@ const NAV = [
   { href: '/admin/promo', icon: Tag, label: 'Promo Codes' },
   { href: '/admin/sos', icon: AlertTriangle, label: 'SOS Events' },
   { href: '/admin/ngos', icon: Building2, label: 'NGO' },
+  { href: '/admin/care-centers', icon: Building2, label: 'Pusat Penjagaan' },
 ]
 
 export default function SidebarNav() {

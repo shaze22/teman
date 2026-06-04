@@ -56,6 +56,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
   const [duration, setDuration] = useState(2)
   const [address, setAddress] = useState('')
   const [requirements, setRequirements] = useState('')
+  const [recipientName, setRecipientName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pricePerHour, setPricePerHour] = useState(35)
@@ -173,6 +174,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
         durationHours: duration,
         locationAddress: address,
         requirements,
+        recipientName: recipientName || undefined,
         providerPrice,
         platformFee,
         totalAmount: total,
@@ -389,6 +391,18 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                 <textarea value={address} onChange={(e) => setAddress(e.target.value)}
                   rows={2} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] resize-none"
                   placeholder={t.bookingPage.addressPlaceholder} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Nama Penerima Perkhidmatan <span className="text-gray-400 font-normal text-xs">(Pilihan — untuk Pusat Penjagaan)</span>
+                </label>
+                <input
+                  value={recipientName}
+                  onChange={e => setRecipientName(e.target.value)}
+                  placeholder="Cth: Mak Cik Ramlah (Bilik 3)"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] text-sm"
+                />
               </div>
 
               <div>

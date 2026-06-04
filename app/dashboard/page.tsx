@@ -21,6 +21,7 @@ export default async function DashboardRedirect() {
     case 'customer':
     case 'waris': redirect('/dashboard/customer')
     case 'ngo_admin': redirect('/dashboard/ngo')
+    case 'care_center': redirect('/dashboard/care-center')
     case 'super_admin': redirect('/admin')
     default: redirect('/')
   }
