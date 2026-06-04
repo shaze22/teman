@@ -99,6 +99,11 @@ Backup: https://teman-sigma.vercel.app
 - Admin verify: `/admin/care-centers` → POST `/api/admin/care-centers/verify`
 - Status `pending` until admin verify → then `active`
 
+## Branding Rules
+- Guna **"Pengasuh"** untuk peranan provider dalam semua UI text (bukan "Teman")
+- "Teman" (BM word) hanya boleh appear dalam nama servis: "Teman Kerja", "Teman Makan" dll
+- Map default: center KL (3.139, 101.687), zoom 11
+
 ## Known Issues
 - Privacy page (`/privacy`) ada extra content dari homepage bila navigate client-side — belum fix
 - FPX payments disabled — aktif semula bila Stripe account Malaysia verified
