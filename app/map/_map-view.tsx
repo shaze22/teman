@@ -28,7 +28,7 @@ type Provider = {
   minPrice: number | null
 }
 
-const MY_CENTER: [number, number] = [3.8, 109.0]
+const MY_CENTER: [number, number] = [3.139, 101.687]
 
 function makeIcon(color = '#6366F1') {
   return L.divIcon({
@@ -61,7 +61,7 @@ export default function MapView() {
 
     const map = L.map(containerRef.current, {
       center: MY_CENTER,
-      zoom: 7,
+      zoom: 11,
       zoomControl: true,
     })
 

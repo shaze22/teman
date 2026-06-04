@@ -3,7 +3,7 @@ export type Lang = 'bm' | 'en'
 export const translations = {
   bm: {
     nav: {
-      search: 'Cari Teman',
+      search: 'Cari Pengasuh',
       about: 'Tentang Kami',
       login: 'Log Masuk',
       register: 'Daftar',
@@ -36,7 +36,7 @@ export const translations = {
       heading: 'Cara Ia Berfungsi',
       subheading: 'Proses mudah dalam 3 langkah',
       steps: [
-        { title: 'Cari Teman', desc: 'Tapis mengikut lokasi, kemahiran & harga. Baca profil dan ulasan sebenar.' },
+        { title: 'Cari Pengasuh', desc: 'Tapis mengikut lokasi, kemahiran & harga. Baca profil dan ulasan sebenar.' },
         { title: 'Book & Bayar', desc: 'Pilih tarikh, isi keperluan, bayar dengan selamat dalam platform.' },
         { title: 'Teman Hadir', desc: 'Check-in apabila sampai, hantar laporan harian. Orang tua gembira.' },
       ],
@@ -69,8 +69,8 @@ export const translations = {
     cta: {
       heading: 'Bersedia untuk Mula?',
       subheading: 'Sertai ribuan keluarga yang telah mempercayai SenioCare untuk menjaga orang tersayang mereka.',
-      findTeman: 'Cari Teman Sekarang',
-      becomeTeman: 'Saya Ingin Jadi Teman',
+      findTeman: 'Cari Pengasuh Sekarang',
+      becomeTeman: 'Saya Ingin Jadi Pengasuh',
     },
     search: {
       placeholder: 'Cari nama, bandar, atau kemahiran...',
@@ -79,8 +79,8 @@ export const translations = {
       sortPrice: 'Harga Terendah',
       sortNewest: 'Paling Baru',
       sortBooked: 'Paling Ramai Dipesan',
-      found: 'Teman ditemui',
-      notFound: 'Tiada Teman Dijumpai',
+      found: 'Pengasuh ditemui',
+      notFound: 'Tiada Pengasuh Dijumpai',
       notFoundDesc: 'Cuba ubah filter atau kawasan carian anda.',
       resetFilter: 'Set Semula Filter',
       map: 'Peta',
@@ -115,7 +115,7 @@ export const translations = {
       shopping: 'Teman Membeli-belah',
     },
     map: {
-      title: 'Peta Teman',
+      title: 'Peta Pengasuh',
       listView: 'Carian Senarai →',
       loading: 'Memuatkan peta...',
     },
@@ -224,7 +224,7 @@ export const translations = {
       profile: 'Profil Saya',
       settings: 'Tetapan',
       myBookings: 'Tempahan Saya',
-      searchTeman: 'Cari Teman',
+      searchTeman: 'Cari Pengasuh',
       earnings: 'Pendapatan',
       manageBookings: 'Urus Booking',
       availability: 'Ketersediaan',
@@ -247,9 +247,9 @@ export const translations = {
       subtitleGuardian: 'Dashboard Waris',
       activeBookings: 'Booking Aktif',
       allBookings: 'Semua Booking',
-      noBookingsCustomerDesc: 'Cari Teman yang sesuai dan buat booking pertama anda.',
-      findNew: 'Cari Teman Baru',
-      findNow: 'Cari Teman Sekarang',
+      noBookingsCustomerDesc: 'Cari Pengasuh yang sesuai dan buat booking pertama anda.',
+      findNew: 'Cari Pengasuh Baru',
+      findNow: 'Cari Pengasuh Sekarang',
       referralTitle: 'Jemput Rakan, Dapat Kredit',
       referralDesc: 'Rakan yang daftar guna kod anda — anda dapat RM5 kredit.',
       referralLoading: 'Kod rujukan sedang dijana...',
@@ -593,7 +593,7 @@ export const translations = {
       subtitle: 'Daftarkan organisasi anda untuk mula mengesahkan ahli provider',
     },
     about: {
-      cariTeman: 'Cari Teman',
+      cariTeman: 'Cari Pengasuh',
       heroTitle: 'Tentang SenioCare',
       heroSubtitle: 'Platform penjagaan warga emas yang menghubungkan ibu tunggal berbakti dengan keluarga yang memerlukan sokongan.',
       missionTitle: 'Misi Kami',
@@ -615,8 +615,8 @@ export const translations = {
       storyP3: 'Itulah titik permulaan SenioCare. Hari ini, kami beroperasi di seluruh Lembah Klang dengan sokongan lebih 10 NGO rakan dan berharap dapat berkembang ke seluruh Malaysia.',
       ctaTitle: 'Sertai Misi Kami',
       ctaSubtitle: 'Sama ada anda pelanggan, Teman, atau NGO — ada tempat untuk anda di sini.',
-      ctaFind: 'Cari Teman',
-      ctaBecome: 'Jadi Teman',
+      ctaFind: 'Cari Pengasuh',
+      ctaBecome: 'Jadi Pengasuh',
       footer: '© 2026 SenioCare · Menghubungkan hati, memelihara kasih.',
     },
     providerEditForm: {

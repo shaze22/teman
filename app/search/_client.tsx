@@ -563,11 +563,13 @@ function ProviderCard({ provider: p }: { provider: Provider }) {
 
         {price && (
           <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-            <div className="flex items-center gap-1 text-sm text-gray-500">
+            <div className="flex items-center gap-1 text-xs text-gray-400">
               <Clock className="w-3.5 h-3.5" />
-              <span>{t.search.perHour}</span>
+              <span>{lang === 'en' ? 'hourly rate' : 'kadar sejam'}</span>
             </div>
-            <span className="font-bold text-[#6366F1] text-lg">RM{parseFloat(price.price).toFixed(0)}</span>
+            <span className="font-bold text-[#6366F1] text-lg">
+              RM{parseFloat(price.price).toFixed(0)}<span className="text-sm font-normal text-gray-400"> / jam</span>
+            </span>
           </div>
         )}
       </div>

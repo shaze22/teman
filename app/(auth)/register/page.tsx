@@ -14,15 +14,6 @@ function RegisterContent() {
 
   const roles = [
     {
-      id: 'provider',
-      icon: HandHeart,
-      title: t.register.providerTitle,
-      subtitle: t.register.providerSub,
-      color: 'border-[#6366F1] bg-[#EEF2FF]',
-      iconColor: 'text-[#6366F1] bg-[#E0E7FF]',
-      href: '/register/provider',
-    },
-    {
       id: 'customer',
       icon: Users,
       title: t.register.customerTitle,
@@ -32,13 +23,13 @@ function RegisterContent() {
       href: '/register/customer',
     },
     {
-      id: 'ngo',
-      icon: Building2,
-      title: t.register.ngoTitle,
-      subtitle: t.register.ngoSub,
-      color: 'border-blue-500 bg-blue-50',
-      iconColor: 'text-blue-600 bg-blue-100',
-      href: '/register/ngo',
+      id: 'provider',
+      icon: HandHeart,
+      title: t.register.providerTitle,
+      subtitle: t.register.providerSub,
+      color: 'border-[#6366F1] bg-[#EEF2FF]',
+      iconColor: 'text-[#6366F1] bg-[#E0E7FF]',
+      href: '/register/provider',
     },
     {
       id: 'care_center',
@@ -48,6 +39,15 @@ function RegisterContent() {
       color: 'border-amber-500 bg-amber-50',
       iconColor: 'text-amber-600 bg-amber-100',
       href: '/register/care-center',
+    },
+    {
+      id: 'ngo',
+      icon: Building2,
+      title: t.register.ngoTitle,
+      subtitle: t.register.ngoSub,
+      color: 'border-blue-500 bg-blue-50',
+      iconColor: 'text-blue-600 bg-blue-100',
+      href: '/register/ngo',
     },
   ]
 

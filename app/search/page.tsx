@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import SearchPageClient from './_client'
 
 export const metadata = {
-  title: 'Cari Teman — SenioCare',
+  title: 'Cari Pengasuh — SenioCare',
 }
 
 export default function SearchPage() {
