@@ -1,5 +1,5 @@
 export const SERVICE_TYPES = [
-  { id: 'food',        label: 'Teman Makan',         active: true  },
+  { id: 'food',        label: 'Meal Companion',       active: true  },
   { id: 'job',         label: 'Teman Kerja',          active: false },
   { id: 'learning',    label: 'Teman Belajar',        active: false },
   { id: 'ibadah',      label: 'Teman Ibadah',         active: false },

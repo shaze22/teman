@@ -34,11 +34,11 @@ export default async function LandingPage() {
   const testimonials = lang === 'en' ? [
     { name: 'Makcik Rohani, 68', role: 'Senior · Damansara', text: 'Used to eat alone every day. Now Kak Siti comes at noon, cooks, and chats with me. I feel so much more valued.', rating: 5 },
     { name: 'Cik Amy, 42', role: 'Family · Singapore', text: 'Can work peacefully knowing Dad has someone to eat with. SenioCare is affordable and the companion is so caring.', rating: 5 },
-    { name: 'Kak Siti, 35', role: 'Rakan Teman · Puchong', text: 'RM1,200 income monthly doing something I love — cooking and chatting with the elderly. Flexible hours too!', rating: 5 },
+    { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'RM1,200 income monthly doing something I love — cooking and chatting with the elderly. Flexible hours too!', rating: 5 },
   ] : [
     { name: 'Makcik Rohani, 68', role: 'Warga Emas · Damansara', text: 'Dulu makan sorang-sorang setiap hari. Sekarang ada Kak Siti datang tengahari, masak, bercerita. Saya rasa sangat dihargai.', rating: 5 },
-    { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Boleh kerja dengan tenang tahu ayah ada teman makan. SenioCare harga berpatutan dan Rakan Teman sangat penyayang.', rating: 5 },
-    { name: 'Kak Siti, 35', role: 'Rakan Teman · Puchong', text: 'Pendapatan RM1,200 sebulan buat benda yang saya suka — masak dan berbual dengan warga emas. Masa pun fleksibel!', rating: 5 },
+    { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Boleh kerja dengan tenang tahu ayah ada teman. SenioCare harga berpatutan dan Meal Companion sangat penyayang.', rating: 5 },
+    { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'Pendapatan RM1,200 sebulan buat benda yang saya suka — masak dan berbual dengan warga emas. Masa pun fleksibel!', rating: 5 },
   ]
 
   const ctaCustomerFeatures = lang === 'en'
@@ -169,7 +169,7 @@ export default async function LandingPage() {
             <span className="text-xs font-semibold tracking-widest text-[#6366F1] uppercase">{t.services.heading}</span>
             <h2 className="text-2xl md:text-3xl font-bold text-[#0F0E17] mt-2 mb-2">
               {lang === 'en' ? 'Starting with' : 'Bermula dengan'}{' '}
-              <span className="text-[#6366F1]">Teman Makan</span>
+              <span className="text-[#6366F1]">Meal Companion</span>
             </h2>
             <p className="text-gray-500 max-w-lg mx-auto">{t.services.subheading}</p>
           </div>
@@ -183,7 +183,7 @@ export default async function LandingPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-xl font-bold text-[#0F0E17]">Teman Makan</h3>
+                    <h3 className="text-xl font-bold text-[#0F0E17]">Meal Companion</h3>
                     <span className="text-xs bg-emerald-500 text-white px-2.5 py-1 rounded-full font-semibold">
                       {lang === 'en' ? '✓ Available Now' : '✓ Aktif Sekarang'}
                     </span>
@@ -317,12 +317,12 @@ export default async function LandingPage() {
                   <Users className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-[#0F0E17] mb-2">
-                  {lang === 'en' ? 'Find a Meal Companion' : 'Cari Teman Makan'}
+                  {lang === 'en' ? 'Find a Meal Companion' : 'Cari Meal Companion'}
                 </h3>
                 <p className="text-gray-600 mb-5 text-sm leading-relaxed">
                   {lang === 'en'
                     ? 'Verified companions who cook, dine with, and bring warmth to your loved one.'
-                    : 'Rakan Teman terverifikasi yang masak, teman makan, dan bawa semangat untuk warga emas anda.'}
+                    : 'Meal Companion terverifikasi yang masak, teman bersama, dan bawa semangat untuk warga emas anda.'}
                 </p>
                 <div className="space-y-2 mb-7">
                   {ctaCustomerFeatures.map(f => (
@@ -346,7 +346,7 @@ export default async function LandingPage() {
                   <Heart className="w-6 h-6 text-white" fill="currentColor" />
                 </div>
                 <h3 className="text-xl font-bold text-[#0F0E17] mb-2">
-                  {lang === 'en' ? 'Become a Rakan Teman' : 'Jadi Rakan Teman'}
+                  {lang === 'en' ? 'Become a Meal Companion' : 'Jadi Meal Companion'}
                 </h3>
                 <p className="text-gray-600 mb-5 text-sm leading-relaxed">
                   {lang === 'en'
