@@ -1,11 +1,18 @@
-﻿import { redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { Heart, ArrowLeft } from 'lucide-react'
 import AvailabilityForm from './_availability-form'
+import { translations, type Lang } from '@/lib/i18n'
 
 export default async function ProviderAvailabilityPage() {
+  const cookieStore = await cookies()
+  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const t = translations[lang]
+  const dc = t.dashCommon
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -42,16 +49,14 @@ export default async function ProviderAvailabilityPage() {
           </Link>
           <Link href="/" className="flex items-center gap-1.5">
             <Heart className="w-5 h-5 text-[#6366F1]" fill="currentColor" />
-            <span className="font-bold text-[#6366F1]">Teman</span>
+            <span className="font-bold text-[#6366F1]">SenioCare</span>
           </Link>
-          <span className="font-semibold text-gray-900 ml-2">Set Ketersediaan</span>
+          <span className="font-semibold text-gray-900 ml-2">{dc.setAvailability}</span>
         </div>
       </nav>
 
       <div className="max-w-2xl mx-auto px-4 py-6">
-        <p className="text-sm text-gray-500 mb-5">
-          Tetapkan hari dan masa anda tersedia untuk menerima booking. Pelanggan hanya boleh tempah dalam tempoh ini.
-        </p>
+        <p className="text-sm text-gray-500 mb-5">{dc.availDesc}</p>
         <AvailabilityForm profileId={profile.id} initial={initial} />
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { sendPushToUser } from '@/lib/push'
 
 type NotifPayload = {
   userId: string
@@ -21,6 +22,11 @@ export async function createNotification(payload: NotifPayload) {
     is_read: false,
     created_at: new Date().toISOString(),
   })
+  sendPushToUser(payload.userId, {
+    title: payload.title,
+    body: payload.message ?? '',
+    url: payload.actionUrl,
+  }).catch(() => {})
 }
 
 export async function notifyBookingStatusChange({

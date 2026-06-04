@@ -1,21 +1,11 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Heart, Loader2, ChevronRight, ChevronLeft, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-
-const SKILLS = [
-  { id: 'cooking', label: 'Memasak' },
-  { id: 'sewing', label: 'Menjahit' },
-  { id: 'massage', label: 'Urut / Urutan' },
-  { id: 'elderly_care', label: 'Jaga Orang Tua' },
-  { id: 'cleaning', label: 'Bersih Rumah' },
-  { id: 'teaching', label: 'Mengajar / Tutor' },
-  { id: 'companionship', label: 'Teman Berbual' },
-  { id: 'shopping', label: 'Teman Membeli-belah' },
-]
+import { useLang } from '@/lib/lang-context'
 
 const STATES = [
   'Selangor', 'Kuala Lumpur', 'Johor', 'Perak', 'Kedah', 'Pahang',
@@ -29,8 +19,6 @@ const LANGUAGES = [
   { id: 'zh', label: 'Mandarin' },
   { id: 'ta', label: 'Tamil' },
 ]
-
-const STEPS = ['Maklumat Asas', 'Kemahiran & Lokasi', 'Harga & Ketersediaan', 'Sahkan']
 
 type FormData = {
   fullName: string
@@ -70,6 +58,23 @@ const initial: FormData = {
 
 export default function ProviderRegisterPage() {
   const router = useRouter()
+  const { t } = useLang()
+  const rp = t.registerProvider
+  const sk = t.skills
+
+  const STEPS = [rp.step0, rp.step1, rp.step2, rp.step3]
+
+  const SKILLS = [
+    { id: 'cooking', label: sk.cooking },
+    { id: 'sewing', label: sk.sewing },
+    { id: 'massage', label: sk.massage },
+    { id: 'elderly_care', label: sk.elderly_care },
+    { id: 'cleaning', label: sk.cleaning },
+    { id: 'teaching', label: sk.teaching },
+    { id: 'companionship', label: sk.companionship },
+    { id: 'shopping', label: sk.shopping },
+  ]
+
   const [step, setStep] = useState(0)
   const [form, setForm] = useState<FormData>(initial)
   const [loading, setLoading] = useState(false)
@@ -116,7 +121,7 @@ export default function ProviderRegisterPage() {
     })
 
     if (signUpError || !data.user) {
-      setError(signUpError?.message ?? 'Pendaftaran gagal. Sila cuba lagi.')
+      setError(signUpError?.message ?? rp.errorFailed)
       setLoading(false)
       return
     }
@@ -129,7 +134,7 @@ export default function ProviderRegisterPage() {
 
     if (!res.ok) {
       const json = await res.json()
-      setError(json.message ?? 'Pendaftaran gagal.')
+      setError(json.message ?? rp.errorFailed)
       setLoading(false)
       return
     }
@@ -149,12 +154,18 @@ export default function ProviderRegisterPage() {
     return true
   }
 
+  const transportLabel = (val: string) => {
+    if (val === 'motorcycle') return rp.transportMotorcycleShort
+    if (val === 'car') return rp.transportCarShort
+    return rp.transportNoneShort
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] px-4 py-12">
       <div className="max-w-lg mx-auto">
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
           <Heart className="w-8 h-8 text-[#6366F1]" fill="currentColor" />
-          <span className="text-2xl font-bold text-[#6366F1]">Teman</span>
+          <span className="text-2xl font-bold text-[#6366F1]">SenioCare</span>
         </Link>
 
         {/* Progress */}
@@ -181,7 +192,7 @@ export default function ProviderRegisterPage() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           <h2 className="text-xl font-bold text-gray-900 mb-1">{STEPS[step]}</h2>
-          <p className="text-sm text-gray-500 mb-6">Langkah {step + 1} daripada {STEPS.length}</p>
+          <p className="text-sm text-gray-500 mb-6">{rp.stepOf} {step + 1} {rp.stepFrom} {STEPS.length}</p>
 
           {error && (
             <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-4 border border-red-100">
@@ -193,61 +204,41 @@ export default function ProviderRegisterPage() {
           {step === 0 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Penuh</label>
-                <input
-                  type="text"
-                  value={form.fullName}
-                  onChange={(e) => update('fullName', e.target.value)}
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.fullName}</label>
+                <input type="text" value={form.fullName} onChange={(e) => update('fullName', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] transition-all"
-                  placeholder="Nama seperti di IC"
-                />
+                  placeholder={rp.fullNamePlaceholder} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">No. Telefon</label>
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => update('phone', e.target.value)}
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.phone}</label>
+                <input type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] transition-all"
-                  placeholder="01X-XXXXXXXX"
-                />
+                  placeholder="01X-XXXXXXXX" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => update('email', e.target.value)}
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.email}</label>
+                <input type="email" value={form.email} onChange={(e) => update('email', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] transition-all"
-                  placeholder="email@contoh.com"
-                />
+                  placeholder="email@contoh.com" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Kata Laluan</label>
-                <input
-                  type="password"
-                  value={form.password}
-                  onChange={(e) => update('password', e.target.value)}
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.password}</label>
+                <input type="password" value={form.password} onChange={(e) => update('password', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] transition-all"
-                  placeholder="Minimum 8 aksara"
-                />
+                  placeholder={rp.passwordPlaceholder} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Kod Rujukan NGO (pilihan)</label>
-                <input
-                  type="text"
-                  value={form.ngoReferralCode}
-                  onChange={(e) => update('ngoReferralCode', e.target.value)}
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.ngoCode}</label>
+                <input type="text" value={form.ngoReferralCode} onChange={(e) => update('ngoReferralCode', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] transition-all"
-                  placeholder="Masukkan kod NGO jika ada"
-                />
+                  placeholder={rp.ngoCodePlaceholder} />
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <input type="checkbox" id="bil-count" className="w-4 h-4 accent-[#6366F1]" required />
                 <label htmlFor="bil-count">
-                  Saya bersetuju dengan{' '}
-                  <Link href="/terms" className="text-[#6366F1] underline">Terma & Syarat</Link> dan{' '}
-                  <Link href="/privacy" className="text-[#6366F1] underline">Dasar Privasi</Link>
+                  {rp.terms}{' '}
+                  <Link href="/terms" className="text-[#6366F1] underline">{rp.termsLink}</Link> {rp.and}{' '}
+                  <Link href="/privacy" className="text-[#6366F1] underline">{rp.privacyLink}</Link>
                 </label>
               </div>
             </div>
@@ -257,19 +248,15 @@ export default function ProviderRegisterPage() {
           {step === 1 && (
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Kemahiran Saya</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{rp.skillsTitle}</label>
                 <div className="grid grid-cols-2 gap-2">
                   {SKILLS.map((skill) => (
-                    <button
-                      key={skill.id}
-                      type="button"
-                      onClick={() => toggleSkill(skill.id)}
+                    <button key={skill.id} type="button" onClick={() => toggleSkill(skill.id)}
                       className={`px-4 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${
                         form.skills.includes(skill.id)
                           ? 'border-[#6366F1] bg-[#EEF2FF] text-[#6366F1]'
                           : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                      }`}
-                    >
+                      }`}>
                       {skill.label}
                     </button>
                   ))}
@@ -277,42 +264,31 @@ export default function ProviderRegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Negeri</label>
-                <select
-                  value={form.locationState}
-                  onChange={(e) => update('locationState', e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] bg-white"
-                >
-                  <option value="">-- Pilih Negeri --</option>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.state}</label>
+                <select value={form.locationState} onChange={(e) => update('locationState', e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] bg-white">
+                  <option value="">{rp.stateDefault}</option>
                   {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Bandar / Kawasan</label>
-                <input
-                  type="text"
-                  value={form.locationCity}
-                  onChange={(e) => update('locationCity', e.target.value)}
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.city}</label>
+                <input type="text" value={form.locationCity} onChange={(e) => update('locationCity', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
-                  placeholder="Contoh: Puchong, Subang Jaya"
-                />
+                  placeholder={rp.cityPlaceholder} />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Bahasa yang Dikuasai</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{rp.language}</label>
                 <div className="flex flex-wrap gap-2">
                   {LANGUAGES.map((lang) => (
-                    <button
-                      key={lang.id}
-                      type="button"
-                      onClick={() => toggleLanguage(lang.id)}
+                    <button key={lang.id} type="button" onClick={() => toggleLanguage(lang.id)}
                       className={`px-4 py-2 rounded-full text-sm font-medium border-2 transition-all ${
                         form.languages.includes(lang.id)
                           ? 'border-[#6366F1] bg-[#EEF2FF] text-[#6366F1]'
                           : 'border-gray-200 text-gray-600'
-                      }`}
-                    >
+                      }`}>
                       {lang.label}
                     </button>
                   ))}
@@ -320,15 +296,12 @@ export default function ProviderRegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Pengangkutan</label>
-                <select
-                  value={form.hasTransport}
-                  onChange={(e) => update('hasTransport', e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] bg-white"
-                >
-                  <option value="none">Tiada kenderaan sendiri</option>
-                  <option value="motorcycle">Ada motor</option>
-                  <option value="car">Ada kereta</option>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.transport}</label>
+                <select value={form.hasTransport} onChange={(e) => update('hasTransport', e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] bg-white">
+                  <option value="none">{rp.transportNone}</option>
+                  <option value="motorcycle">{rp.transportMotorcycle}</option>
+                  <option value="car">{rp.transportCar}</option>
                 </select>
               </div>
             </div>
@@ -338,57 +311,39 @@ export default function ProviderRegisterPage() {
           {step === 2 && (
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Harga per Jam (RM)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.priceTitle}</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">RM</span>
-                  <input
-                    type="number"
-                    min="10"
-                    max="100"
-                    value={form.pricePerHour}
+                  <input type="number" min="10" max="100" value={form.pricePerHour}
                     onChange={(e) => update('pricePerHour', e.target.value)}
                     className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
-                    placeholder="25"
-                  />
+                    placeholder={rp.pricePlaceholder} />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Minimum RM10 / maksimum RM100 per jam</p>
+                <p className="text-xs text-gray-400 mt-1">{rp.priceHint}</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Cerita Tentang Diri Saya</label>
-                <textarea
-                  value={form.bio}
-                  onChange={(e) => update('bio', e.target.value)}
-                  rows={4}
-                  maxLength={300}
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.bioTitle}</label>
+                <textarea value={form.bio} onChange={(e) => update('bio', e.target.value)}
+                  rows={4} maxLength={300}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] resize-none"
-                  placeholder="Ceritakan pengalaman, kemahiran, dan kenapa anda ingin menjadi Teman..."
-                />
+                  placeholder={rp.bioPlaceholder} />
                 <p className="text-xs text-gray-400 text-right mt-1">{form.bio.length}/300</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Bilangan Anak</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="10"
-                  value={form.childrenCount}
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.childrenCount}</label>
+                <input type="number" min="0" max="10" value={form.childrenCount}
                   onChange={(e) => update('childrenCount', e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
-                />
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
               </div>
 
               <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="bring-children"
-                  checked={form.canBringChildren}
+                <input type="checkbox" id="bring-children" checked={form.canBringChildren}
                   onChange={(e) => update('canBringChildren', e.target.checked)}
-                  className="w-4 h-4 accent-[#6366F1]"
-                />
+                  className="w-4 h-4 accent-[#6366F1]" />
                 <label htmlFor="bring-children" className="text-sm text-gray-700">
-                  Saya mungkin perlu bawa anak semasa bertugas
+                  {rp.bringChildren}
                 </label>
               </div>
             </div>
@@ -398,41 +353,32 @@ export default function ProviderRegisterPage() {
           {step === 3 && (
             <div className="space-y-4">
               <div className="bg-[#EEF2FF] rounded-xl p-4 space-y-3">
-                <Row label="Nama" value={form.fullName} />
-                <Row label="Email" value={form.email} />
-                <Row label="Telefon" value={form.phone} />
-                <Row label="Negeri" value={form.locationState} />
-                <Row label="Bandar" value={form.locationCity} />
-                <Row label="Kemahiran" value={form.skills.map((s) => SKILLS.find((sk) => sk.id === s)?.label).join(', ')} />
-                <Row label="Harga" value={`RM${form.pricePerHour}/jam`} />
-                <Row label="Pengangkutan" value={form.hasTransport === 'none' ? 'Tiada' : form.hasTransport === 'motorcycle' ? 'Motor' : 'Kereta'} />
+                <Row label={rp.reviewName} value={form.fullName} />
+                <Row label={rp.reviewEmail} value={form.email} />
+                <Row label={rp.reviewPhone} value={form.phone} />
+                <Row label={rp.reviewState} value={form.locationState} />
+                <Row label={rp.reviewCity} value={form.locationCity} />
+                <Row label={rp.reviewSkills} value={form.skills.map((s) => SKILLS.find((sk) => sk.id === s)?.label ?? s).join(', ')} />
+                <Row label={rp.reviewPrice} value={`RM${form.pricePerHour}${rp.priceUnit}`} />
+                <Row label={rp.reviewTransport} value={transportLabel(form.hasTransport)} />
               </div>
-              <p className="text-sm text-gray-500 text-center">
-                Profil anda akan disemak oleh NGO atau admin sebelum diaktifkan.
-              </p>
+              <p className="text-sm text-gray-500 text-center">{rp.reviewNote}</p>
             </div>
           )}
 
           {/* Navigation */}
           <div className="flex gap-3 mt-8">
             {step > 0 && (
-              <button
-                type="button"
-                onClick={() => setStep(step - 1)}
-                className="flex items-center gap-1 px-5 py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-medium hover:bg-gray-50 transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4" /> Balik
+              <button type="button" onClick={() => setStep(step - 1)}
+                className="flex items-center gap-1 px-5 py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-medium hover:bg-gray-50 transition-colors">
+                <ChevronLeft className="w-4 h-4" /> {rp.back}
               </button>
             )}
-            <button
-              type="button"
-              onClick={nextStep}
-              disabled={!canProceed() || loading}
-              className="flex-1 bg-[#6366F1] text-white font-semibold py-3 rounded-xl hover:bg-[#4F46E5] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
+            <button type="button" onClick={nextStep} disabled={!canProceed() || loading}
+              className="flex-1 bg-[#6366F1] text-white font-semibold py-3 rounded-xl hover:bg-[#4F46E5] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {step === STEPS.length - 1 ? 'Daftar Sekarang' : (
-                <>Seterusnya <ChevronRight className="w-4 h-4" /></>
+              {step === STEPS.length - 1 ? rp.submit : (
+                <>{rp.next} <ChevronRight className="w-4 h-4" /></>
               )}
             </button>
           </div>

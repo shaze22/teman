@@ -1,13 +1,20 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { Heart, ArrowLeft, Lock, Bell, Shield, Trash2, ChevronRight, Smartphone } from 'lucide-react'
+import { Heart, ArrowLeft, Bell, Shield, Trash2, Smartphone } from 'lucide-react'
 import SignOutButton from '../../_sign-out-button'
 import ChangePasswordForm from './_change-password-form'
 import DeleteAccountButton from './_delete-account-button'
+import { translations, type Lang } from '@/lib/i18n'
 
 export default async function ProviderSettingsPage() {
+  const cookieStore = await cookies()
+  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const t = translations[lang]
+  const s = t.settings
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -35,7 +42,7 @@ export default async function ProviderSettingsPage() {
               <div className="w-7 h-7 rounded-lg bg-[#6366F1] flex items-center justify-center">
                 <Heart className="w-3.5 h-3.5 text-white" fill="currentColor" />
               </div>
-              <span className="font-bold text-[#0F0E17]">Teman</span>
+              <span className="font-bold text-[#0F0E17]">SenioCare</span>
             </Link>
           </div>
           <SignOutButton />
@@ -43,16 +50,15 @@ export default async function ProviderSettingsPage() {
       </nav>
 
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Tetapan</h1>
-        <p className="text-sm text-gray-500 mb-8">Urus akaun dan keutamaan anda</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">{s.title}</h1>
+        <p className="text-sm text-gray-500 mb-8">{s.subtitle}</p>
 
-        {/* Account Info */}
         <section className="mb-6">
-          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">Maklumat Akaun</h2>
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">{s.accountInfo}</h2>
           <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
             <div className="flex items-center justify-between p-4">
               <div>
-                <div className="text-sm font-medium text-gray-900">Nama Penuh</div>
+                <div className="text-sm font-medium text-gray-900">{s.fullName}</div>
                 <div className="text-sm text-gray-500 mt-0.5">{u.full_name}</div>
               </div>
               <Link href="/dashboard/provider/profile" className="text-xs text-[#6366F1] font-medium hover:underline">
@@ -61,35 +67,32 @@ export default async function ProviderSettingsPage() {
             </div>
             <div className="flex items-center justify-between p-4">
               <div>
-                <div className="text-sm font-medium text-gray-900">E-mel</div>
+                <div className="text-sm font-medium text-gray-900">{s.email}</div>
                 <div className="text-sm text-gray-500 mt-0.5">{user.email}</div>
               </div>
-              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">Tidak boleh ditukar</span>
+              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">{s.emailReadOnly}</span>
             </div>
           </div>
         </section>
 
-        {/* Security */}
         <section className="mb-6">
-          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">Keselamatan</h2>
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">{s.security}</h2>
           <div className="bg-white rounded-2xl border border-gray-100">
             <ChangePasswordForm />
           </div>
         </section>
 
-        {/* Notifications */}
         <section className="mb-6">
-          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">Notifikasi</h2>
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">{t.dashCommon.notifications}</h2>
           <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
-            <NotifRow icon={Bell} label="Booking Baru" desc="Terima notifikasi apabila ada booking" defaultOn />
-            <NotifRow icon={Smartphone} label="Peringatan Sesi" desc="1 jam sebelum sesi bermula" defaultOn />
-            <NotifRow icon={Shield} label="Promosi & Tawaran" desc="Tawaran khas dari Teman" defaultOn={false} />
+            <NotifRow icon={Bell} label={s.notifBookingNew} desc={s.notifBookingNewDesc} defaultOn />
+            <NotifRow icon={Smartphone} label={s.notifSession} desc={s.notifSessionDesc} defaultOn />
+            <NotifRow icon={Shield} label={s.notifPromo} desc={s.notifPromoDesc} defaultOn={false} />
           </div>
         </section>
 
-        {/* Danger Zone */}
         <section className="mb-6">
-          <h2 className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-3 px-1">Zon Bahaya</h2>
+          <h2 className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-3 px-1">{s.dangerZone}</h2>
           <div className="bg-white rounded-2xl border border-red-100">
             <div className="p-4">
               <div className="flex items-start gap-3">
@@ -97,8 +100,8 @@ export default async function ProviderSettingsPage() {
                   <Trash2 className="w-4 h-4 text-red-500" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-semibold text-gray-900">Padam Akaun</div>
-                  <div className="text-xs text-gray-500 mt-0.5 mb-3">Tindakan ini tidak boleh dibatalkan. Semua data anda akan dipadam secara kekal.</div>
+                  <div className="text-sm font-semibold text-gray-900">{s.deleteAccount}</div>
+                  <div className="text-xs text-gray-500 mt-0.5 mb-3">{s.deleteWarning}</div>
                   <DeleteAccountButton />
                 </div>
               </div>
@@ -107,7 +110,7 @@ export default async function ProviderSettingsPage() {
         </section>
 
         <div className="text-center">
-          <p className="text-xs text-gray-400">Teman Platform · v1.0 · <a href="/privacy" className="hover:underline">Privasi</a> · <a href="/terms" className="hover:underline">Terma</a></p>
+          <p className="text-xs text-gray-400">SenioCare · v1.0 · <a href="/privacy" className="hover:underline">{s.privacy}</a> · <a href="/terms" className="hover:underline">{s.terms}</a></p>
         </div>
       </div>
     </div>

@@ -78,7 +78,7 @@ export default function NgoRegisterForm({ userId }: { userId: string }) {
       </div>
 
       <div className="bg-[#EEF2FF] rounded-xl p-3 text-xs text-[#4F46E5]">
-        Selepas mendaftar, permohonan anda akan disemak oleh admin Teman dalam masa 1-3 hari bekerja sebelum diaktifkan.
+        Selepas mendaftar, permohonan anda akan disemak oleh admin SenioCare dalam masa 1-3 hari bekerja sebelum diaktifkan.
       </div>
 
       {error && <p className="text-xs text-red-500">{error}</p>}

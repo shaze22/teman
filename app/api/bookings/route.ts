@@ -17,6 +17,10 @@ const schema = z.object({
   platformFee: z.number(),
   totalAmount: z.number(),
   bookingCode: z.string(),
+  paymentMethod: z.enum(['stripe', 'cash']).default('stripe'),
+  promoCode: z.string().optional(),
+  discountAmount: z.number().default(0),
+  creditUsed: z.number().default(0),
 })
 
 export async function POST(request: NextRequest) {
@@ -61,6 +65,9 @@ export async function POST(request: NextRequest) {
       provider_price: data.providerPrice,
       platform_fee: data.platformFee,
       total_amount: data.totalAmount,
+      payment_method: data.paymentMethod,
+      promo_code: data.promoCode ?? null,
+      discount_amount: data.discountAmount,
       updated_at: new Date().toISOString(),
     })
     .select('id, booking_code')
@@ -69,6 +76,20 @@ export async function POST(request: NextRequest) {
   if (bookingError || !booking) {
     console.error('[bookings POST]', bookingError)
     return NextResponse.json({ message: 'Gagal buat booking' }, { status: 500 })
+  }
+
+  // Deduct credit balance if used
+  if (data.creditUsed > 0) {
+    const { data: userRow } = await supabaseAdmin.from('users').select('credit_balance').eq('id', user.id).single()
+    const current = parseFloat(String(userRow?.credit_balance ?? 0))
+    const newBalance = Math.max(0, current - data.creditUsed)
+    await supabaseAdmin.from('users').update({ credit_balance: newBalance }).eq('id', user.id)
+  }
+
+  // Increment promo uses_count
+  if (data.promoCode) {
+    const { data: promo } = await supabaseAdmin.from('promo_codes').select('uses_count').eq('code', data.promoCode).single()
+    if (promo) await supabaseAdmin.from('promo_codes').update({ uses_count: (promo.uses_count ?? 0) + 1 }).eq('code', data.promoCode)
   }
 
   // Notify provider of new booking (in-app + email)

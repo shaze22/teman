@@ -5,9 +5,13 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Heart, Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useLang } from '@/lib/lang-context'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
+  const { t } = useLang()
+  const rp = t.resetPassword
+
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -20,11 +24,11 @@ export default function ResetPasswordPage() {
     setError('')
 
     if (password.length < 8) {
-      setError('Kata laluan mestilah sekurang-kurangnya 8 aksara.')
+      setError(rp.errorLength)
       return
     }
     if (password !== confirm) {
-      setError('Kata laluan tidak sepadan.')
+      setError(rp.errorMismatch)
       return
     }
 
@@ -34,7 +38,7 @@ export default function ResetPasswordPage() {
     setLoading(false)
 
     if (error) {
-      setError('Pautan telah tamat tempoh atau tidak sah. Sila minta semula.')
+      setError(rp.errorExpired)
       return
     }
 
@@ -47,7 +51,7 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-sm">
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
           <Heart className="w-8 h-8 text-[#6366F1]" fill="currentColor" />
-          <span className="text-2xl font-bold text-[#6366F1]">Teman</span>
+          <span className="text-2xl font-bold text-[#6366F1]">SenioCare</span>
         </Link>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
@@ -56,21 +60,21 @@ export default function ResetPasswordPage() {
               <div className="flex justify-center">
                 <CheckCircle className="w-14 h-14 text-emerald-500" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">Kata laluan dikemas kini!</h1>
-              <p className="text-sm text-gray-500">Anda akan dibawa ke dashboard dalam sebentar...</p>
+              <h1 className="text-xl font-bold text-gray-900">{rp.done}</h1>
+              <p className="text-sm text-gray-500">{rp.redirect}</p>
             </div>
           ) : (
             <>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">Set Kata Laluan Baru</h1>
-              <p className="text-gray-500 text-sm mb-6">Masukkan kata laluan baru untuk akaun anda.</p>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">{rp.title}</h1>
+              <p className="text-gray-500 text-sm mb-6">{rp.subtitle}</p>
 
               {error && (
                 <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-4 border border-red-100">
                   {error}
-                  {error.includes('tamat tempoh') && (
+                  {error === rp.errorExpired && (
                     <div className="mt-2">
                       <Link href="/forgot-password" className="underline font-medium">
-                        Minta pautan baru
+                        {rp.requestNew}
                       </Link>
                     </div>
                   )}
@@ -80,7 +84,7 @@ export default function ResetPasswordPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Kata Laluan Baru
+                    {rp.newLabel}
                   </label>
                   <div className="relative">
                     <input
@@ -90,7 +94,7 @@ export default function ResetPasswordPage() {
                       required
                       minLength={8}
                       className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all"
-                      placeholder="Minimum 8 aksara"
+                      placeholder={rp.newPlaceholder}
                     />
                     <button
                       type="button"
@@ -104,7 +108,7 @@ export default function ResetPasswordPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Sahkan Kata Laluan
+                    {rp.confirmLabel}
                   </label>
                   <input
                     type={showPw ? 'text' : 'password'}
@@ -112,7 +116,7 @@ export default function ResetPasswordPage() {
                     onChange={(e) => setConfirm(e.target.value)}
                     required
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all"
-                    placeholder="Ulang kata laluan baru"
+                    placeholder={rp.confirmPlaceholder}
                   />
                 </div>
 
@@ -122,7 +126,7 @@ export default function ResetPasswordPage() {
                   className="w-full bg-[#6366F1] text-white font-semibold py-3 rounded-xl hover:bg-[#4F46E5] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Kemas Kini Kata Laluan
+                  {rp.submit}
                 </button>
               </form>
             </>

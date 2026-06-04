@@ -10,7 +10,7 @@ export default function PrivacyPage() {
             <div className="w-7 h-7 rounded-lg bg-[#6366F1] flex items-center justify-center">
               <Heart className="w-3.5 h-3.5 text-white" fill="currentColor" />
             </div>
-            <span className="font-bold text-[#0F0E17]">Teman</span>
+            <span className="font-bold text-[#0F0E17]">SenioCare</span>
           </Link>
           <span className="text-gray-400 text-sm">/ Dasar Privasi</span>
         </div>
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-[#0F0E17]">4. Keselamatan Data</h2>
-            <p>Kami menggunakan Supabase dengan enkripsi SSL/TLS untuk melindungi semua data. Kata laluan di-hash menggunakan bcrypt. Maklumat kad kredit tidak disimpan di pelayan kami — diproses terus oleh Stripe (PCI DSS compliant).</p>
+            <p>Kami menggunakan Supabase dengan enkripsi SSL/TLS untuk melindungi semua data. Kata laluan di-hash menggunakan bcrypt. Maklumat kad kredit tidak disimpan di pelayan kami "" diproses terus oleh Stripe (PCI DSS compliant).</p>
           </section>
 
           <section className="space-y-3">

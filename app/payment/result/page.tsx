@@ -1,15 +1,22 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { stripe } from '@/lib/stripe'
 import { Heart, CheckCircle, XCircle, ArrowLeft } from 'lucide-react'
+import { translations, type Lang } from '@/lib/i18n'
 
 export default async function PaymentResultPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string>>
 }) {
+  const cookieStore = await cookies()
+  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const t = translations[lang]
+  const pr = t.paymentResult
+
   const sp = await searchParams
   const bookingId = sp['bookingId'] ?? null
   const sessionId = sp['session_id'] ?? null
@@ -26,7 +33,7 @@ export default async function PaymentResultPage({
       sessionPaid = session.payment_status === 'paid'
 
       if (sessionPaid && bookingId) {
-        // Update booking & payment record (idempotent — safe to run even if webhook already ran)
+        // Update booking & payment record (idempotent "" safe to run even if webhook already ran)
         await Promise.all([
           supabaseAdmin
             .from('bookings')
@@ -41,7 +48,7 @@ export default async function PaymentResultPage({
         ])
       }
     } catch {
-      // Session retrieval failed — fall back to DB check
+      // Session retrieval failed "" fall back to DB check
     }
   }
 
@@ -75,7 +82,7 @@ export default async function PaymentResultPage({
           </Link>
           <Link href="/" className="flex items-center gap-1.5">
             <Heart className="w-5 h-5 text-[#6366F1]" fill="currentColor" />
-            <span className="font-bold text-[#6366F1]">Teman</span>
+            <span className="font-bold text-[#6366F1]">SenioCare</span>
           </Link>
         </div>
       </nav>
@@ -87,7 +94,7 @@ export default async function PaymentResultPage({
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
                 <CheckCircle className="w-10 h-10 text-green-500" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Pembayaran Berjaya!</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">{pr.success}</h1>
               {booking && (
                 <p className="text-gray-400 text-sm mb-2">Booking #{booking.booking_code}</p>
               )}
@@ -95,13 +102,13 @@ export default async function PaymentResultPage({
                 <p className="text-3xl font-bold text-[#6366F1] mb-4">RM{total}</p>
               )}
               <p className="text-sm text-gray-500 mb-8 leading-relaxed">
-                Terima kasih atas pembayaran anda. Teman anda telah dimaklumkan dan akan bersedia untuk sesi yang dijadualkan.
+                {pr.successDesc}
               </p>
               <Link
                 href={bookingId ? `/booking/${bookingId}` : '/dashboard/customer'}
                 className="block w-full bg-[#6366F1] text-white py-3 rounded-xl font-semibold hover:bg-[#4F46E5] transition-colors"
               >
-                Lihat Butiran Booking
+                {pr.viewBooking}
               </Link>
             </>
           ) : (
@@ -109,9 +116,9 @@ export default async function PaymentResultPage({
               <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5">
                 <XCircle className="w-10 h-10 text-red-400" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Pembayaran Tidak Berjaya</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">{pr.failed}</h1>
               <p className="text-sm text-gray-500 mb-8 leading-relaxed">
-                Pembayaran anda tidak berjaya diproses. Sila cuba lagi atau hubungi kami jika masalah berterusan.
+                {pr.failedDesc}
               </p>
               <div className="flex gap-3">
                 <Link
@@ -125,7 +132,7 @@ export default async function PaymentResultPage({
                     href={`/booking/${bookingId}`}
                     className="flex-1 bg-[#6366F1] text-white py-3 rounded-xl font-semibold hover:bg-[#4F46E5] transition-colors text-sm"
                   >
-                    Cuba Lagi
+                    {pr.tryAgain}
                   </Link>
                 )}
               </div>

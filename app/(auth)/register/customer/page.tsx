@@ -1,25 +1,17 @@
-﻿'use client'
+'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Heart, Loader2, ChevronRight, ChevronLeft, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useLang } from '@/lib/lang-context'
 
 const STATES = [
   'Selangor', 'Kuala Lumpur', 'Johor', 'Perak', 'Kedah', 'Pahang',
   'Terengganu', 'Kelantan', 'Negeri Sembilan', 'Melaka', 'Sabah',
   'Sarawak', 'Perlis', 'Pulau Pinang', 'Putrajaya', 'Labuan',
 ]
-
-const NEEDS = [
-  { id: 'job', label: 'Teman Kerja / Penjagaan' },
-  { id: 'food', label: 'Teman Makan' },
-  { id: 'learning', label: 'Teman Belajar' },
-  { id: 'business', label: 'Teman Bisnes' },
-]
-
-const STEPS = ['Maklumat Waris', 'Maklumat Warga Emas', 'Keperluan', 'Sahkan']
 
 type FormData = {
   fullName: string
@@ -40,6 +32,7 @@ type FormData = {
   emergencyRelation: string
   emergencyPhone: string
   ngoReferralCode: string
+  referralCode: string
 }
 
 const initial: FormData = {
@@ -61,14 +54,32 @@ const initial: FormData = {
   emergencyRelation: '',
   emergencyPhone: '',
   ngoReferralCode: '',
+  referralCode: '',
 }
 
 export default function CustomerRegisterPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const { t } = useLang()
+  const rc = t.registerCustomer
+
+  const STEPS = [rc.step0, rc.step1, rc.step2, rc.step3]
+  const NEEDS = [
+    { id: 'job', label: rc.needJob },
+    { id: 'food', label: rc.needFood },
+    { id: 'learning', label: rc.needLearning },
+    { id: 'business', label: rc.needBusiness },
+  ]
+
   const [step, setStep] = useState(0)
   const [form, setForm] = useState<FormData>(initial)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const ref = searchParams.get('ref')
+    if (ref) update('referralCode', ref.toUpperCase())
+  }, [searchParams])
 
   function update(field: keyof FormData, value: unknown) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -106,7 +117,7 @@ export default function CustomerRegisterPage() {
     }
 
     if (!data.user) {
-      setError('Email ini mungkin sudah didaftarkan. Cuba log masuk atau gunakan email lain.')
+      setError(rc.errorEmailUsed)
       setLoading(false)
       return
     }
@@ -118,7 +129,7 @@ export default function CustomerRegisterPage() {
     })
 
     if (!res.ok) {
-      let message = 'Pendaftaran gagal.'
+      let message = rc.errorFailed
       try {
         const json = await res.json()
         message = json.message ?? message
@@ -148,7 +159,7 @@ export default function CustomerRegisterPage() {
       <div className="max-w-lg mx-auto">
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
           <Heart className="w-8 h-8 text-[#6366F1]" fill="currentColor" />
-          <span className="text-2xl font-bold text-[#6366F1]">Teman</span>
+          <span className="text-2xl font-bold text-[#6366F1]">SenioCare</span>
         </Link>
 
         {/* Progress */}
@@ -171,7 +182,7 @@ export default function CustomerRegisterPage() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           <h2 className="text-xl font-bold text-gray-900 mb-1">{STEPS[step]}</h2>
-          <p className="text-sm text-gray-500 mb-6">Langkah {step + 1} daripada {STEPS.length}</p>
+          <p className="text-sm text-gray-500 mb-6">{rc.stepOf} {step + 1} {rc.stepFrom} {STEPS.length}</p>
 
           {error && (
             <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-4 border border-red-100">
@@ -183,7 +194,7 @@ export default function CustomerRegisterPage() {
           {step === 0 && (
             <div className="space-y-4">
               <div className="bg-[#FFF1F2] rounded-xl p-4 mb-4">
-                <p className="text-sm text-orange-800 font-medium mb-3">Anda mendaftar sebagai...</p>
+                <p className="text-sm text-orange-800 font-medium mb-3">{rc.registering}</p>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -192,7 +203,7 @@ export default function CustomerRegisterPage() {
                       form.isForSelf ? 'border-[#F43F5E] bg-[#FFE4E6] text-[#F43F5E]' : 'border-gray-200 text-gray-500'
                     }`}
                   >
-                    Diri Sendiri
+                    {rc.forSelf}
                   </button>
                   <button
                     type="button"
@@ -201,43 +212,52 @@ export default function CustomerRegisterPage() {
                       !form.isForSelf ? 'border-[#F43F5E] bg-[#FFE4E6] text-[#F43F5E]' : 'border-gray-200 text-gray-500'
                     }`}
                   >
-                    Sebagai Waris
+                    {rc.asGuardian}
                   </button>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Penuh Anda</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.fullName}</label>
                 <input type="text" value={form.fullName} onChange={(e) => update('fullName', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E] transition-all"
-                  placeholder="Nama anda" />
+                  placeholder={rc.fullNamePlaceholder} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">No. Telefon</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.phone}</label>
                 <input type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E] transition-all"
                   placeholder="01X-XXXXXXXX" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.email}</label>
                 <input type="email" value={form.email} onChange={(e) => update('email', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E] transition-all"
                   placeholder="email@contoh.com" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Kata Laluan</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.password}</label>
                 <input type="password" value={form.password} onChange={(e) => update('password', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E] transition-all"
-                  placeholder="Minimum 8 aksara" />
+                  placeholder={rc.passwordPlaceholder} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Kod Rujukan NGO <span className="text-gray-400 font-normal">(pilihan)</span>
+                  {rc.referralCode} <span className="text-gray-400 font-normal">{rc.optional}</span>
+                </label>
+                <input type="text" value={form.referralCode} onChange={(e) => update('referralCode', e.target.value.toUpperCase())}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E] transition-all font-mono uppercase"
+                  placeholder={rc.referralCodePlaceholder} />
+                <p className="text-xs text-gray-400 mt-1">{rc.referralCodeHint}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  {rc.ngoCode} <span className="text-gray-400 font-normal">{rc.optional}</span>
                 </label>
                 <input type="text" value={form.ngoReferralCode} onChange={(e) => update('ngoReferralCode', e.target.value.toUpperCase())}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E] transition-all font-mono uppercase"
-                  placeholder="Contoh: PITM1234" />
-                <p className="text-xs text-gray-400 mt-1">Jika anda didaftar oleh sesebuah NGO, masukkan kod mereka di sini.</p>
+                  placeholder={rc.ngoCodePlaceholder} />
+                <p className="text-xs text-gray-400 mt-1">{rc.ngoCodeHint}</p>
               </div>
             </div>
           )}
@@ -248,50 +268,50 @@ export default function CustomerRegisterPage() {
               {!form.isForSelf && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Warga Emas</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.seniorName}</label>
                     <input type="text" value={form.seniorFullName} onChange={(e) => update('seniorFullName', e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E]"
-                      placeholder="Nama orang tua anda" />
+                      placeholder={rc.seniorNamePlaceholder} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Umur</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.seniorAge}</label>
                     <input type="number" min="50" max="120" value={form.seniorAge} onChange={(e) => update('seniorAge', e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E]"
-                      placeholder="Contoh: 72" />
+                      placeholder={rc.seniorAgePlaceholder} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">No. Telefon Warga Emas</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.seniorPhone}</label>
                     <input type="tel" value={form.seniorPhone} onChange={(e) => update('seniorPhone', e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E]"
-                      placeholder="01X-XXXXXXXX (jika ada)" />
+                      placeholder={rc.seniorPhonePlaceholder} />
                   </div>
                 </>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Negeri</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.state}</label>
                 <select value={form.locationState} onChange={(e) => update('locationState', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E] bg-white">
-                  <option value="">-- Pilih Negeri --</option>
+                  <option value="">{rc.stateDefault}</option>
                   {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Bandar / Kawasan</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.city}</label>
                 <input type="text" value={form.locationCity} onChange={(e) => update('locationCity', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E]"
-                  placeholder="Contoh: Damansara Perdana" />
+                  placeholder={rc.cityPlaceholder} />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Keupayaan Mobiliti</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.mobility}</label>
                 <select value={form.mobilityStatus} onChange={(e) => update('mobilityStatus', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E] bg-white">
-                  <option value="independent">Boleh berjalan sendiri</option>
-                  <option value="walking_stick">Guna tongkat</option>
-                  <option value="wheelchair">Guna kerusi roda</option>
-                  <option value="bedridden">Tidak dapat berjalan</option>
+                  <option value="independent">{rc.mobilityIndependent}</option>
+                  <option value="walking_stick">{rc.mobilityStick}</option>
+                  <option value="wheelchair">{rc.mobilityWheelchair}</option>
+                  <option value="bedridden">{rc.mobilityImmobile}</option>
                 </select>
               </div>
             </div>
@@ -301,7 +321,7 @@ export default function CustomerRegisterPage() {
           {step === 2 && (
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Jenis Perkhidmatan yang Diperlukan</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{rc.needsTitle}</label>
                 <div className="space-y-2">
                   {NEEDS.map((need) => (
                     <button
@@ -319,17 +339,17 @@ export default function CustomerRegisterPage() {
               </div>
 
               <div className="pt-2 border-t border-gray-100">
-                <p className="text-sm font-semibold text-gray-900 mb-3">Kenalan Kecemasan</p>
+                <p className="text-sm font-semibold text-gray-900 mb-3">{rc.emergency}</p>
                 <div className="space-y-3">
                   <input type="text" value={form.emergencyName} onChange={(e) => update('emergencyName', e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E]"
-                    placeholder="Nama kenalan kecemasan" />
+                    placeholder={rc.emergencyNamePlaceholder} />
                   <input type="text" value={form.emergencyRelation} onChange={(e) => update('emergencyRelation', e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E]"
-                    placeholder="Hubungan (contoh: Anak, Adik-beradik)" />
+                    placeholder={rc.emergencyRelationPlaceholder} />
                   <input type="tel" value={form.emergencyPhone} onChange={(e) => update('emergencyPhone', e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E]"
-                    placeholder="No. telefon kecemasan" />
+                    placeholder={rc.emergencyPhonePlaceholder} />
                 </div>
               </div>
             </div>
@@ -339,16 +359,16 @@ export default function CustomerRegisterPage() {
           {step === 3 && (
             <div className="space-y-4">
               <div className="bg-[#FFF1F2] rounded-xl p-4 space-y-3">
-                <Row label="Nama" value={form.fullName} />
-                <Row label="Email" value={form.email} />
-                <Row label="Telefon" value={form.phone} />
-                <Row label="Jenis" value={form.isForSelf ? 'Diri Sendiri' : 'Waris'} />
-                {!form.isForSelf && <Row label="Warga Emas" value={form.seniorFullName} />}
-                <Row label="Negeri" value={form.locationState} />
-                <Row label="Bandar" value={form.locationCity} />
-                <Row label="Perkhidmatan" value={form.needs.map((n) => NEEDS.find((nd) => nd.id === n)?.label).join(', ')} />
-                <Row label="Kenalan Kecemasan" value={`${form.emergencyName} (${form.emergencyPhone})`} />
-                {form.ngoReferralCode && <Row label="Kod NGO" value={form.ngoReferralCode} />}
+                <Row label={rc.reviewName} value={form.fullName} />
+                <Row label={rc.reviewEmail} value={form.email} />
+                <Row label={rc.reviewPhone} value={form.phone} />
+                <Row label={rc.reviewType} value={form.isForSelf ? rc.reviewSelf : rc.reviewGuardian} />
+                {!form.isForSelf && <Row label={rc.reviewSenior} value={form.seniorFullName} />}
+                <Row label={rc.reviewState} value={form.locationState} />
+                <Row label={rc.reviewCity} value={form.locationCity} />
+                <Row label={rc.reviewService} value={form.needs.map((n) => NEEDS.find((nd) => nd.id === n)?.label ?? n).join(', ')} />
+                <Row label={rc.reviewEmergency} value={`${form.emergencyName} (${form.emergencyPhone})`} />
+                {form.ngoReferralCode && <Row label={rc.reviewNgoCode} value={form.ngoReferralCode} />}
               </div>
             </div>
           )}
@@ -358,14 +378,14 @@ export default function CustomerRegisterPage() {
             {step > 0 && (
               <button type="button" onClick={() => setStep(step - 1)}
                 className="flex items-center gap-1 px-5 py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-medium hover:bg-gray-50 transition-colors">
-                <ChevronLeft className="w-4 h-4" /> Balik
+                <ChevronLeft className="w-4 h-4" /> {rc.back}
               </button>
             )}
             <button type="button" onClick={nextStep} disabled={!canProceed() || loading}
               className="flex-1 bg-[#F43F5E] text-white font-semibold py-3 rounded-xl hover:bg-[#E11D48] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {step === STEPS.length - 1 ? 'Daftar Sekarang' : (
-                <>Seterusnya <ChevronRight className="w-4 h-4" /></>
+              {step === STEPS.length - 1 ? rc.submit : (
+                <>{rc.next} <ChevronRight className="w-4 h-4" /></>
               )}
             </button>
           </div>

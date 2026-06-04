@@ -16,6 +16,10 @@ const schema = z.object({
   canBringChildren: z.boolean(),
   skills: z.array(z.string()),
   pricePerHour: z.number().min(0),
+  lat: z.number().optional().nullable(),
+  lng: z.number().optional().nullable(),
+  bangsa: z.string().optional().nullable(),
+  ageRange: z.string().optional().nullable(),
 })
 
 export async function PATCH(request: NextRequest) {
@@ -48,6 +52,9 @@ export async function PATCH(request: NextRequest) {
       has_transport: data.hasTransport,
       children_count: data.childrenCount,
       can_bring_children: data.canBringChildren,
+      ...(data.lat != null ? { lat: data.lat, lng: data.lng } : {}),
+      bangsa: data.bangsa ?? null,
+      age_range: data.ageRange ?? null,
       updated_at: now,
     }).eq('id', profile.id).then(r => r.error),
   ])

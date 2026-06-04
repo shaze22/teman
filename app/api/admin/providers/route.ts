@@ -28,7 +28,10 @@ export async function PATCH(req: NextRequest) {
   }
 
   const update: Record<string, unknown> = { updated_at: now }
-  if (verifiedByAdmin !== undefined) update.verified_by_admin = verifiedByAdmin
+  if (verifiedByAdmin !== undefined) {
+    update.verified_by_admin = verifiedByAdmin
+    if (verifiedByAdmin === true) update.is_active = true
+  }
   if (bgCheck !== undefined) update.background_check_status = bgCheck
 
   await supabaseAdmin.from('single_mother_profiles').update(update).eq('id', profileId)

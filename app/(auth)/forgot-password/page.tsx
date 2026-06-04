@@ -4,8 +4,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Heart, Loader2, ArrowLeft, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useLang } from '@/lib/lang-context'
 
 export default function ForgotPasswordPage() {
+  const { t } = useLang()
+  const fp = t.forgotPassword
+
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -23,7 +27,7 @@ export default function ForgotPasswordPage() {
 
     setLoading(false)
     if (error) {
-      setError('Ralat berlaku. Sila cuba lagi.')
+      setError(fp.errorGeneral)
       return
     }
     setSent(true)
@@ -34,7 +38,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-sm">
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
           <Heart className="w-8 h-8 text-[#6366F1]" fill="currentColor" />
-          <span className="text-2xl font-bold text-[#6366F1]">Teman</span>
+          <span className="text-2xl font-bold text-[#6366F1]">SenioCare</span>
         </Link>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
@@ -43,25 +47,22 @@ export default function ForgotPasswordPage() {
               <div className="flex justify-center">
                 <CheckCircle className="w-14 h-14 text-emerald-500" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">Emel dihantar!</h1>
+              <h1 className="text-xl font-bold text-gray-900">{fp.sent}</h1>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Kami telah menghantar pautan set semula kata laluan ke <strong>{email}</strong>.
-                Sila semak peti masuk anda (dan folder spam).
+                {fp.sentDesc} <strong>{email}</strong>{fp.sentDesc2}
               </p>
               <Link
                 href="/login"
                 className="inline-flex items-center gap-2 text-sm text-[#6366F1] hover:underline mt-2"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Kembali ke Log Masuk
+                {fp.backToLogin}
               </Link>
             </div>
           ) : (
             <>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">Lupa Kata Laluan</h1>
-              <p className="text-gray-500 text-sm mb-6">
-                Masukkan emel anda dan kami akan hantar pautan untuk set semula kata laluan.
-              </p>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">{fp.title}</h1>
+              <p className="text-gray-500 text-sm mb-6">{fp.subtitle}</p>
 
               {error && (
                 <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-4 border border-red-100">
@@ -90,7 +91,7 @@ export default function ForgotPasswordPage() {
                   className="w-full bg-[#6366F1] text-white font-semibold py-3 rounded-xl hover:bg-[#4F46E5] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Hantar Pautan Set Semula
+                  {fp.submit}
                 </button>
               </form>
 
@@ -100,7 +101,7 @@ export default function ForgotPasswordPage() {
                   className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  Kembali ke Log Masuk
+                  {fp.backToLogin}
                 </Link>
               </div>
             </>

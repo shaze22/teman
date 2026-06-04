@@ -5,30 +5,35 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Heart, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useLang } from '@/lib/lang-context'
+import LangToggle from '@/app/_lang-toggle'
 
 function LinkExpiredBanner() {
   const searchParams = useSearchParams()
+  const { t } = useLang()
   if (searchParams.get('error') !== 'link_expired') return null
   return (
     <div className="bg-amber-50 text-amber-700 text-sm px-4 py-3 rounded-lg mb-4 border border-amber-100">
-      Pautan telah tamat tempoh.{' '}
-      <a href="/forgot-password" className="underline font-medium">Minta semula</a>.
+      {t.login.linkExpired}{' '}
+      <a href="/forgot-password" className="underline font-medium">{t.login.requestAgain}</a>.
     </div>
   )
 }
 
 function LoggedOutBanner() {
   const searchParams = useSearchParams()
+  const { t } = useLang()
   if (searchParams.get('logged_out') !== '1') return null
   return (
     <div className="bg-green-50 text-green-700 text-sm px-4 py-3 rounded-lg mb-4 border border-green-100">
-      ✓ Anda telah berjaya log keluar.
+      {t.login.loggedOut}
     </div>
   )
 }
 
 function LoginForm() {
   const router = useRouter()
+  const { t } = useLang()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -44,7 +49,7 @@ function LoginForm() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      setError('Email atau kata laluan tidak sah. Sila cuba lagi.')
+      setError(t.login.errorInvalid)
       setLoading(false)
       return
     }
@@ -55,8 +60,8 @@ function LoginForm() {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Log Masuk</h1>
-      <p className="text-gray-500 text-sm mb-6">Selamat datang kembali!</p>
+      <h1 className="text-2xl font-bold text-gray-900 mb-1">{t.login.title}</h1>
+      <p className="text-gray-500 text-sm mb-6">{t.login.subtitle}</p>
 
       <Suspense>
         <LoggedOutBanner />
@@ -72,7 +77,7 @@ function LoginForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Email
+            {t.login.email}
           </label>
           <input
             type="email"
@@ -87,13 +92,10 @@ function LoginForm() {
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label className="block text-sm font-medium text-gray-700">
-              Kata Laluan
+              {t.login.password}
             </label>
-            <Link
-              href="/forgot-password"
-              className="text-xs text-[#6366F1] hover:underline"
-            >
-              Lupa kata laluan?
+            <Link href="/forgot-password" className="text-xs text-[#6366F1] hover:underline">
+              {t.login.forgotPw}
             </Link>
           </div>
           <div className="relative">
@@ -121,14 +123,14 @@ function LoginForm() {
           className="w-full bg-[#6366F1] text-white font-semibold py-3 rounded-xl hover:bg-[#4F46E5] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-          Log Masuk
+          {t.login.submit}
         </button>
       </form>
 
       <p className="text-center text-sm text-gray-500 mt-6">
-        Belum ada akaun?{' '}
+        {t.login.noAccount}{' '}
         <Link href="/register" className="text-[#6366F1] font-semibold hover:underline">
-          Daftar sekarang
+          {t.login.registerNow}
         </Link>
       </p>
     </div>
@@ -139,10 +141,13 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
-        <Link href="/" className="flex items-center justify-center gap-2 mb-8">
-          <Heart className="w-8 h-8 text-[#6366F1]" fill="currentColor" />
-          <span className="text-2xl font-bold text-[#6366F1]">Teman</span>
-        </Link>
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <Link href="/" className="flex items-center gap-2">
+            <Heart className="w-8 h-8 text-[#6366F1]" fill="currentColor" />
+            <span className="text-2xl font-bold text-[#6366F1]">SenioCare</span>
+          </Link>
+          <LangToggle />
+        </div>
         <LoginForm />
       </div>
     </div>

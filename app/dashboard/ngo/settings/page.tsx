@@ -1,9 +1,15 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import NgoSettingsForm from './_form'
+import { translations, type Lang } from '@/lib/i18n'
 
 export default async function NgoSettingsPage() {
+  const cookieStore = await cookies()
+  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const t = translations[lang]
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -20,8 +26,8 @@ export default async function NgoSettingsPage() {
 
   return (
     <div className="p-8 max-w-2xl">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Tetapan NGO</h1>
-      <p className="text-sm text-gray-500 mb-8">Kemaskini maklumat organisasi anda</p>
+      <h1 className="text-2xl font-bold text-gray-900 mb-1">{t.ngo.settingsTitle}</h1>
+      <p className="text-sm text-gray-500 mb-8">{t.ngo.settingsSubtitle}</p>
       <NgoSettingsForm initial={{
         name: ngo.name,
         regNumber: ngo.reg_number ?? '',

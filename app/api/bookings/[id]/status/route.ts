@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { stripe } from '@/lib/stripe'
 import { z } from 'zod'
 import { notifyBookingStatusChange } from '@/lib/notifications'
 import {
@@ -29,9 +30,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const { data: booking } = await supabaseAdmin
     .from('bookings')
     .select(`
-      customer_id, provider_id, status, booking_code, scheduled_date, total_amount, provider_price,
+      customer_id, provider_id, status, booking_code, scheduled_date, start_time, total_amount, provider_price, payment_status, payment_method,
       customer:users!bookings_customer_id_fkey(full_name),
-      provider:users!bookings_provider_id_fkey(full_name)
+      provider:users!bookings_provider_id_fkey(full_name, phone)
     `)
     .eq('id', id)
     .single()
@@ -50,10 +51,47 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (status === 'confirmed') update.confirmed_at = now
   if (status === 'in_progress') update.checked_in_at = now
   if (status === 'completed') { update.checked_out_at = now; update.completed_at = now }
+  let refundAmount = 0
+  let refundStatus = ''
+
   if (status === 'cancelled') {
     update.cancelled_at = now
     update.cancelled_by = user.id
     update.cancellation_reason = cancellationReason ?? null
+
+    // Process refund if booking was paid
+    if (b.payment_status === 'paid' && b.payment_method === 'stripe') {
+      const sessionDate = new Date(`${b.scheduled_date}T${b.start_time ?? '00:00'}`)
+      const hoursUntil = (sessionDate.getTime() - Date.now()) / 3_600_000
+      const totalAmt = parseFloat(String(b.total_amount))
+      refundAmount = hoursUntil >= 24 ? totalAmt : totalAmt * 0.5
+
+      const { data: payment } = await supabaseAdmin
+        .from('payments')
+        .select('transaction_id')
+        .eq('booking_id', id)
+        .eq('status', 'paid')
+        .single()
+
+      if (payment?.transaction_id) {
+        try {
+          const session = await stripe.checkout.sessions.retrieve(payment.transaction_id)
+          const paymentIntentId = typeof session.payment_intent === 'string'
+            ? session.payment_intent
+            : session.payment_intent?.id
+
+          if (paymentIntentId) {
+            const refundSen = Math.round(refundAmount * 100)
+            await stripe.refunds.create({ payment_intent: paymentIntentId, amount: refundSen })
+            refundStatus = hoursUntil >= 24 ? 'full' : 'partial'
+            update.payment_status = 'refunded'
+            await supabaseAdmin.from('payments').update({ status: 'refunded' }).eq('booking_id', id)
+          }
+        } catch (err) {
+          console.error('[status/cancel] refund error:', err)
+        }
+      }
+    }
   }
 
   const { error } = await supabaseAdmin.from('bookings').update(update).eq('id', id)
@@ -79,6 +117,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (status === 'confirmed' && customerEmail) {
     sendBookingConfirmedCustomer({
       to: customerEmail, customerName, providerName,
+      providerPhone: b.provider?.phone ?? undefined,
       bookingCode: b.booking_code, bookingId: id,
       scheduledDate: b.scheduled_date,
       totalAmount: parseFloat(String(b.total_amount ?? 0)),
@@ -110,5 +149,5 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }).catch(() => {})
   }
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true, refundAmount: refundAmount || undefined, refundStatus: refundStatus || undefined })
 }

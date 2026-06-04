@@ -27,7 +27,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Heart className="w-3.5 h-3.5 text-white" fill="currentColor" />
           </div>
           <div>
-            <div className="font-bold text-white text-sm">Teman Admin</div>
+            <div className="font-bold text-white text-sm">SenioCare Admin</div>
             <div className="text-xs text-white/40 capitalize">{u.role.replace('_', ' ')}</div>
           </div>
         </div>

@@ -1,4 +1,5 @@
-﻿import { redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
@@ -10,6 +11,8 @@ import {
 import SignOutButton from '../_sign-out-button'
 import BookingActions from './_booking-actions'
 import NotificationBell from '../_notification-bell'
+import PushSetup from '../_push-setup'
+import { translations, type Lang } from '@/lib/i18n'
 
 const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-700',
@@ -19,15 +22,12 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: 'bg-red-100 text-red-700',
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  pending: 'Menunggu',
-  confirmed: 'Disahkan',
-  in_progress: 'Sedang Berjalan',
-  completed: 'Selesai',
-  cancelled: 'Dibatalkan',
-}
-
 export default async function ProviderDashboard() {
+  const cookieStore = await cookies()
+  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const t = translations[lang]
+  const dc = t.dashCommon
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -78,6 +78,10 @@ export default async function ProviderDashboard() {
     .reduce((sum, b) => sum + parseFloat(String(b.providerPrice)), 0)
 
   const initials = profile.user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+  const dateLocale = lang === 'en' ? 'en-MY' : 'ms-MY'
+  const ratingDisplay = parseFloat(String(profile.ratingAvg)) > 0
+    ? parseFloat(String(profile.ratingAvg)).toFixed(1)
+    : t.profilePage.newLabel
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -87,10 +91,11 @@ export default async function ProviderDashboard() {
             <div className="w-7 h-7 rounded-lg bg-[#6366F1] flex items-center justify-center">
               <Heart className="w-3.5 h-3.5 text-white" fill="currentColor" />
             </div>
-            <span className="font-bold text-[#0F0E17]">Teman</span>
-            <span className="text-xs text-gray-400 font-medium ml-1 hidden sm:block">· Provider</span>
+            <span className="font-bold text-[#0F0E17]">SenioCare</span>
+            <span className="text-xs text-gray-400 font-medium ml-1 hidden sm:block">{dc.providerNav}</span>
           </Link>
           <div className="flex items-center gap-2">
+            <PushSetup />
             <NotificationBell userId={user.id} accentColor="#6366F1" />
             <Link href="/dashboard/provider/settings" className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500">
               <Settings className="w-5 h-5" />
@@ -111,7 +116,7 @@ export default async function ProviderDashboard() {
             </div>
           )}
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Selamat datang, {profile.user.fullName.split(' ')[0]}!</h1>
+            <h1 className="text-xl font-bold text-gray-900">{dc.welcome}, {profile.user.fullName.split(' ')[0]}!</h1>
             <div className="flex items-center gap-2 mt-0.5">
               {profile.verifiedByNgo ? (
                 <span className="flex items-center gap-1 text-xs text-[#6366F1] font-medium">
@@ -119,7 +124,7 @@ export default async function ProviderDashboard() {
                 </span>
               ) : (
                 <span className="flex items-center gap-1 text-xs text-yellow-600 font-medium">
-                  <Clock className="w-3.5 h-3.5" /> Menunggu Pengesahan NGO
+                  <Clock className="w-3.5 h-3.5" /> {dc.pendingNGO}
                 </span>
               )}
             </div>
@@ -127,20 +132,20 @@ export default async function ProviderDashboard() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <StatCard icon={DollarSign} label="Pendapatan Bulan Ini" value={`RM${monthlyEarnings.toFixed(0)}`} color="text-[#6366F1] bg-[#E0E7FF]" />
-          <StatCard icon={Calendar} label="Booking Menunggu" value={pendingCount.toString()} color="text-yellow-600 bg-yellow-100" />
-          <StatCard icon={CheckCircle} label="Sesi Selesai" value={completedCount.toString()} color="text-blue-600 bg-blue-100" />
-          <StatCard icon={Star} label="Rating Saya" value={parseFloat(String(profile.ratingAvg)) > 0 ? parseFloat(String(profile.ratingAvg)).toFixed(1) : 'Baru'} color="text-yellow-500 bg-yellow-100" />
+          <StatCard icon={DollarSign} label={dc.monthlyEarnings} value={`RM${monthlyEarnings.toFixed(0)}`} color="text-[#6366F1] bg-[#E0E7FF]" />
+          <StatCard icon={Calendar} label={dc.bookingsPending} value={pendingCount.toString()} color="text-yellow-600 bg-yellow-100" />
+          <StatCard icon={CheckCircle} label={dc.sessionsCompleted} value={completedCount.toString()} color="text-blue-600 bg-blue-100" />
+          <StatCard icon={Star} label={dc.ratingLabel} value={ratingDisplay} color="text-yellow-500 bg-yellow-100" />
         </div>
 
         {!profile.bio && (
           <div className="bg-[#FFF1F2] border border-orange-200 rounded-xl p-4 flex items-start gap-3 mb-6">
             <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-orange-800">Lengkapkan profil anda</p>
+              <p className="text-sm font-medium text-orange-800">{dc.completeProfileTitle}</p>
               <p className="text-xs text-orange-600 mt-0.5">
-                Profil yang lengkap mendapat 3x lebih banyak booking.{' '}
-                <Link href="/dashboard/provider/profile" className="underline font-medium">Edit sekarang</Link>
+                {dc.completeProfileDesc}{' '}
+                <Link href="/dashboard/provider/profile" className="underline font-medium">{dc.editNow}</Link>
               </p>
             </div>
           </div>
@@ -149,15 +154,15 @@ export default async function ProviderDashboard() {
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-900">Booking Terkini</h2>
-              <Link href="/dashboard/provider/bookings" className="text-sm text-[#6366F1] font-medium hover:underline">Lihat semua</Link>
+              <h2 className="text-lg font-bold text-gray-900">{dc.recentBookings}</h2>
+              <Link href="/dashboard/provider/bookings" className="text-sm text-[#6366F1] font-medium hover:underline">{dc.viewAll}</Link>
             </div>
 
             {bookings.length === 0 ? (
               <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
-                <div className="text-4xl mb-3">📋</div>
-                <h3 className="font-semibold text-gray-900 mb-1">Belum ada booking</h3>
-                <p className="text-sm text-gray-500">Lengkapkan profil anda untuk mula menerima booking.</p>
+                <div className="text-4xl mb-3">ðŸ"‹</div>
+                <h3 className="font-semibold text-gray-900 mb-1">{dc.noBookings}</h3>
+                <p className="text-sm text-gray-500">{dc.noBookingsProviderDesc}</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -171,19 +176,19 @@ export default async function ProviderDashboard() {
                         <div>
                           <div className="font-medium text-gray-900 text-sm">{b.customer.fullName}</div>
                           <div className="text-xs text-gray-500">
-                            {new Date(b.scheduledDate).toLocaleDateString('ms-MY')} · {b.startTime}
-                            {b.durationHours && ` · ${b.durationHours} jam`}
+                            {new Date(b.scheduledDate).toLocaleDateString(dateLocale)} · {b.startTime}
+                            {b.durationHours && ` · ${b.durationHours} ${dc.hours}`}
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[b.status]}`}>
-                          {STATUS_LABELS[b.status]}
+                          {t.status[b.status as keyof typeof t.status] ?? b.status}
                         </span>
                         <span className="text-sm font-bold text-[#6366F1]">
                           RM{parseFloat(String(b.providerPrice)).toFixed(0)}
                         </span>
-                        <Link href={`/booking/${b.id}`} className="text-xs text-gray-400 hover:text-gray-600 underline">Detail</Link>
+                        <Link href={`/booking/${b.id}`} className="text-xs text-gray-400 hover:text-gray-600 underline">{dc.detail}</Link>
                       </div>
                     </div>
                     {b.status === 'pending' && <BookingActions bookingId={b.id} />}
@@ -194,12 +199,12 @@ export default async function ProviderDashboard() {
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-gray-900">Tindakan Pantas</h2>
+            <h2 className="text-lg font-bold text-gray-900">{dc.quickActions}</h2>
             <div className="space-y-3">
-              <QuickAction href="/dashboard/provider/profile" icon={Settings} label="Edit Profil" desc="Kemaskini foto, bio, kemahiran" />
-              <QuickAction href="/dashboard/provider/availability" icon={Calendar} label="Set Ketersediaan" desc="Pilih hari dan masa anda" />
-              <QuickAction href="/dashboard/provider/earnings" icon={TrendingUp} label="Pendapatan Saya" desc="Lihat penyata dan minta bayaran" />
-              <QuickAction href={`/teman/${profile.id}`} icon={Star} label="Lihat Profil Awam" desc="Seperti yang dilihat pelanggan" />
+              <QuickAction href="/dashboard/provider/profile" icon={Settings} label={dc.editProfile} desc={dc.editProfileDesc} />
+              <QuickAction href="/dashboard/provider/availability" icon={Calendar} label={dc.setAvailability} desc={dc.setAvailDesc} />
+              <QuickAction href="/dashboard/provider/earnings" icon={TrendingUp} label={dc.myEarnings} desc={dc.myEarningsDesc} />
+              <QuickAction href={`/carer/${profile.id}`} icon={Star} label={dc.viewPublicProfile} desc={dc.viewPublicProfileDesc} />
             </div>
           </div>
         </div>

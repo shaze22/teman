@@ -1,8 +1,10 @@
-﻿import { redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { Heart, ArrowLeft, Calendar, Clock } from 'lucide-react'
+import { translations, type Lang } from '@/lib/i18n'
 
 const STATUS_COLORS: Record<string, string> = {
   pending:     'bg-yellow-100 text-yellow-700',
@@ -12,17 +14,14 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled:   'bg-red-100 text-red-700',
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  pending:     'Menunggu',
-  confirmed:   'Disahkan',
-  in_progress: 'Sedang Berjalan',
-  completed:   'Selesai',
-  cancelled:   'Dibatalkan',
-}
-
 const STATUS_ORDER = ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']
 
 export default async function ProviderBookingsPage() {
+  const cookieStore = await cookies()
+  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const t = translations[lang]
+  const dc = t.dashCommon
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -57,6 +56,7 @@ export default async function ProviderBookingsPage() {
   }, {})
 
   const activeStatuses = STATUS_ORDER.filter(s => grouped[s].length > 0)
+  const dateLocale = lang === 'en' ? 'en-MY' : 'ms-MY'
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -67,19 +67,19 @@ export default async function ProviderBookingsPage() {
           </Link>
           <Link href="/" className="flex items-center gap-1.5">
             <Heart className="w-5 h-5 text-[#6366F1]" fill="currentColor" />
-            <span className="font-bold text-[#6366F1]">Teman</span>
+            <span className="font-bold text-[#6366F1]">SenioCare</span>
           </Link>
-          <span className="font-semibold text-gray-900 ml-2">Semua Booking</span>
-          <span className="ml-auto text-sm text-gray-400">{bookings.length} booking</span>
+          <span className="font-semibold text-gray-900 ml-2">{dc.allBookings}</span>
+          <span className="ml-auto text-sm text-gray-400">{bookings.length} {dc.bookingCount}</span>
         </div>
       </nav>
 
       <div className="max-w-3xl mx-auto px-4 py-6">
         {bookings.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-            <div className="text-5xl mb-4">📋</div>
-            <h3 className="font-semibold text-gray-900 mb-2">Belum ada booking</h3>
-            <p className="text-sm text-gray-500">Booking dari pelanggan akan muncul di sini.</p>
+            <div className="text-5xl mb-4">ðŸ"‹</div>
+            <h3 className="font-semibold text-gray-900 mb-2">{dc.noBookings}</h3>
+            <p className="text-sm text-gray-500">{dc.bookingsFromCustomer}</p>
           </div>
         ) : (
           <div className="space-y-8">
@@ -87,7 +87,7 @@ export default async function ProviderBookingsPage() {
               <div key={status}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${STATUS_COLORS[status]}`}>
-                    {STATUS_LABELS[status]}
+                    {t.status[status as keyof typeof t.status] ?? status}
                   </span>
                   <span className="text-sm text-gray-400">{grouped[status].length}</span>
                 </div>
@@ -105,11 +105,11 @@ export default async function ProviderBookingsPage() {
                             <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
                               <span className="flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
-                                {new Date(b.scheduledDate).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                {new Date(b.scheduledDate).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric' })}
                               </span>
                               <span className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
-                                {b.startTime}{b.durationHours ? ` · ${b.durationHours}j` : ''}
+                                {b.startTime}{b.durationHours ? ` · ${b.durationHours}${lang === 'en' ? 'h' : 'j'}` : ''}
                               </span>
                             </div>
                           </div>

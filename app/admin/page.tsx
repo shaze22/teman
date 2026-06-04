@@ -37,7 +37,7 @@ export default async function AdminDashboard() {
     <div className="p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard Admin</h1>
-        <p className="text-sm text-gray-500 mt-1">Gambaran keseluruhan platform Teman</p>
+        <p className="text-sm text-gray-500 mt-1">Gambaran keseluruhan platform SenioCare</p>
       </div>
 
       {/* Alert: Active SOS */}
@@ -85,7 +85,7 @@ export default async function AdminDashboard() {
             <div key={b.id} className="px-6 py-3 flex items-center gap-4">
               <div className="text-xs font-mono text-gray-400 w-24 flex-shrink-0">{b.booking_code}</div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 truncate">{b.customer?.full_name} → {b.provider?.full_name}</div>
+                <div className="text-sm font-medium text-gray-900 truncate">{b.customer?.full_name} â†' {b.provider?.full_name}</div>
                 <div className="text-xs text-gray-500">{new Date(b.scheduled_date).toLocaleDateString('ms-MY')}</div>
               </div>
               <StatusBadge status={b.status} />
@@ -109,7 +109,7 @@ function StatCard({ icon: Icon, label, value, color, href }: { icon: typeof User
       </div>
       <div className="text-2xl font-bold text-gray-900">{value}</div>
       <div className="text-xs text-gray-500 mt-0.5">{label}</div>
-      {href && <div className="text-xs text-[#6366F1] mt-2 opacity-0 group-hover:opacity-100 transition-opacity font-medium">Lihat semua →</div>}
+      {href && <div className="text-xs text-[#6366F1] mt-2 opacity-0 group-hover:opacity-100 transition-opacity font-medium">Lihat semua â†'</div>}
     </>
   )
   if (href) return (

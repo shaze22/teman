@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
         bio: data.bio ?? null,
         children_count: parseInt(data.childrenCount),
         can_bring_children: data.canBringChildren,
+        is_active: false,
         updated_at: now,
       })
       .select('id')

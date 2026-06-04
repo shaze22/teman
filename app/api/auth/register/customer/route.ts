@@ -20,7 +20,13 @@ const schema = z.object({
   emergencyRelation: z.string().optional(),
   emergencyPhone: z.string().min(8),
   ngoReferralCode: z.string().optional(),
+  referralCode: z.string().optional(),
 })
+
+function generateReferralCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  return 'TM' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+}
 
 export async function POST(request: NextRequest) {
   let body: unknown
@@ -51,6 +57,26 @@ export async function POST(request: NextRequest) {
       if (ngo) ngoId = ngo.id
     }
 
+    // Resolve referral code (friend referral)
+    let referrerId: string | null = null
+    if (data.referralCode) {
+      const { data: referrer } = await supabaseAdmin
+        .from('users')
+        .select('id')
+        .eq('referral_code', data.referralCode.trim().toUpperCase())
+        .single()
+      if (referrer) referrerId = referrer.id
+    }
+
+    // Generate unique referral code for new user
+    let myReferralCode = generateReferralCode()
+    let codeUnique = false
+    for (let i = 0; i < 5 && !codeUnique; i++) {
+      const { data: existing } = await supabaseAdmin.from('users').select('id').eq('referral_code', myReferralCode).single()
+      if (!existing) codeUnique = true
+      else myReferralCode = generateReferralCode()
+    }
+
     // Remove orphaned record if previous registration failed mid-way
     await supabaseAdmin.from('users').delete().eq('email', data.email).neq('id', data.userId)
 
@@ -61,9 +87,22 @@ export async function POST(request: NextRequest) {
       full_name: data.fullName,
       role: data.isForSelf ? 'customer' : 'waris',
       status: 'active',
+      referral_code: myReferralCode,
+      referred_by: referrerId,
       updated_at: now,
     })
     if (userError) throw new Error(userError.message)
+
+    // Credit referrer RM5 immediately
+    if (referrerId) {
+      const { data: referrerUser } = await supabaseAdmin
+        .from('users')
+        .select('credit_balance')
+        .eq('id', referrerId)
+        .single()
+      const current = parseFloat(String(referrerUser?.credit_balance ?? 0))
+      await supabaseAdmin.from('users').update({ credit_balance: current + 5 }).eq('id', referrerId)
+    }
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('customer_profiles')

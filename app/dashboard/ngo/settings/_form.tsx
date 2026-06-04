@@ -59,7 +59,7 @@ export default function NgoSettingsForm({ initial, ngoId, adminName, adminEmail 
           <div className={`text-xs mt-0.5 ${form.status === 'active' ? 'text-emerald-600' : 'text-yellow-600'}`}>
             {form.status === 'active'
               ? 'Ahli NGO anda boleh didaftarkan sebagai provider'
-              : 'Admin Teman akan semak dan luluskan NGO anda dalam masa 1-3 hari bekerja'}
+              : 'admin SenioCare akan semak dan luluskan NGO anda dalam masa 1-3 hari bekerja'}
           </div>
         </div>
       </div>

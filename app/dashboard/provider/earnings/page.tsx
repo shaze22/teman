@@ -1,11 +1,19 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { Heart, ArrowLeft, TrendingUp, DollarSign, Calendar, Clock, ShieldCheck, Lock, CheckCircle, XCircle, Hourglass } from 'lucide-react'
 import WithdrawalForm from './_withdrawal-form'
+import { translations, type Lang } from '@/lib/i18n'
 
 export default async function ProviderEarningsPage() {
+  const cookieStore = await cookies()
+  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const t = translations[lang]
+  const ep = t.earningsPage
+  const dc = t.dashCommon
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -70,7 +78,14 @@ export default async function ProviderEarningsPage() {
   const pendingAmount = pendingBookings.reduce((s, b) => s + b.providerPrice * (1 - platformCut), 0)
   const thisMonthNet = thisMonth.reduce((s, b) => s + b.providerPrice * (1 - platformCut), 0)
   const lastMonthNet = lastMonth.reduce((s, b) => s + b.providerPrice * (1 - platformCut), 0)
-  const monthName = now.toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' })
+  const monthName = now.toLocaleDateString(lang === 'en' ? 'en-MY' : 'ms-MY', { month: 'long', year: 'numeric' })
+  const dateLocale = lang === 'en' ? 'en-MY' : 'ms-MY'
+
+  const withdrawStatusConfig = (status: string) => ({
+    pending:  { label: ep.withdrawPending,  color: 'bg-amber-100 text-amber-700',     icon: Hourglass },
+    approved: { label: ep.withdrawApproved, color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
+    rejected: { label: ep.withdrawRejected, color: 'bg-red-100 text-red-700',         icon: XCircle },
+  }[status] ?? { label: status, color: 'bg-gray-100 text-gray-600', icon: Clock })
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -81,9 +96,9 @@ export default async function ProviderEarningsPage() {
           </Link>
           <Link href="/" className="flex items-center gap-1.5">
             <Heart className="w-5 h-5 text-[#6366F1]" fill="currentColor" />
-            <span className="font-bold text-[#6366F1]">Teman</span>
+            <span className="font-bold text-[#6366F1]">SenioCare</span>
           </Link>
-          <span className="font-semibold text-gray-900 ml-2">Pendapatan Saya</span>
+          <span className="font-semibold text-gray-900 ml-2">{ep.title}</span>
         </div>
       </nav>
 
@@ -92,14 +107,14 @@ export default async function ProviderEarningsPage() {
         {/* Wallet balance */}
         <div className="bg-[#6366F1] rounded-2xl p-6 text-white">
           <div className="flex items-center gap-2 mb-1 opacity-80 text-sm">
-            <ShieldCheck className="w-4 h-4" /> Baki Wallet
+            <ShieldCheck className="w-4 h-4" /> {ep.walletBalance}
           </div>
           <div className="text-4xl font-bold">RM{walletBalance.toFixed(2)}</div>
-          <div className="text-xs opacity-70 mt-2">{releasedBookings.length} sesi telah diselesaikan</div>
+          <div className="text-xs opacity-70 mt-2">{releasedBookings.length} {ep.sessionsReleased}</div>
           {pendingAmount > 0 && (
             <div className="mt-3 bg-white/10 rounded-xl px-4 py-2.5 flex items-center gap-2">
               <Lock className="w-4 h-4 opacity-80" />
-              <span className="text-sm">RM{pendingAmount.toFixed(2)} dalam escrow ({pendingBookings.length} sesi menunggu)</span>
+              <span className="text-sm">RM{pendingAmount.toFixed(2)} {ep.inEscrow} ({pendingBookings.length} {ep.sessionsPending})</span>
             </div>
           )}
         </div>
@@ -108,17 +123,17 @@ export default async function ProviderEarningsPage() {
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <div className="flex items-center gap-2 mb-1 text-gray-500 text-sm">
-              <TrendingUp className="w-4 h-4" /> Bulan Ini
+              <TrendingUp className="w-4 h-4" /> {ep.thisMonth}
             </div>
             <div className="text-2xl font-bold text-gray-900">RM{thisMonthNet.toFixed(0)}</div>
-            <div className="text-xs text-gray-400 mt-1">{thisMonth.length} sesi · {monthName}</div>
+            <div className="text-xs text-gray-400 mt-1">{thisMonth.length} {ep.sessions} · {monthName}</div>
           </div>
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <div className="flex items-center gap-2 mb-1 text-gray-500 text-sm">
-              <DollarSign className="w-4 h-4" /> Bulan Lepas
+              <DollarSign className="w-4 h-4" /> {ep.lastMonth}
             </div>
             <div className="text-2xl font-bold text-gray-900">RM{lastMonthNet.toFixed(0)}</div>
-            <div className="text-xs text-gray-400 mt-1">{lastMonth.length} sesi</div>
+            <div className="text-xs text-gray-400 mt-1">{lastMonth.length} {ep.sessions}</div>
           </div>
         </div>
 
@@ -127,7 +142,7 @@ export default async function ProviderEarningsPage() {
           <div>
             <h2 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
               <Lock className="w-4 h-4 text-amber-500" />
-              Dalam Escrow — Menunggu Pengesahan
+              {ep.escrowPending}
             </h2>
             <div className="space-y-2">
               {pendingBookings.map(b => (
@@ -137,13 +152,13 @@ export default async function ProviderEarningsPage() {
                     <div className="font-medium text-gray-900 text-sm">{b.customerName}</div>
                     <div className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
                       <Calendar className="w-3 h-3" />
-                      {new Date(b.scheduledDate).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      {new Date(b.scheduledDate).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric' })}
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-amber-600">RM{(b.providerPrice * (1 - platformCut)).toFixed(2)}</div>
                     <div className="text-xs text-amber-500 flex items-center gap-1 justify-end mt-0.5">
-                      <Clock className="w-3 h-3" /> Menunggu
+                      <Clock className="w-3 h-3" /> {ep.waiting}
                     </div>
                   </div>
                 </Link>
@@ -156,16 +171,17 @@ export default async function ProviderEarningsPage() {
         <div>
           <h2 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
-            Sejarah Pendapatan
+            {ep.earningHistory}
           </h2>
           {(walletTx ?? []).length === 0 ? (
             <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
-              <div className="text-4xl mb-3">💰</div>
-              <h3 className="font-semibold text-gray-900 mb-1">Belum ada pendapatan</h3>
-              <p className="text-sm text-gray-500">Pendapatan akan dikreditkan selepas pelanggan sahkan sesi selesai.</p>
+              <div className="text-4xl mb-3">ðŸ'°</div>
+              <h3 className="font-semibold text-gray-900 mb-1">{ep.noEarnings}</h3>
+              <p className="text-sm text-gray-500">{ep.noEarningsDesc}</p>
             </div>
           ) : (
             <div className="space-y-2">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {(walletTx ?? []).map((tx: any) => (
                 <Link key={tx.id} href={tx.reference_id ? `/booking/${tx.reference_id}` : '#'}
                   className="flex items-center justify-between bg-white rounded-xl border border-gray-100 p-4 hover:border-[#6366F1] hover:shadow-sm transition-all">
@@ -173,12 +189,12 @@ export default async function ProviderEarningsPage() {
                     <div className="font-medium text-gray-900 text-sm">{tx.description}</div>
                     <div className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
                       <Calendar className="w-3 h-3" />
-                      {new Date(tx.created_at).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      {new Date(tx.created_at).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric' })}
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-emerald-600">+ RM{parseFloat(String(tx.amount)).toFixed(2)}</div>
-                    <div className="text-xs text-gray-400 mt-0.5">Baki: RM{parseFloat(String(tx.balance_after)).toFixed(2)}</div>
+                    <div className="text-xs text-gray-400 mt-0.5">{ep.balanceLabel}: RM{parseFloat(String(tx.balance_after)).toFixed(2)}</div>
                   </div>
                 </Link>
               ))}
@@ -189,18 +205,18 @@ export default async function ProviderEarningsPage() {
         {/* Breakdown this month */}
         {thisMonth.length > 0 && (
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
-            <h2 className="font-semibold text-gray-900 mb-4">Ringkasan Bulan Ini</h2>
+            <h2 className="font-semibold text-gray-900 mb-4">{ep.monthlySummary}</h2>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-500">Jumlah kasar</span>
+                <span className="text-gray-500">{ep.grossTotal}</span>
                 <span className="font-medium">RM{thisMonth.reduce((s, b) => s + b.providerPrice, 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Yuran platform (15%)</span>
+                <span className="text-gray-500">{ep.platformFee}</span>
                 <span className="font-medium text-red-500">- RM{(thisMonth.reduce((s, b) => s + b.providerPrice, 0) * platformCut).toFixed(2)}</span>
               </div>
               <div className="flex justify-between border-t border-gray-100 pt-3 font-bold">
-                <span>Pendapatan bersih</span>
+                <span>{ep.netEarnings}</span>
                 <span className="text-[#6366F1]">RM{thisMonthNet.toFixed(2)}</span>
               </div>
             </div>
@@ -213,15 +229,12 @@ export default async function ProviderEarningsPage() {
         {/* Withdrawal history */}
         {(withdrawals ?? []).length > 0 && (
           <div>
-            <h2 className="font-semibold text-gray-900 mb-3">Sejarah Pengeluaran</h2>
+            <h2 className="font-semibold text-gray-900 mb-3">{ep.withdrawalHistory}</h2>
             <div className="space-y-2">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {(withdrawals ?? []).map((w: any) => {
-                const statusConfig = {
-                  pending:  { label: 'Menunggu',  color: 'bg-amber-100 text-amber-700',   icon: Hourglass },
-                  approved: { label: 'Diluluskan', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
-                  rejected: { label: 'Ditolak',   color: 'bg-red-100 text-red-700',       icon: XCircle },
-                }[w.status as string] ?? { label: w.status, color: 'bg-gray-100 text-gray-600', icon: Clock }
-                const StatusIcon = statusConfig.icon
+                const cfg = withdrawStatusConfig(w.status as string)
+                const StatusIcon = cfg.icon
                 return (
                   <div key={w.id} className="bg-white rounded-xl border border-gray-100 p-4">
                     <div className="flex items-center justify-between">
@@ -230,11 +243,11 @@ export default async function ProviderEarningsPage() {
                         <div className="text-xs text-gray-400 mt-0.5">{w.bank_name} · {w.account_number}</div>
                         <div className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          {new Date(w.created_at).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          {new Date(w.created_at).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric' })}
                         </div>
                       </div>
-                      <span className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium ${statusConfig.color}`}>
-                        <StatusIcon className="w-3 h-3" /> {statusConfig.label}
+                      <span className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium ${cfg.color}`}>
+                        <StatusIcon className="w-3 h-3" /> {cfg.label}
                       </span>
                     </div>
                     {w.notes && (

@@ -1,11 +1,17 @@
-﻿import { redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { Heart, ArrowLeft } from 'lucide-react'
 import ProviderEditForm from './_edit-form'
+import { translations, type Lang } from '@/lib/i18n'
 
 export default async function ProviderProfilePage() {
+  const cookieStore = await cookies()
+  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const t = translations[lang]
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -13,11 +19,14 @@ export default async function ProviderProfilePage() {
   const { data: raw } = await supabaseAdmin
     .from('single_mother_profiles')
     .select(`
-      id, bio, location_state, location_city, location_postcode,
+      id, bio, location_state, location_city, location_postcode, lat, lng,
       languages, has_transport, children_count, can_bring_children,
+      bangsa, age_range,
+      ic_number, ic_submitted_at, ic_verified, ic_rejected_reason,
       users!inner(full_name, phone),
       provider_skills(skill_name),
-      provider_pricing(price, service_type)
+      provider_pricing(price, service_type),
+      provider_portfolios(id, image_url, title)
     `)
     .eq('user_id', user.id)
     .single()
@@ -44,6 +53,16 @@ export default async function ProviderProfilePage() {
     canBringChildren: raw.can_bring_children ?? false,
     skills,
     pricePerHour: jobPricing?.price ?? 20,
+    lat: (raw.lat as number | null) ?? null,
+    lng: (raw.lng as number | null) ?? null,
+    bangsa: (raw.bangsa as string | null) ?? null,
+    ageRange: (raw.age_range as string | null) ?? null,
+    icNumber: (raw.ic_number as string | null) ?? null,
+    icSubmittedAt: (raw.ic_submitted_at as string | null) ?? null,
+    icVerified: (raw.ic_verified as boolean) ?? false,
+    icRejectedReason: (raw.ic_rejected_reason as string | null) ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    gallery: ((raw as any).provider_portfolios ?? []) as { id: string; image_url: string; title: string | null }[],
   }
 
   return (
@@ -55,9 +74,9 @@ export default async function ProviderProfilePage() {
           </Link>
           <Link href="/" className="flex items-center gap-1.5">
             <Heart className="w-5 h-5 text-[#6366F1]" fill="currentColor" />
-            <span className="font-bold text-[#6366F1]">Teman</span>
+            <span className="font-bold text-[#6366F1]">SenioCare</span>
           </Link>
-          <span className="font-semibold text-gray-900 ml-2">Edit Profil</span>
+          <span className="font-semibold text-gray-900 ml-2">{t.dashCommon.editProfile}</span>
         </div>
       </nav>
 

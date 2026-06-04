@@ -145,7 +145,7 @@ export default async function AdminNgoDetailPage({ params }: { params: Promise<{
         </h2>
         <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
           {members.map(m => (
-            <Link key={m.id} href={`/teman/${m.id}`}
+            <Link key={m.id} href={`/carer/${m.id}`}
               className="flex items-center gap-4 px-4 py-3 hover:bg-[#EEF2FF] transition-colors">
               <div className="w-9 h-9 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
                 {m.fullName.charAt(0)}

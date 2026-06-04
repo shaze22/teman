@@ -1,55 +1,61 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { Heart, HandHeart, Users, Building2, ArrowRight } from 'lucide-react'
-
-const roles = [
-  {
-    id: 'provider',
-    icon: HandHeart,
-    title: 'Saya Ibu Tunggal',
-    subtitle: 'Ingin jadi Teman & cari pendapatan',
-    color: 'border-[#6366F1] bg-[#EEF2FF]',
-    iconColor: 'text-[#6366F1] bg-[#E0E7FF]',
-    href: '/register/provider',
-  },
-  {
-    id: 'customer',
-    icon: Users,
-    title: 'Saya / Waris Warga Emas',
-    subtitle: 'Ingin cari Teman untuk orang tua / diri sendiri',
-    color: 'border-[#F43F5E] bg-[#FFF1F2]',
-    iconColor: 'text-[#F43F5E] bg-[#FFE4E6]',
-    href: '/register/customer',
-  },
-  {
-    id: 'ngo',
-    icon: Building2,
-    title: 'Saya Pengurus NGO',
-    subtitle: 'Ingin daftarkan ibu tunggal di bawah NGO saya',
-    color: 'border-blue-500 bg-blue-50',
-    iconColor: 'text-blue-600 bg-blue-100',
-    href: '/register/ngo',
-  },
-]
+import { useLang } from '@/lib/lang-context'
+import LangToggle from '@/app/_lang-toggle'
 
 function RegisterContent() {
   const searchParams = useSearchParams()
   const preselected = searchParams.get('role')
+  const { t } = useLang()
+
+  const roles = [
+    {
+      id: 'provider',
+      icon: HandHeart,
+      title: t.register.providerTitle,
+      subtitle: t.register.providerSub,
+      color: 'border-[#6366F1] bg-[#EEF2FF]',
+      iconColor: 'text-[#6366F1] bg-[#E0E7FF]',
+      href: '/register/provider',
+    },
+    {
+      id: 'customer',
+      icon: Users,
+      title: t.register.customerTitle,
+      subtitle: t.register.customerSub,
+      color: 'border-[#F43F5E] bg-[#FFF1F2]',
+      iconColor: 'text-[#F43F5E] bg-[#FFE4E6]',
+      href: '/register/customer',
+    },
+    {
+      id: 'ngo',
+      icon: Building2,
+      title: t.register.ngoTitle,
+      subtitle: t.register.ngoSub,
+      color: 'border-blue-500 bg-blue-50',
+      iconColor: 'text-blue-600 bg-blue-100',
+      href: '/register/ngo',
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-xl">
-        <Link href="/" className="flex items-center justify-center gap-2 mb-8">
-          <Heart className="w-8 h-8 text-[#6366F1]" fill="currentColor" />
-          <span className="text-2xl font-bold text-[#6366F1]">Teman</span>
-        </Link>
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <Link href="/" className="flex items-center gap-2">
+            <Heart className="w-8 h-8 text-[#6366F1]" fill="currentColor" />
+            <span className="text-2xl font-bold text-[#6366F1]">SenioCare</span>
+          </Link>
+          <LangToggle />
+        </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Daftar Akaun Baru</h1>
-          <p className="text-gray-500">Saya ingin mendaftar sebagai...</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t.register.title}</h1>
+          <p className="text-gray-500">{t.register.subtitle}</p>
         </div>
 
         <div className="space-y-4">
@@ -74,9 +80,9 @@ function RegisterContent() {
         </div>
 
         <p className="text-center text-sm text-gray-500 mt-8">
-          Sudah ada akaun?{' '}
+          {t.register.hasAccount}{' '}
           <Link href="/login" className="text-[#6366F1] font-semibold hover:underline">
-            Log masuk
+            {t.register.loginLink}
           </Link>
         </p>
       </div>

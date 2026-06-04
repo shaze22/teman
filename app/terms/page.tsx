@@ -10,7 +10,7 @@ export default function TermsPage() {
             <div className="w-7 h-7 rounded-lg bg-[#6366F1] flex items-center justify-center">
               <Heart className="w-3.5 h-3.5 text-white" fill="currentColor" />
             </div>
-            <span className="font-bold text-[#0F0E17]">Teman</span>
+            <span className="font-bold text-[#0F0E17]">SenioCare</span>
           </Link>
           <span className="text-gray-400 text-sm">/ Terma Perkhidmatan</span>
         </div>
@@ -24,7 +24,7 @@ export default function TermsPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-[#0F0E17]">1. Penerimaan Terma</h2>
-            <p>Dengan mendaftar atau menggunakan platform Teman, anda bersetuju untuk terikat dengan terma-terma ini. Jika anda tidak bersetuju, sila jangan gunakan platform ini.</p>
+            <p>Dengan mendaftar atau menggunakan platform SenioCare, anda bersetuju untuk terikat dengan terma-terma ini. Jika anda tidak bersetuju, sila jangan gunakan platform ini.</p>
           </section>
 
           <section className="space-y-3">
@@ -39,7 +39,7 @@ export default function TermsPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-[#0F0E17]">3. Perkhidmatan Platform</h2>
-            <p>Teman adalah platform perantara yang menghubungkan penyedia perkhidmatan (Teman) dengan pelanggan. Teman Platform bukan majikan kepada penyedia perkhidmatan dan tidak bertanggungjawab ke atas kualiti perkhidmatan yang diberikan.</p>
+            <p>SenioCare adalah platform perantara yang menghubungkan penyedia perkhidmatan (Teman) dengan pelanggan. SenioCare bukan majikan kepada penyedia perkhidmatan dan tidak bertanggungjawab ke atas kualiti perkhidmatan yang diberikan.</p>
           </section>
 
           <section className="space-y-3">
@@ -74,12 +74,12 @@ export default function TermsPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-[#0F0E17]">7. Penggantungan Akaun</h2>
-            <p>Teman berhak untuk menggantung atau menamatkan akaun mana-mana pengguna yang melanggar terma ini tanpa notis terlebih dahulu.</p>
+            <p>SenioCare berhak untuk menggantung atau menamatkan akaun mana-mana pengguna yang melanggar terma ini tanpa notis terlebih dahulu.</p>
           </section>
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-[#0F0E17]">8. Had Liabiliti</h2>
-            <p>Teman Platform tidak bertanggungjawab ke atas sebarang kerugian tidak langsung yang timbul daripada penggunaan platform ini. Liabiliti maksimum kami terhad kepada jumlah yang dibayar melalui platform dalam tempoh 30 hari sebelum tuntutan.</p>
+            <p>SenioCare tidak bertanggungjawab ke atas sebarang kerugian tidak langsung yang timbul daripada penggunaan platform ini. Liabiliti maksimum kami terhad kepada jumlah yang dibayar melalui platform dalam tempoh 30 hari sebelum tuntutan.</p>
           </section>
 
           <section className="space-y-3">

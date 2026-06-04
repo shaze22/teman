@@ -15,7 +15,7 @@ function base(content: string) {
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
         <!-- Header -->
         <tr><td style="background:#6366F1;border-radius:16px 16px 0 0;padding:24px 32px">
-          <span style="color:#fff;font-size:22px;font-weight:700">🤝 Teman</span>
+          <span style="color:#fff;font-size:22px;font-weight:700">🤝 SenioCare</span>
         </td></tr>
         <!-- Body -->
         <tr><td style="background:#fff;padding:32px;border-radius:0 0 16px 16px;border:1px solid #E5E7EB;border-top:none">
@@ -23,7 +23,7 @@ function base(content: string) {
         </td></tr>
         <!-- Footer -->
         <tr><td style="padding:20px 0;text-align:center;color:#9CA3AF;font-size:12px">
-          © 2026 Teman Platform · Platform Penjagaan Malaysia
+          © 2026 SenioCare · Platform Penjagaan Malaysia
         </td></tr>
       </table>
     </td></tr>
@@ -77,11 +77,25 @@ export function sendBookingConfirmedCustomer(opts: {
   to: string
   customerName: string
   providerName: string
+  providerPhone?: string
   bookingCode: string
   bookingId: string
   scheduledDate: string
   totalAmount: number
 }) {
+  function fmtWA(phone: string) {
+    const c = phone.replace(/[\s\-\(\)\+]/g, '')
+    if (c.startsWith('60')) return c
+    if (c.startsWith('0')) return '60' + c.slice(1)
+    return '60' + c
+  }
+  const waRow = opts.providerPhone ? `
+    <tr><td style="padding:12px 0;border-bottom:1px solid #F3F4F6" colspan="2">
+      <a href="https://wa.me/${fmtWA(opts.providerPhone)}?text=${encodeURIComponent(`Hai! Saya ${opts.customerName} - booking Teman #${opts.bookingCode} pada ${new Date(opts.scheduledDate).toLocaleDateString('ms-MY')} 😊`)}"
+        style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;font-weight:600;font-size:13px;padding:10px 20px;border-radius:10px;text-decoration:none">
+        WhatsApp ${opts.providerName.split(' ')[0]}
+      </a>
+    </td></tr>` : ''
   const html = base(`
     <h2 style="color:#111827;margin:0 0 8px">Booking Disahkan! ✅</h2>
     <p style="color:#6B7280;margin:0 0 20px">Hai ${opts.customerName}, booking anda telah diterima oleh ${opts.providerName}.</p>
@@ -89,7 +103,8 @@ export function sendBookingConfirmedCustomer(opts: {
       <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Teman</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${opts.providerName}</td></tr>
       <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Tarikh</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${new Date(opts.scheduledDate).toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</td></tr>
       <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">No. Booking</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${opts.bookingCode}</td></tr>
-      <tr><td style="padding:8px 0;color:#6B7280">Jumlah</td><td style="padding:8px 0;font-weight:700;text-align:right;color:#6366F1">RM${opts.totalAmount.toFixed(2)}</td></tr>
+      <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Jumlah</td><td style="padding:8px 0;font-weight:700;text-align:right;color:#6366F1">RM${opts.totalAmount.toFixed(2)}</td></tr>
+      ${waRow}
     </table>
     <p style="color:#6B7280;font-size:13px;margin:16px 0 0">Sila lengkapkan pembayaran untuk mengesahkan tempahan anda.</p>
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Bayar Sekarang', '#6366F1')}
@@ -183,4 +198,29 @@ export function sendBookingCompletedCustomer(opts: {
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Beri Ulasan ⭐', '#F59E0B')}
   `)
   return sendEmail(opts.to, `🎉 Sesi Selesai — ${opts.providerName}`, html)
+}
+
+export function sendIcApproved(opts: { to: string; providerName: string }) {
+  const html = base(`
+    <h2 style="color:#111827;margin:0 0 8px">IC Anda Telah Disahkan! ✅</h2>
+    <p style="color:#6B7280;margin:0 0 16px">Tahniah ${opts.providerName}! Kad pengenalan anda telah berjaya disahkan oleh admin SenioCare.</p>
+    <p style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px;color:#166534;font-size:13px;margin:0 0 20px">
+      🛡️ Badge "IC Verified" kini akan muncul pada profil awam anda — meningkatkan kepercayaan pelanggan.
+    </p>
+    ${btn(`${APP_URL}/dashboard/provider/profile`, 'Lihat Profil Saya')}
+  `)
+  return sendEmail(opts.to, '✅ IC Anda Telah Disahkan — SenioCare', html)
+}
+
+export function sendIcRejected(opts: { to: string; providerName: string; reason: string }) {
+  const html = base(`
+    <h2 style="color:#111827;margin:0 0 8px">IC Tidak Dapat Disahkan ❌</h2>
+    <p style="color:#6B7280;margin:0 0 16px">Hai ${opts.providerName}, malangnya IC anda tidak dapat disahkan.</p>
+    <p style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px;color:#991B1B;font-size:13px;margin:0 0 20px">
+      <strong>Sebab:</strong> ${opts.reason}
+    </p>
+    <p style="color:#6B7280;font-size:13px;">Sila hantar semula dokumen yang lebih jelas melalui halaman profil anda.</p>
+    ${btn(`${APP_URL}/dashboard/provider/profile`, 'Kemaskini Profil')}
+  `)
+  return sendEmail(opts.to, '❌ IC Tidak Dapat Disahkan — SenioCare', html)
 }

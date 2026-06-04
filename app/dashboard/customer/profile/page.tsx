@@ -1,11 +1,17 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { Heart, ArrowLeft } from 'lucide-react'
 import CustomerEditForm from './_edit-form'
+import { translations, type Lang } from '@/lib/i18n'
 
 export default async function CustomerProfilePage() {
+  const cookieStore = await cookies()
+  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const t = translations[lang]
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -54,9 +60,9 @@ export default async function CustomerProfilePage() {
           </Link>
           <Link href="/" className="flex items-center gap-1.5">
             <Heart className="w-5 h-5 text-[#F43F5E]" fill="currentColor" />
-            <span className="font-bold text-[#F43F5E]">Teman</span>
+            <span className="font-bold text-[#F43F5E]">SenioCare</span>
           </Link>
-          <span className="font-semibold text-gray-900 ml-2">Edit Profil</span>
+          <span className="font-semibold text-gray-900 ml-2">{t.dashCommon.editProfile}</span>
         </div>
       </nav>
 

@@ -2,14 +2,17 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, ShoppingBag, AlertTriangle, Building2, UserCheck, Wallet } from 'lucide-react'
+import { LayoutDashboard, Users, ShoppingBag, AlertTriangle, Building2, UserCheck, Wallet, MessageSquareWarning, Tag, BarChart3 } from 'lucide-react'
 
 const NAV = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
+  { href: '/admin/analytics', icon: BarChart3, label: 'Analitik' },
   { href: '/admin/providers', icon: UserCheck, label: 'Provider' },
   { href: '/admin/customers', icon: Users, label: 'Pelanggan' },
   { href: '/admin/bookings', icon: ShoppingBag, label: 'Booking' },
+  { href: '/admin/disputes', icon: MessageSquareWarning, label: 'Aduan' },
   { href: '/admin/withdrawals', icon: Wallet, label: 'Pengeluaran' },
+  { href: '/admin/promo', icon: Tag, label: 'Promo Codes' },
   { href: '/admin/sos', icon: AlertTriangle, label: 'SOS Events' },
   { href: '/admin/ngos', icon: Building2, label: 'NGO' },
 ]

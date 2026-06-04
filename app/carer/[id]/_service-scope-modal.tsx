@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { HelpCircle, X } from 'lucide-react'
+import { useLang } from '@/lib/lang-context'
 
 type PricingItem = { id: string; service_type: string; pricing_type: string; price: number }
 
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function ServiceScopeModal({ pricing, pricingLabels, serviceLabels, serviceScope }: Props) {
+  const { t } = useLang()
   const [open, setOpen] = useState<string | null>(null)
   const scope = open ? serviceScope[open] : null
 
@@ -52,7 +54,7 @@ export default function ServiceScopeModal({ pricing, pricingLabels, serviceLabel
               </button>
             </div>
             <p className="text-sm text-gray-500 mb-4">{scope.desc}</p>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Skop termasuk:</p>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t.bookingPage.scopeIncluded}</p>
             <ul className="space-y-2 mb-5">
               {scope.items.map((item, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
@@ -63,7 +65,7 @@ export default function ServiceScopeModal({ pricing, pricingLabels, serviceLabel
             </ul>
             <button onClick={() => setOpen(null)}
               className="w-full py-2.5 bg-[#6366F1] text-white rounded-xl font-medium text-sm hover:bg-[#4F46E5] transition-colors">
-              Faham, tutup
+              {t.bookingPage.scopeClose}
             </button>
           </div>
         </div>

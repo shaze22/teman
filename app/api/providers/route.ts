@@ -5,22 +5,35 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const q = searchParams.get('q')
   const type = searchParams.get('type')
+  const state = searchParams.get('state')
+  const minPrice = searchParams.get('minPrice')
   const maxPrice = searchParams.get('maxPrice')
+  const language = searchParams.get('language')
+  const transport = searchParams.get('transport')
+  const skill = searchParams.get('skill')
+  const bangsa = searchParams.get('bangsa')
+  const ageRange = searchParams.get('ageRange')
+  const verified = searchParams.get('verified') === '1'
   const sort = searchParams.get('sort') ?? 'rating'
 
   const orderCol = sort === 'most_booked' ? 'total_bookings' : sort === 'newest' ? 'created_at' : 'rating_avg'
 
-  const { data: raw, error } = await supabaseAdmin
+  let query = supabaseAdmin
     .from('single_mother_profiles')
     .select(`
-      id, location_city, location_state, rating_avg, total_reviews, bio, verified_by_ngo,
+      id, location_city, location_state, rating_avg, total_reviews, bio,
+      verified_by_ngo, ic_verified, languages, has_transport, bangsa, age_range,
       users!inner(full_name, avatar_url),
       provider_skills(skill_category),
       provider_pricing(price, pricing_type, service_type, is_active)
     `)
-    .eq('is_active', true)
+    .eq('verified_by_admin', true)
     .order(orderCol, { ascending: false })
     .limit(100)
+
+  if (state) query = query.eq('location_state', state)
+
+  const { data: raw, error } = await query
 
   if (error) {
     console.error('[providers GET]', error)
@@ -32,11 +45,25 @@ export async function GET(request: NextRequest) {
 
   if (q) {
     const qLow = q.toLowerCase()
-    providers = providers.filter(
-      (p) =>
-        (p.users as { full_name: string }).full_name.toLowerCase().includes(qLow) ||
-        p.location_city.toLowerCase().includes(qLow) ||
-        p.location_state.toLowerCase().includes(qLow)
+    providers = providers.filter((p) =>
+      p.users.full_name.toLowerCase().includes(qLow) ||
+      p.location_city?.toLowerCase().includes(qLow) ||
+      p.location_state?.toLowerCase().includes(qLow)
+    )
+  }
+
+  if (type && type !== 'all') {
+    providers = providers.filter((p) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (p.provider_pricing as any[]).some((pr) => pr.service_type === type && pr.is_active)
+    )
+  }
+
+  if (minPrice) {
+    const min = parseFloat(minPrice)
+    providers = providers.filter((p) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (p.provider_pricing as any[]).some((pr) => pr.is_active && parseFloat(pr.price) >= min)
     )
   }
 
@@ -48,11 +75,33 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  if (type && type !== 'all') {
+  if (language) {
+    providers = providers.filter((p) =>
+      Array.isArray(p.languages) && p.languages.includes(language)
+    )
+  }
+
+  if (transport && transport !== 'all') {
+    providers = providers.filter((p) => p.has_transport === transport)
+  }
+
+  if (skill) {
     providers = providers.filter((p) =>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (p.provider_pricing as any[]).some((pr) => pr.service_type === type && pr.is_active)
+      (p.provider_skills as any[]).some((s) => s.skill_category === skill)
     )
+  }
+
+  if (bangsa) {
+    providers = providers.filter((p) => p.bangsa === bangsa)
+  }
+
+  if (ageRange) {
+    providers = providers.filter((p) => p.age_range === ageRange)
+  }
+
+  if (verified) {
+    providers = providers.filter((p) => p.verified_by_ngo || p.ic_verified)
   }
 
   if (sort === 'price_asc') {
@@ -67,14 +116,17 @@ export async function GET(request: NextRequest) {
 
   const formatted = providers.slice(0, 50).map((p) => ({
     id: p.id,
-    fullName: (p.users as { full_name: string; avatar_url: string | null }).full_name,
-    avatarUrl: (p.users as { full_name: string; avatar_url: string | null }).avatar_url,
-    locationCity: p.location_city,
-    locationState: p.location_state,
+    fullName: p.users.full_name as string,
+    avatarUrl: p.users.avatar_url as string | null,
+    locationCity: p.location_city as string,
+    locationState: p.location_state as string,
     ratingAvg: String(p.rating_avg),
-    totalReviews: p.total_reviews,
-    bio: p.bio,
-    verifiedByNgo: p.verified_by_ngo,
+    totalReviews: p.total_reviews as number,
+    bio: p.bio as string | null,
+    verifiedByNgo: p.verified_by_ngo as boolean,
+    icVerified: p.ic_verified as boolean,
+    bangsa: p.bangsa as string | null,
+    ageRange: p.age_range as string | null,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     skills: (p.provider_skills as any[]).map((s) => ({ skillCategory: s.skill_category })),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

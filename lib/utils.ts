@@ -20,6 +20,13 @@ export function formatDate(date: Date | string) {
   }).format(new Date(date))
 }
 
+export function formatWAPhone(phone: string): string {
+  const clean = phone.replace(/[\s\-\(\)\+]/g, '')
+  if (clean.startsWith('60')) return clean
+  if (clean.startsWith('0')) return '60' + clean.slice(1)
+  return '60' + clean
+}
+
 export function generateBookingCode() {
   const prefix = 'TMN'
   const timestamp = Date.now().toString(36).toUpperCase()

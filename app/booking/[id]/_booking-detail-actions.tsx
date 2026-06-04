@@ -11,10 +11,12 @@ interface Props {
   hasReview: boolean
   fundsReleased: boolean
   paymentStatus: string
+  fundsReleasedAt?: string | null
+  hasDispute?: boolean
 }
 
 export default function BookingDetailActions({
-  bookingId, status, isProvider, hasReview, fundsReleased, paymentStatus,
+  bookingId, status, isProvider, hasReview, fundsReleased, paymentStatus, fundsReleasedAt, hasDispute,
 }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState<string | null>(null)
@@ -24,6 +26,35 @@ export default function BookingDetailActions({
   const [comment, setComment] = useState('')
   const [reviewDone, setReviewDone] = useState(hasReview)
   const [released, setReleased] = useState(fundsReleased)
+  const [refundInfo, setRefundInfo] = useState<{ amount: number; status: string } | null>(null)
+  const [showDisputeForm, setShowDisputeForm] = useState(false)
+  const [disputeReason, setDisputeReason] = useState('')
+  const [disputeSubmitted, setDisputeSubmitted] = useState(hasDispute ?? false)
+
+  // 48-hour dispute window
+  const disputeWindowOpen = fundsReleasedAt
+    ? (Date.now() - new Date(fundsReleasedAt).getTime()) / 3_600_000 < 48
+    : false
+
+  async function submitDispute() {
+    setLoading('dispute')
+    setError(null)
+    try {
+      const res = await fetch(`/api/bookings/${bookingId}/dispute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: disputeReason }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.message); return }
+      setDisputeSubmitted(true)
+      setShowDisputeForm(false)
+    } catch {
+      setError('Ralat rangkaian. Cuba lagi.')
+    } finally {
+      setLoading(null)
+    }
+  }
 
   async function updateStatus(newStatus: string, cancellationReason?: string) {
     setLoading(newStatus)
@@ -36,6 +67,7 @@ export default function BookingDetailActions({
       })
       const data = await res.json()
       if (!res.ok) { setError(data.message); return }
+      if (data.refundAmount) setRefundInfo({ amount: data.refundAmount, status: data.refundStatus })
       router.refresh()
     } catch {
       setError('Ralat rangkaian. Cuba lagi.')
@@ -90,6 +122,15 @@ export default function BookingDetailActions({
         <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3 border border-red-100">
           {error}
         </p>
+      )}
+
+      {refundInfo && (
+        <div className="flex items-start gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-sm text-green-700">
+          <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <span>
+            Bayaran balik <strong>RM{refundInfo.amount.toFixed(2)}</strong> ({refundInfo.status === 'full' ? 'bayaran penuh' : '50% — batalkan &lt;24 jam'}) sedang diproses ke kad anda.
+          </span>
+        </div>
       )}
 
       {/* Provider: accept/reject pending booking */}
@@ -233,6 +274,53 @@ export default function BookingDetailActions({
             <CheckCircle className="w-4 h-4" />
             Ulasan telah diberikan. Terima kasih!
           </div>
+        </div>
+      )}
+
+      {/* Customer: dispute window */}
+      {!isProvider && status === 'completed' && released && disputeWindowOpen && !disputeSubmitted && !showDisputeForm && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-5">
+          <button
+            onClick={() => setShowDisputeForm(true)}
+            className="w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-semibold hover:bg-red-100 transition-colors text-sm"
+          >
+            ⚠ Buka Aduan (Tidak Berpuas Hati)
+          </button>
+          <p className="text-xs text-gray-400 text-center mt-2">Window aduan tutup 48 jam selepas bayaran dilepaskan</p>
+        </div>
+      )}
+
+      {showDisputeForm && (
+        <div className="bg-white rounded-2xl border-2 border-red-200 p-5 space-y-3">
+          <h3 className="font-semibold text-red-700">Buka Aduan</h3>
+          <p className="text-sm text-gray-500">Terangkan masalah anda dengan terperinci. Admin akan menyemak dan menghubungi anda.</p>
+          <textarea
+            value={disputeReason}
+            onChange={e => setDisputeReason(e.target.value)}
+            rows={4}
+            placeholder="Contoh: Teman tidak muncul / Perkhidmatan tidak memuaskan / Masa tidak ditepati..."
+            className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={submitDispute}
+              disabled={!!loading || disputeReason.length < 10}
+              className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white py-2.5 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 text-sm"
+            >
+              {isLoading('dispute') ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              Hantar Aduan
+            </button>
+            <button onClick={() => setShowDisputeForm(false)} className="px-4 py-2.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+              Batal
+            </button>
+          </div>
+        </div>
+      )}
+
+      {disputeSubmitted && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-center gap-3">
+          <span className="text-red-600">⚠</span>
+          <p className="text-sm font-semibold text-red-700">Aduan telah dihantar. Admin akan menghubungi anda dalam masa 1-2 hari bekerja.</p>
         </div>
       )}
 

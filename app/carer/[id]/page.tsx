@@ -1,22 +1,15 @@
 import { notFound } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import Image from 'next/image'
-import { Heart, Star, MapPin, Clock, CheckCircle, Phone, ArrowLeft } from 'lucide-react'
+import { Heart, Star, MapPin, Clock, CheckCircle, Phone, ArrowLeft, Building2 } from 'lucide-react'
 import BookingButton from './_booking-button'
-import { SERVICE_LABELS, SERVICE_SCOPE } from '@/lib/services'
+import FavoriteButton from './_favorite-button'
+import ShareButton from './_share-button'
+import { SERVICE_SCOPE } from '@/lib/services'
 import ServiceScopeModal from './_service-scope-modal'
-
-const SKILL_LABELS: Record<string, string> = {
-  cooking: 'Memasak', sewing: 'Menjahit', massage: 'Urut', elderly_care: 'Jaga Orang Tua',
-  cleaning: 'Bersih Rumah', teaching: 'Mengajar', companionship: 'Teman Berbual',
-  shopping: 'Teman Membeli-belah', other: 'Lain-lain',
-}
-
-const PRICING_LABELS: Record<string, string> = {
-  per_hour: 'jam', per_session: 'sesi', per_day: 'hari',
-  per_task: 'tugas', per_meal: 'hidangan',
-}
+import { translations, type Lang } from '@/lib/i18n'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -25,19 +18,37 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     .select('location_city, users!inner(full_name)')
     .eq('id', id)
     .single()
-  if (!data) return { title: 'Teman tidak dijumpai' }
+  if (!data) return { title: 'Penjaga tidak dijumpai' }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return { title: `${(data.users as any).full_name} — Teman di ${data.location_city}` }
+  return { title: `${(data.users as any).full_name} — SenioCare di ${data.location_city}` }
 }
 
 export default async function TemanProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const cookieStore = await cookies()
+  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const t = translations[lang]
+
+  const bd = t.bookingDetail
+  const SERVICE_LABELS: Record<string, string> = {
+    job: bd.serviceJob, food: bd.serviceFood, learning: bd.serviceLearning,
+    business: bd.serviceBusiness, ibadah: bd.serviceIbadah, repair: bd.serviceRepair,
+    riadah: bd.serviceRiadah, kombo: bd.serviceKombo,
+  }
+
+  const PRICING_LABELS: Record<string, string> = lang === 'en'
+    ? { per_hour: 'hr', per_session: 'session', per_day: 'day', per_task: 'task', per_meal: 'meal' }
+    : { per_hour: 'jam', per_session: 'sesi', per_day: 'hari', per_task: 'tugas', per_meal: 'hidangan' }
+
+  const dayNames = lang === 'en'
+    ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    : ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu']
 
   const { data: raw } = await supabaseAdmin
     .from('single_mother_profiles')
     .select(`
       id, user_id, bio, location_city, location_state, rating_avg, total_reviews, total_bookings,
-      verified_by_ngo, verified_by_admin,
+      verified_by_ngo, verified_by_admin, ic_verified, ngo_id,
       users!inner(full_name, avatar_url, created_at),
       provider_skills(*),
       provider_pricing(*),
@@ -48,6 +59,19 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
     .single()
 
   if (!raw) notFound()
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ngoId = (raw as any).ngo_id as string | null
+  let ngoName: string | null = null
+  if (ngoId) {
+    const { data: ngoData } = await supabaseAdmin
+      .from('ngos')
+      .select('name')
+      .eq('id', ngoId)
+      .eq('status', 'active')
+      .single()
+    ngoName = ngoData?.name ?? null
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const u = (raw as any).users as { full_name: string; avatar_url: string | null; created_at: string }
@@ -78,7 +102,6 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
   }))
 
   const initials = u.full_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-  const dayNames = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu']
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -89,7 +112,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
           </Link>
           <Link href="/" className="flex items-center gap-1.5">
             <Heart className="w-5 h-5 text-[#6366F1]" fill="currentColor" />
-            <span className="font-bold text-[#6366F1]">Teman</span>
+            <span className="font-bold text-[#6366F1]">SenioCare</span>
           </Link>
         </div>
       </nav>
@@ -97,6 +120,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
+            {/* Header card */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <div className="flex gap-4">
                 {u.avatar_url ? (
@@ -119,6 +143,16 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                         <CheckCircle className="w-3 h-3" /> Verified Admin
                       </span>
                     )}
+                    {(raw as any).ic_verified && (
+                      <span className="flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
+                        <CheckCircle className="w-3 h-3" /> IC Verified
+                      </span>
+                    )}
+                    {ngoName && (
+                      <span className="flex items-center gap-1 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
+                        <Building2 className="w-3 h-3" /> {ngoName}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-1 text-gray-500 mt-1">
                     <MapPin className="w-4 h-4" />
@@ -128,11 +162,11 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-400" fill="currentColor" />
                       <span className="font-semibold text-gray-900">
-                        {parseFloat(String(raw.rating_avg)) > 0 ? parseFloat(String(raw.rating_avg)).toFixed(1) : 'Baru'}
+                        {parseFloat(String(raw.rating_avg)) > 0 ? parseFloat(String(raw.rating_avg)).toFixed(1) : t.profilePage.newLabel}
                       </span>
                     </div>
-                    <span className="text-gray-400 text-sm">{raw.total_reviews} ulasan</span>
-                    <span className="text-gray-400 text-sm">{raw.total_bookings} booking</span>
+                    <span className="text-gray-400 text-sm">{raw.total_reviews} {t.search.reviews}</span>
+                    <span className="text-gray-400 text-sm">{raw.total_bookings} {t.profilePage.bookings}</span>
                   </div>
                 </div>
               </div>
@@ -143,20 +177,22 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
               )}
             </div>
 
+            {/* Skills */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h2 className="font-semibold text-gray-900 mb-3">Kemahiran</h2>
+              <h2 className="font-semibold text-gray-900 mb-3">{t.profilePage.skills}</h2>
               <div className="flex flex-wrap gap-2">
                 {skills.map((s) => (
                   <span key={s.id} className="bg-[#EEF2FF] text-[#6366F1] border border-[#C7D2FE] px-3 py-1.5 rounded-full text-sm font-medium">
-                    {SKILL_LABELS[s.skill_category] ?? s.skill_category}
+                    {t.skills[s.skill_category as keyof typeof t.skills] ?? s.skill_category}
                   </span>
                 ))}
               </div>
             </div>
 
+            {/* Availability */}
             {availabilities.filter((a) => a.is_available).length > 0 && (
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <h2 className="font-semibold text-gray-900 mb-3">Masa Tersedia</h2>
+                <h2 className="font-semibold text-gray-900 mb-3">{t.profilePage.availability}</h2>
                 <div className="space-y-2">
                   {availabilities.filter((a) => a.is_available).map((a) => (
                     <div key={a.id} className="flex items-center gap-3 text-sm">
@@ -169,9 +205,10 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
               </div>
             )}
 
+            {/* Portfolio */}
             {portfolio.length > 0 && (
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <h2 className="font-semibold text-gray-900 mb-3">Portfolio</h2>
+                <h2 className="font-semibold text-gray-900 mb-3">{t.profilePage.portfolio}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {portfolio.map((item) => (
                     <div key={item.id} className="aspect-square rounded-xl overflow-hidden bg-gray-100">
@@ -182,10 +219,11 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
               </div>
             )}
 
+            {/* Reviews */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h2 className="font-semibold text-gray-900 mb-4">Ulasan ({raw.total_reviews})</h2>
+              <h2 className="font-semibold text-gray-900 mb-4">{t.profilePage.reviews} ({raw.total_reviews})</h2>
               {reviews.length === 0 ? (
-                <p className="text-gray-400 text-sm">Belum ada ulasan. Jadilah yang pertama!</p>
+                <p className="text-gray-400 text-sm">{t.profilePage.noReviews}</p>
               ) : (
                 <div className="space-y-4">
                   {reviews.map((r) => (
@@ -203,7 +241,9 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                           </div>
                         </div>
                         {r.comment && <p className="text-sm text-gray-600 mt-0.5">{r.comment}</p>}
-                        <p className="text-xs text-gray-400 mt-1">{new Date(r.createdAt).toLocaleDateString('ms-MY')}</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {new Date(r.createdAt).toLocaleDateString(lang === 'en' ? 'en-MY' : 'ms-MY')}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -212,17 +252,22 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
             </div>
           </div>
 
+          {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-20 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Harga Perkhidmatan</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t.profilePage.pricing}</p>
               <ServiceScopeModal pricing={pricing} pricingLabels={PRICING_LABELS} serviceLabels={SERVICE_LABELS} serviceScope={SERVICE_SCOPE} />
               <div className="text-xs text-gray-400 bg-gray-50 rounded-lg p-3 mb-4">
-                Platform fee 15% akan dikenakan semasa checkout. Bayaran selamat melalui escrow.
+                {t.profilePage.feeNote}
               </div>
               <BookingButton providerId={id} providerName={u.full_name} />
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <FavoriteButton providerId={id} />
+                <ShareButton providerName={u.full_name} providerId={id} />
+              </div>
               <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2 text-sm text-gray-500">
                 <Phone className="w-4 h-4" />
-                <span>Hubungi melalui chat selepas booking</span>
+                <span>{t.profilePage.contactNote}</span>
               </div>
             </div>
           </div>

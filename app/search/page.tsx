@@ -1,8 +1,8 @@
-﻿import { Suspense } from 'react'
+import { Suspense } from 'react'
 import SearchPageClient from './_client'
 
 export const metadata = {
-  title: 'Cari Teman — Teman Platform',
+  title: 'Cari Teman — SenioCare',
 }
 
 export default function SearchPage() {
