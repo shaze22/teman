@@ -108,9 +108,17 @@ Backup: https://teman-sigma.vercel.app
 - Service type `medical_care` hanya visible dalam booking form jika provider is_locum + locum_verified
 - Badge `🩺 Locum ✓` dalam search cards + `/carer/[id]` profile page
 
+## GTM Pivot (2026-06-04)
+- **Servis aktif:** `food` (Teman Makan) sahaja — semua lain `active: false` → "Segera Hadir" di UI
+- **Companion role:** Terbuka kepada semua warganegara Malaysia 18+, bukan lagi single mother sahaja
+- **UI term:** "Rakan Teman" untuk provider/companion role (bukan "Pengasuh" lagi)
+- **Verification:** IC + selfie real-time (Fasa 2) — bukan NGO
+- **`/register/companion`** → redirect ke `/register/provider` sementara (Fasa 2 bina flow baru)
+- `lib/services.ts` ada `active` flag — hanya `food: true`
+
 ## Branding Rules
-- Guna **"Pengasuh"** untuk peranan provider dalam semua UI text (bukan "Teman")
-- "Teman" (BM word) hanya boleh appear dalam nama servis: "Teman Kerja", "Teman Makan" dll
+- Guna **"Rakan Teman"** untuk peranan provider/companion dalam semua UI text
+- "Teman" (BM word) kekal dalam nama servis: "Teman Makan", "Teman Kerja" dll
 - Map default: center KL (3.139, 101.687), zoom 11
 
 ## Skill Tags
@@ -126,6 +134,11 @@ Backup: https://teman-sigma.vercel.app
 - PowerShell `Set-Content -Encoding utf8` adds BOM — jangan guna untuk edit files
 - Emoji corruption: bytes misread sebagai Windows-1252 — fix guna binary replacement Node.js
 - Corrupted emoji pattern: `ðŸ...` = UTF-8 bytes dibaca sebagai Latin-1 lalu di-encode semula
+
+## Fasa 2 (Pending)
+- `/register/companion` — registration flow baru: IC upload + selfie real-time + Gemini auto-verify + consent
+- API baru: `POST /api/profile/companion/verify-selfie` — compare selfie vs IC via Gemini
+- DB fields ready: `selfie_url`, `selfie_verified_at`, `companion_consent`, `companion_consent_at`
 
 ## Known Issues
 - Privacy page (`/privacy`) ada extra content dari homepage bila navigate client-side — belum fix
