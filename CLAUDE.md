@@ -113,6 +113,15 @@ Backup: https://teman-sigma.vercel.app
 - "Teman" (BM word) hanya boleh appear dalam nama servis: "Teman Kerja", "Teman Makan" dll
 - Map default: center KL (3.139, 101.687), zoom 11
 
+## Skill Tags
+- Skill categories dalam DB: `cooking`, `sewing`, `massage`, `elderly_care`, `cleaning`, `teaching`, `companionship`, `shopping`, `other`
+- Map ke i18n via `t.skills[skillCategory]` — semua ada label termasuk `other` → "Kemahiran Lain"
+
+## Booking Form Service Filter
+- `/api/providers/[id]/profile` returns `activeServiceTypes: string[]`
+- Booking form filter SERVICE_TYPES to only active ones for that provider
+- `medical_care` only shown if `is_locum && locum_verified`
+
 ## Known Issues
 - Privacy page (`/privacy`) ada extra content dari homepage bila navigate client-side — belum fix
 - FPX payments disabled — aktif semula bila Stripe account Malaysia verified
