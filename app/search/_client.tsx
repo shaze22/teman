@@ -193,7 +193,7 @@ export default function SearchPageClient() {
         </div>
 
         {/* Toolbar */}
-        <div className="flex items-center gap-3 mb-5">
+        <div className="flex items-center gap-2 mb-5 flex-wrap">
           <button
             onClick={openFilters}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-colors relative ${
@@ -228,16 +228,18 @@ export default function SearchPageClient() {
             </button>
           )}
 
-          <Link
-            href="/map"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:border-[#6366F1] hover:text-[#6366F1] transition-colors ml-auto"
-          >
-            <Map className="w-4 h-4" />
-            {t.search.map}
-          </Link>
-          <span className="text-sm text-gray-400">
-            {loading ? '...' : `${providers.length} ${t.search.found}`}
-          </span>
+          <div className="flex items-center gap-2 ml-auto flex-shrink-0">
+            <Link
+              href="/map"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:border-[#6366F1] hover:text-[#6366F1] transition-colors"
+            >
+              <Map className="w-4 h-4" />
+              {t.search.map}
+            </Link>
+            <span className="text-sm text-gray-400 whitespace-nowrap">
+              {loading ? '...' : `${providers.length} ${t.search.found}`}
+            </span>
+          </div>
         </div>
 
         {/* Active filter chips */}

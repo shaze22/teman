@@ -45,12 +45,12 @@ export default async function LandingPage() {
 
   const testimonials = lang === 'en' ? [
     { name: 'Makcik Rohani, 68', role: 'Senior · Damansara', text: 'Used to feel lonely at home alone. Now Kak Siti visits at noon, cooks, chats. I feel valued.', rating: 5 },
-    { name: 'Cik Amy, 42', role: 'Family · Singapore', text: 'Can work peacefully knowing dad has someone. Daily updates from Teman are very helpful. Prices are reasonable.', rating: 5 },
-    { name: 'Kak Siti, 35', role: 'Single Mother · Puchong', text: 'RM1,200 income monthly working part-time. Can care for kids and earn money. Thank you Teman!', rating: 5 },
+    { name: 'Cik Amy, 42', role: 'Family · Singapore', text: 'Can work peacefully knowing dad has someone. Daily updates from SenioCare are very helpful. Prices are reasonable.', rating: 5 },
+    { name: 'Kak Siti, 35', role: 'Single Mother · Puchong', text: 'RM1,200 income monthly working part-time. Can care for kids and earn money. Thank you SenioCare!', rating: 5 },
   ] : [
     { name: 'Makcik Rohani, 68', role: 'Warga Emas · Damansara', text: 'Sebelum ni sunyi duduk rumah sorang. Sekarang ada Kak Siti datang tengahari, masak, bercerita. Saya rasa dihargai.', rating: 5 },
-    { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Boleh kerja dengan tenang tahu ayah ada orang jaga. Update harian dari Teman sangat membantu. Harga pun berpatutan.', rating: 5 },
-    { name: 'Kak Siti, 35', role: 'Ibu Tunggal · Puchong', text: 'Pendapatan RM1,200 sebulan kerja separuh masa. Boleh jaga anak, boleh cari duit. Terima kasih Teman!', rating: 5 },
+    { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Boleh kerja dengan tenang tahu ayah ada orang jaga. Update harian dari SenioCare sangat membantu. Harga pun berpatutan.', rating: 5 },
+    { name: 'Kak Siti, 35', role: 'Ibu Tunggal · Puchong', text: 'Pendapatan RM1,200 sebulan kerja separuh masa. Boleh jaga anak, boleh cari duit. Terima kasih SenioCare!', rating: 5 },
   ]
 
   const ctaCustomerFeatures = lang === 'en'
@@ -310,12 +310,12 @@ export default async function LandingPage() {
                   <Heart className="w-6 h-6 text-white" fill="currentColor" />
                 </div>
                 <h3 className="text-xl font-bold text-[#0F0E17] mb-2">
-                  {lang === 'en' ? 'Become a Companion' : 'Jadi Teman'}
+                  {lang === 'en' ? 'Become a Caregiver' : 'Jadi Pengasuh'}
                 </h3>
                 <p className="text-gray-600 mb-5 text-sm leading-relaxed">
                   {lang === 'en'
-                    ? 'Single mothers "" turn your skills into meaningful, flexible income.'
-                    : 'Ibu tunggal "" jadikan kemahiran anda sumber pendapatan yang bermakna dan fleksibel.'}
+                    ? 'Single mothers — turn your skills into meaningful, flexible income.'
+                    : 'Ibu tunggal — jadikan kemahiran anda sumber pendapatan yang bermakna dan fleksibel.'}
                 </p>
                 <div className="space-y-2 mb-7">
                   {ctaProviderFeatures.map(f => (
