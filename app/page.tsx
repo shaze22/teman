@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import {
-  Heart, Shield, Star, Users, ChefHat, BookOpen,
-  Briefcase, HandHeart, ArrowRight, CheckCircle, Sparkles,
+  Heart, Shield, Star, Users, ChefHat,
+  HandHeart, ArrowRight, CheckCircle, Sparkles, Clock,
 } from 'lucide-react'
 import FeaturedProviders from './_featured-providers'
 import LangToggle from './_lang-toggle'
 import { translations, type Lang } from '@/lib/i18n'
+import { SERVICE_TYPES } from '@/lib/services'
 
 export default async function LandingPage() {
   const cookieStore = await cookies()
@@ -20,20 +21,7 @@ export default async function LandingPage() {
     { value: '4.8★', label: t.stats.rating },
   ]
 
-  const serviceIcons = [HandHeart, ChefHat, BookOpen, Briefcase]
-  const serviceColors = [
-    'bg-indigo-50 text-indigo-600',
-    'bg-rose-50 text-rose-500',
-    'bg-amber-50 text-amber-600',
-    'bg-purple-50 text-purple-600',
-  ]
-  const services = (['job', 'food', 'learning', 'business'] as const).map((type, i) => ({
-    icon: serviceIcons[i],
-    title: t.services[type].title,
-    desc: t.services[type].desc,
-    color: serviceColors[i],
-    href: `/search?type=${type}`,
-  }))
+  const comingSoonLabel = lang === 'en' ? 'Coming Soon' : 'Segera Hadir'
 
   const safetyIcons = [Shield, Star, Users, CheckCircle, Heart, Shield]
   const safety = t.safety.items.map((item, i) => ({ icon: safetyIcons[i], ...item }))
@@ -44,22 +32,22 @@ export default async function LandingPage() {
   }))
 
   const testimonials = lang === 'en' ? [
-    { name: 'Makcik Rohani, 68', role: 'Senior · Damansara', text: 'Used to feel lonely at home alone. Now Kak Siti visits at noon, cooks, chats. I feel valued.', rating: 5 },
-    { name: 'Cik Amy, 42', role: 'Family · Singapore', text: 'Can work peacefully knowing dad has someone. Daily updates from SenioCare are very helpful. Prices are reasonable.', rating: 5 },
-    { name: 'Kak Siti, 35', role: 'Single Mother · Puchong', text: 'RM1,200 income monthly working part-time. Can care for kids and earn money. Thank you SenioCare!', rating: 5 },
+    { name: 'Makcik Rohani, 68', role: 'Senior · Damansara', text: 'Used to eat alone every day. Now Kak Siti comes at noon, cooks, and chats with me. I feel so much more valued.', rating: 5 },
+    { name: 'Cik Amy, 42', role: 'Family · Singapore', text: 'Can work peacefully knowing Dad has someone to eat with. SenioCare is affordable and the companion is so caring.', rating: 5 },
+    { name: 'Kak Siti, 35', role: 'Rakan Teman · Puchong', text: 'RM1,200 income monthly doing something I love — cooking and chatting with the elderly. Flexible hours too!', rating: 5 },
   ] : [
-    { name: 'Makcik Rohani, 68', role: 'Warga Emas · Damansara', text: 'Sebelum ni sunyi duduk rumah sorang. Sekarang ada Kak Siti datang tengahari, masak, bercerita. Saya rasa dihargai.', rating: 5 },
-    { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Boleh kerja dengan tenang tahu ayah ada orang jaga. Update harian dari SenioCare sangat membantu. Harga pun berpatutan.', rating: 5 },
-    { name: 'Kak Siti, 35', role: 'Ibu Tunggal · Puchong', text: 'Pendapatan RM1,200 sebulan kerja separuh masa. Boleh jaga anak, boleh cari duit. Terima kasih SenioCare!', rating: 5 },
+    { name: 'Makcik Rohani, 68', role: 'Warga Emas · Damansara', text: 'Dulu makan sorang-sorang setiap hari. Sekarang ada Kak Siti datang tengahari, masak, bercerita. Saya rasa sangat dihargai.', rating: 5 },
+    { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Boleh kerja dengan tenang tahu ayah ada teman makan. SenioCare harga berpatutan dan Rakan Teman sangat penyayang.', rating: 5 },
+    { name: 'Kak Siti, 35', role: 'Rakan Teman · Puchong', text: 'Pendapatan RM1,200 sebulan buat benda yang saya suka — masak dan berbual dengan warga emas. Masa pun fleksibel!', rating: 5 },
   ]
 
   const ctaCustomerFeatures = lang === 'en'
-    ? ['Filter by location & skills', 'Real ratings & reviews', 'Secure escrow payment']
-    : ['Tapis mengikut lokasi & kemahiran', 'Rating & ulasan sebenar', 'Bayaran selamat escrow']
+    ? ['Filter by location & availability', 'Real ratings & reviews', 'Secure escrow payment']
+    : ['Tapis mengikut lokasi & ketersediaan', 'Rating & ulasan sebenar', 'Bayaran selamat escrow']
 
   const ctaProviderFeatures = lang === 'en'
-    ? ['Work schedule on your terms', 'Earn RM20–50 per hour', 'Community & NGO support']
-    : ['Jadual kerja mengikut keselesaan anda', 'Pendapatan RM20–50 sejam', 'Sokongan komuniti & NGO']
+    ? ['Work schedule on your terms', 'Earn RM25–50 per session', 'Open to all Malaysians 18+']
+    : ['Jadual kerja mengikut keselesaan anda', 'Pendapatan RM25–50 per sesi', 'Terbuka untuk semua warganegara 18+']
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F8FAFC] text-[#0F0E17]">
@@ -126,17 +114,22 @@ export default async function LandingPage() {
           {/* Floating preview cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
             {[
-              { label: 'Rohani Ismail', sub: 'Chow Kit · RM35/jam', badge: '★ 4.9', badgeColor: 'bg-[#6366F1]' },
               {
-                label: lang === 'en' ? 'Booking Confirmed' : 'Booking Disahkan',
-                sub: lang === 'en' ? 'Friday, 9:00 AM' : 'Sesi Jumaat, 9:00 pagi',
-                badge: '✓ Aktif',
+                label: 'Kak Siti',
+                sub: lang === 'en' ? 'Puchong · RM30/session' : 'Puchong · RM30/sesi',
+                badge: '★ 4.9',
+                badgeColor: 'bg-[#6366F1]',
+              },
+              {
+                label: lang === 'en' ? 'Meal Session Today' : 'Sesi Makan Hari Ini',
+                sub: lang === 'en' ? 'Lunch · 12:00 PM' : 'Tengahari · 12:00 tgh',
+                badge: '✓',
                 badgeColor: 'bg-emerald-500',
               },
               {
-                label: lang === 'en' ? "This Month's Earnings" : 'Pendapatan Bulan Ini',
-                sub: 'RM1,260',
-                badge: '+18%',
+                label: lang === 'en' ? 'Makcik Rohani says:' : 'Makcik Rohani kata:',
+                sub: lang === 'en' ? '"Finally, not eating alone"' : '"Tak makan sorang lagi"',
+                badge: '❤',
                 badgeColor: 'bg-[#F43F5E]',
               },
             ].map((c) => (
@@ -167,22 +160,45 @@ export default async function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <span className="text-xs font-semibold tracking-widest text-[#6366F1] uppercase">{t.services.heading}</span>
-            <p className="text-gray-500 max-w-lg mx-auto mt-2">{t.services.subheading}</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-[#0F0E17] mt-2 mb-2">
+              {lang === 'en' ? 'Starting with' : 'Bermula dengan'}{' '}
+              <span className="text-[#6366F1]">Teman Makan</span>
+            </h2>
+            <p className="text-gray-500 max-w-lg mx-auto">{t.services.subheading}</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {services.map((s) => (
-              <Link key={s.title} href={s.href}
-                className="group bg-white rounded-3xl p-7 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-gray-50">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-5 ${s.color}`}>
-                  <s.icon className="w-6 h-6" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {SERVICE_TYPES.filter(s => s.id !== 'medical_care').map((s) => {
+              if (s.active) {
+                const serviceKey = s.id as keyof typeof t.services
+                const serviceData = typeof t.services[serviceKey] === 'object' ? t.services[serviceKey] as { title: string; desc: string } : null
+                return (
+                  <Link key={s.id} href={`/search?type=${s.id}`}
+                    className="group bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-2 border-[#6366F1]/30 hover:border-[#6366F1]">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-[#EEF2FF] text-[#6366F1]">
+                      <ChefHat className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-bold text-[#0F0E17] text-sm mb-1">{s.label}</h3>
+                    {serviceData && <p className="text-xs text-gray-500 leading-relaxed mb-3">{serviceData.desc}</p>}
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#6366F1] group-hover:gap-2 transition-all">
+                      {lang === 'en' ? 'Book now' : 'Book sekarang'} <ArrowRight className="w-3 h-3" />
+                    </span>
+                  </Link>
+                )
+              }
+              return (
+                <div key={s.id} className="relative bg-white rounded-2xl p-5 border border-gray-100 opacity-60">
+                  <div className="absolute top-3 right-3">
+                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                      <Clock className="w-2.5 h-2.5" /> {comingSoonLabel}
+                    </span>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-gray-100 text-gray-400">
+                    <HandHeart className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-bold text-gray-400 text-sm">{s.label}</h3>
                 </div>
-                <h3 className="font-bold text-[#0F0E17] mb-2">{s.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed mb-5">{s.desc}</p>
-                <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#6366F1] group-hover:gap-2 transition-all">
-                  {t.nav.search} <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </Link>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
@@ -310,12 +326,12 @@ export default async function LandingPage() {
                   <Heart className="w-6 h-6 text-white" fill="currentColor" />
                 </div>
                 <h3 className="text-xl font-bold text-[#0F0E17] mb-2">
-                  {lang === 'en' ? 'Become a Caregiver' : 'Jadi Pengasuh'}
+                  {lang === 'en' ? 'Become a Rakan Teman' : 'Jadi Rakan Teman'}
                 </h3>
                 <p className="text-gray-600 mb-5 text-sm leading-relaxed">
                   {lang === 'en'
-                    ? 'Single mothers — turn your skills into meaningful, flexible income.'
-                    : 'Ibu tunggal — jadikan kemahiran anda sumber pendapatan yang bermakna dan fleksibel.'}
+                    ? 'Malaysian 18+ — turn your love for cooking & companionship into flexible income.'
+                    : 'Warganegara Malaysia 18+ — jadikan minat masak & menemani warga emas sumber pendapatan fleksibel.'}
                 </p>
                 <div className="space-y-2 mb-7">
                   {ctaProviderFeatures.map(f => (

@@ -29,7 +29,7 @@ function RegisterContent() {
       subtitle: t.register.providerSub,
       color: 'border-[#6366F1] bg-[#EEF2FF]',
       iconColor: 'text-[#6366F1] bg-[#E0E7FF]',
-      href: '/register/provider',
+      href: '/register/companion',
     },
     {
       id: 'care_center',

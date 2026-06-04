@@ -1,13 +1,13 @@
 export const SERVICE_TYPES = [
-  { id: 'job',      label: 'Teman Kerja' },
-  { id: 'food',     label: 'Teman Makan' },
-  { id: 'learning', label: 'Teman Belajar' },
-  { id: 'business', label: 'Teman Bisnes' },
-  { id: 'ibadah',   label: 'Teman Ibadah' },
-  { id: 'repair',   label: 'Teman Repair' },
-  { id: 'riadah',   label: 'Teman Riadah' },
-  { id: 'kombo',    label: 'Teman Kombo' },
-  { id: 'medical_care', label: 'Penjagaan Perubatan' },
+  { id: 'food',        label: 'Teman Makan',         active: true  },
+  { id: 'job',         label: 'Teman Kerja',          active: false },
+  { id: 'learning',    label: 'Teman Belajar',        active: false },
+  { id: 'ibadah',      label: 'Teman Ibadah',         active: false },
+  { id: 'riadah',      label: 'Teman Riadah',         active: false },
+  { id: 'business',    label: 'Teman Bisnes',         active: false },
+  { id: 'repair',      label: 'Teman Repair',         active: false },
+  { id: 'kombo',       label: 'Teman Kombo',          active: false },
+  { id: 'medical_care', label: 'Penjagaan Perubatan', active: false },
 ]
 
 export const SERVICE_LABELS: Record<string, string> = Object.fromEntries(
