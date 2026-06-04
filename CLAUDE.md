@@ -135,10 +135,17 @@ Backup: https://teman-sigma.vercel.app
 - Emoji corruption: bytes misread sebagai Windows-1252 — fix guna binary replacement Node.js
 - Corrupted emoji pattern: `ðŸ...` = UTF-8 bytes dibaca sebagai Latin-1 lalu di-encode semula
 
-## Fasa 2 (Pending)
-- `/register/companion` — registration flow baru: IC upload + selfie real-time + Gemini auto-verify + consent
-- API baru: `POST /api/profile/companion/verify-selfie` — compare selfie vs IC via Gemini
-- DB fields ready: `selfie_url`, `selfie_verified_at`, `companion_consent`, `companion_consent_at`
+## Fasa 2 — Companion Registration (SELESAI)
+- `/register/companion` — 5-step wizard (Info Asas → IC Upload → Selfie → Gemini Verify → Consent)
+- Selfie capture: `getUserMedia` + canvas dalam browser, save sebagai File/Blob
+- `POST /api/auth/register/companion/verify` — Gemini compare IC+selfie (base64, no auth required)
+- `POST /api/auth/register/companion` — FormData: userId, form fields, IC files, selfie file
+  - Creates Supabase auth user (role: companion)
+  - Uploads IC+selfie ke `ic-documents/{userId}/` bucket
+  - Creates `single_mother_profiles` dengan `ic_verified=true`, `companion_consent=true` jika pass
+  - Creates default `food` pricing RM25
+- `lib/gemini.ts` → `compareFaceWithIC()` returns `SelfieVerifyResult { faceMatch, confidence, icAuthentic, isAdult, issues }`
+- Auto-approve jika: `faceMatch && icAuthentic && isAdult` (semua true)
 
 ## Known Issues
 - Privacy page (`/privacy`) ada extra content dari homepage bila navigate client-side — belum fix
