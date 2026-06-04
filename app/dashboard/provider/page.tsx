@@ -12,6 +12,7 @@ import SignOutButton from '../_sign-out-button'
 import BookingActions from './_booking-actions'
 import NotificationBell from '../_notification-bell'
 import PushSetup from '../_push-setup'
+import DuoSection from './_duo-section'
 import { translations, type Lang } from '@/lib/i18n'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -199,6 +200,8 @@ export default async function ProviderDashboard() {
           </div>
 
           <div className="space-y-4">
+            <DuoSection lang={lang} />
+
             <h2 className="text-lg font-bold text-gray-900">{dc.quickActions}</h2>
             <div className="space-y-3">
               <QuickAction href="/dashboard/provider/profile" icon={Settings} label={dc.editProfile} desc={dc.editProfileDesc} />
