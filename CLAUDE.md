@@ -174,6 +174,12 @@ Backup: https://teman-sigma.vercel.app
 - Booking form: Solo/Duo toggle (muncul bila companion ada duo pair), harga gabungan auto-update
 - Notification dihantar kepada duo partner bila booking dibuat
 
+**Fasa 3 — Search Filter + Booking Visibility:**
+- Search filter drawer: toggle "Duo Companion" (purple) + chip + ?duo=1 API param
+- /api/providers: batch duo pair query, duoOnly filter server-side
+- Provider bookings page + dashboard: include duo_partner_id bookings, Duo badge
+- Booking detail: duo partner boleh view; row "Duo Companion" tunjuk kedua-dua nama
+
 ## Known Issues
 - Google OAuth credentials perlu di-rotate (terdedah dalam chat)
 - Privacy page extra content dari homepage bila navigate client-side
