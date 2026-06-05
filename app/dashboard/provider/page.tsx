@@ -54,8 +54,8 @@ export default async function ProviderDashboard() {
 
   const { data: rawBookings } = await supabaseAdmin
     .from('bookings')
-    .select('id, status, scheduled_date, start_time, duration_hours, provider_price, created_at, customer:users!bookings_customer_id_fkey(full_name, avatar_url)')
-    .eq('provider_id', user.id)
+    .select('id, status, scheduled_date, start_time, duration_hours, provider_price, is_duo, created_at, customer:users!bookings_customer_id_fkey(full_name, avatar_url)')
+    .or(`provider_id.eq.${user.id},duo_partner_id.eq.${user.id}`)
     .order('created_at', { ascending: false })
     .limit(10)
 
@@ -67,6 +67,7 @@ export default async function ProviderDashboard() {
     startTime: b.start_time as string,
     durationHours: b.duration_hours as number | null,
     providerPrice: b.provider_price as number,
+    isDuo: b.is_duo as boolean,
     createdAt: new Date(b.created_at),
     customer: { fullName: b.customer?.full_name ?? '', avatarUrl: b.customer?.avatar_url ?? null },
   }))
@@ -183,6 +184,9 @@ export default async function ProviderDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
+                        {b.isDuo && (
+                          <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-medium">Duo</span>
+                        )}
                         <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[b.status]}`}>
                           {t.status[b.status as keyof typeof t.status] ?? b.status}
                         </span>

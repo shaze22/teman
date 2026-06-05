@@ -62,6 +62,7 @@ type Filters = {
   ageRange: string
   verified: boolean
   locum: boolean
+  duo: boolean
 }
 
 const EMPTY_FILTERS: Filters = {
@@ -75,6 +76,7 @@ const EMPTY_FILTERS: Filters = {
   ageRange: '',
   verified: false,
   locum: false,
+  duo: false,
 }
 
 export default function SearchPageClient() {
@@ -104,7 +106,7 @@ export default function SearchPageClient() {
   const [pendingFilters, setPendingFilters] = useState<Filters>(EMPTY_FILTERS)
 
   const activeFilterCount = Object.entries(filters).filter(([k, v]) =>
-    k === 'verified' || k === 'locum' ? v === true : v !== ''
+    k === 'verified' || k === 'locum' || k === 'duo' ? v === true : v !== ''
   ).length
 
   const fetchProviders = useCallback(async () => {
@@ -122,6 +124,7 @@ export default function SearchPageClient() {
     if (filters.ageRange) params.set('ageRange', filters.ageRange)
     if (filters.verified) params.set('verified', '1')
     if (filters.locum) params.set('locum', '1')
+    if (filters.duo) params.set('duo', '1')
     params.set('sort', sortBy)
 
     const res = await fetch(`/api/providers?${params}`)
@@ -267,6 +270,7 @@ export default function SearchPageClient() {
             {filters.ageRange && <FilterChip label={`🎂 ${filters.ageRange} ${lang === 'en' ? 'yrs' : 'thn'}`} onRemove={() => setFilters(f => ({ ...f, ageRange: '' }))} />}
             {filters.verified && <FilterChip label={lang === 'en' ? '✓ Verified only' : '✓ Verified sahaja'} onRemove={() => setFilters(f => ({ ...f, verified: false }))} />}
             {filters.locum && <FilterChip label={lang === 'en' ? '🩺 Locum only' : '🩺 Locum sahaja'} onRemove={() => setFilters(f => ({ ...f, locum: false }))} />}
+            {filters.duo && <FilterChip label={lang === 'en' ? '👥 Duo available' : '👥 Duo tersedia'} onRemove={() => setFilters(f => ({ ...f, duo: false }))} />}
           </div>
         )}
 
@@ -474,6 +478,27 @@ export default function SearchPageClient() {
                   </div>
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${pendingFilters.locum ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300'}`}>
                     {pendingFilters.locum && <div className="w-2 h-2 bg-white rounded-full" />}
+                  </div>
+                </button>
+              </FilterSection>
+
+              {/* Duo */}
+              <FilterSection title={lang === 'en' ? 'Duo Companion' : 'Duo Companion'}>
+                <button
+                  onClick={() => setPendingFilters(f => ({ ...f, duo: !f.duo }))}
+                  className={`w-full flex items-center justify-between py-3 px-4 rounded-xl border transition-colors ${pendingFilters.duo ? 'bg-purple-50 border-purple-500' : 'border-gray-200 hover:border-gray-300'}`}
+                >
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-base">👥</span>
+                    <div>
+                      <span className={`block font-medium ${pendingFilters.duo ? 'text-purple-700' : 'text-gray-700'}`}>
+                        {lang === 'en' ? 'Duo available only' : 'Ada pasangan duo sahaja'}
+                      </span>
+                      <span className="text-xs text-gray-400">{lang === 'en' ? 'Dine as a trio — more fun!' : 'Makan bertiga — lebih meriah!'}</span>
+                    </div>
+                  </div>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${pendingFilters.duo ? 'bg-purple-500 border-purple-500' : 'border-gray-300'}`}>
+                    {pendingFilters.duo && <div className="w-2 h-2 bg-white rounded-full" />}
                   </div>
                 </button>
               </FilterSection>

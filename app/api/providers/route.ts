@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
   const ageRange = searchParams.get('ageRange')
   const verified = searchParams.get('verified') === '1'
   const locumOnly = searchParams.get('locum') === '1'
+  const duoOnly = searchParams.get('duo') === '1'
   const sort = searchParams.get('sort') ?? 'rating'
 
   const orderCol = sort === 'most_booked' ? 'total_bookings' : sort === 'newest' ? 'created_at' : 'rating_avg'
@@ -110,6 +111,8 @@ export async function GET(request: NextRequest) {
     providers = providers.filter((p) => p.is_locum && p.locum_verified)
   }
 
+  // Duo filter applied after duo pair lookup below
+
   if (sort === 'price_asc') {
     providers.sort((a, b) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -120,18 +123,31 @@ export async function GET(request: NextRequest) {
     })
   }
 
+  // Fetch duo pairs for all provider user IDs in one batch
+  const allUserIds = providers.map((p) => p.users.id as string)
+  const { data: allDuoPairs } = allUserIds.length
+    ? await supabaseAdmin
+        .from('companion_pairs')
+        .select('requester_id, partner_id')
+        .or(allUserIds.map((id) => `requester_id.eq.${id},partner_id.eq.${id}`).join(','))
+        .eq('status', 'active')
+    : { data: [] }
+
+  const hasDuoSet = new Set<string>()
+  for (const pair of allDuoPairs ?? []) {
+    hasDuoSet.add(pair.requester_id)
+    hasDuoSet.add(pair.partner_id)
+  }
+
+  if (duoOnly) {
+    providers = providers.filter((p) => hasDuoSet.has(p.users.id as string))
+  }
+
   const sliced = providers.slice(0, 50)
 
-  // Fetch duo pairs for all provider user IDs in one query
-  const userIds = sliced.map((p) => p.users.id as string)
-  const { data: duoPairs } = await supabaseAdmin
-    .from('companion_pairs')
-    .select('requester_id, partner_id')
-    .or(userIds.map((id) => `requester_id.eq.${id},partner_id.eq.${id}`).join(','))
-    .eq('status', 'active')
-
+  // Build duo partner ID map from the already-fetched pairs
   const duoPartnerIdMap: Record<string, string> = {}
-  for (const pair of duoPairs ?? []) {
+  for (const pair of allDuoPairs ?? []) {
     duoPartnerIdMap[pair.requester_id] = pair.partner_id
     duoPartnerIdMap[pair.partner_id] = pair.requester_id
   }

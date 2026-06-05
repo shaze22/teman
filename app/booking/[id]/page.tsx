@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { isAdmin } from '@/lib/admin-auth'
-import { Heart, ArrowLeft, Calendar, Clock, MapPin, User, Phone, CheckCircle, AlertCircle, XCircle } from 'lucide-react'
+import { Heart, ArrowLeft, Calendar, Clock, MapPin, User, Users, Phone, CheckCircle, AlertCircle, XCircle } from 'lucide-react'
 import BookingDetailActions from './_booking-detail-actions'
 import PayButton from './_pay-button'
 import { formatWAPhone } from '@/lib/utils'
@@ -48,7 +48,19 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
   if (!b) notFound()
 
   const adminUser = await isAdmin(user.id)
-  if (!adminUser && b.customer_id !== user.id && b.provider_id !== user.id) notFound()
+  const isDuoPartner = (b as any).duo_partner_id === user.id
+  if (!adminUser && b.customer_id !== user.id && b.provider_id !== user.id && !isDuoPartner) notFound()
+
+  // Fetch duo partner info if this is a duo booking
+  let duoPartnerName: string | null = null
+  if ((b as any).is_duo && (b as any).duo_partner_id) {
+    const { data: dpUser } = await supabaseAdmin
+      .from('users')
+      .select('full_name')
+      .eq('id', (b as any).duo_partner_id)
+      .single()
+    duoPartnerName = dpUser?.full_name ?? null
+  }
 
   const { data: existingReview } = await supabaseAdmin
     .from('reviews')
@@ -163,6 +175,21 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
               <div>
                 <div className="text-xs text-gray-500">{bd.location}</div>
                 <div className="font-medium text-gray-900">{b.location_address}</div>
+              </div>
+            </div>
+          )}
+
+          {(b as any).is_duo && duoPartnerName && (
+            <div className="flex items-start gap-2">
+              <Users className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <div className="text-xs text-gray-500">{lang === 'en' ? 'Duo Companion' : 'Duo Companion'}</div>
+                <div className="font-medium text-gray-900">
+                  {provider.full_name} + {duoPartnerName}
+                </div>
+                <div className="text-xs text-purple-600 mt-0.5">
+                  {lang === 'en' ? 'Dine as a trio — more fun!' : 'Makan bertiga — lebih meriah!'}
+                </div>
               </div>
             </div>
           )}

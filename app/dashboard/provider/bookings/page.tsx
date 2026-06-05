@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { Heart, ArrowLeft, Calendar, Clock } from 'lucide-react'
+import { Heart, ArrowLeft, Calendar, Clock, Users } from 'lucide-react'
 import { translations, type Lang } from '@/lib/i18n'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -30,10 +30,10 @@ export default async function ProviderBookingsPage() {
     .from('bookings')
     .select(`
       id, booking_code, status, scheduled_date, start_time, duration_hours,
-      service_type, provider_price, total_amount, created_at,
+      service_type, provider_price, total_amount, is_duo, created_at,
       customer:users!bookings_customer_id_fkey(full_name, phone)
     `)
-    .eq('provider_id', user.id)
+    .or(`provider_id.eq.${user.id},duo_partner_id.eq.${user.id}`)
     .order('created_at', { ascending: false })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -47,6 +47,7 @@ export default async function ProviderBookingsPage() {
     serviceType: b.service_type as string,
     providerPrice: parseFloat(String(b.provider_price)),
     createdAt: b.created_at as string,
+    isDuo: b.is_duo as boolean,
     customer: { fullName: b.customer?.full_name ?? '', phone: b.customer?.phone ?? '' },
   }))
 
@@ -101,7 +102,14 @@ export default async function ProviderBookingsPage() {
                             {b.customer.fullName.charAt(0)}
                           </div>
                           <div>
-                            <div className="font-medium text-gray-900">{b.customer.fullName}</div>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="font-medium text-gray-900">{b.customer.fullName}</span>
+                              {b.isDuo && (
+                                <span className="inline-flex items-center gap-0.5 text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-medium">
+                                  <Users className="w-3 h-3" /> Duo
+                                </span>
+                              )}
+                            </div>
                             <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
                               <span className="flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
