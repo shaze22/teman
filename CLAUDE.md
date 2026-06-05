@@ -189,3 +189,11 @@ Backup: https://teman-sigma.vercel.app
 ## Git
 - Repo: https://github.com/syedshazni/teman
 - Push: `git push origin master`
+
+## Language & Services Update (2026-06-05)
+- Default lang: 'en' (was 'bm') — all 21 server pages + lang-context updated
+- lib/services.ts: added labelEn per service; added 'locum' service (Segera Hadir); kombo + medical_care set hidden:true
+- Meal Companion desc fixed: dining companion ONLY (no cooking at home, no food delivery)
+- SERVICE_SCOPE.food updated: going out to eat together, warm conversation
+- 8 visible services: Meal Companion (active) + Daily/Learning/Worship/Wellness/Errands/Repair/Locum (Segera Hadir)
+- Booking form + landing page: use labelEn when lang=en, filter hidden services
