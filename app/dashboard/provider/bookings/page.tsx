@@ -18,7 +18,7 @@ const STATUS_ORDER = ['pending', 'confirmed', 'in_progress', 'completed', 'cance
 
 export default async function ProviderBookingsPage() {
   const cookieStore = await cookies()
-  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const lang = (cookieStore.get('lang')?.value ?? 'en') as Lang
   const t = translations[lang]
   const dc = t.dashCommon
 

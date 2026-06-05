@@ -5,7 +5,7 @@ import { translations, type Lang } from '@/lib/i18n'
 
 export default async function AboutPage() {
   const cookieStore = await cookies()
-  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const lang = (cookieStore.get('lang')?.value ?? 'en') as Lang
   const a = translations[lang].about
 
   const values = [

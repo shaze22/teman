@@ -28,9 +28,10 @@ export const translations = {
       heading: 'Perkhidmatan Kami',
       subheading: 'Pelbagai jenis teman untuk keperluan harian warga emas anda',
       job: { title: 'Teman Kerja', desc: 'Bantuan rumah, jaga orang tua, teman ke klinik dan hospital.' },
-      food: { title: 'Meal Companion', desc: 'Masak di rumah, hantar makanan, teman makan bersama.' },
-      learning: { title: 'Teman Belajar', desc: 'Belajar guna smartphone, WhatsApp, dan kemahiran digital.' },
-      business: { title: 'Teman Bisnes', desc: 'Produk ibu tunggal — kuih, jahitan, kraftangan tempahan.' },
+      food: { title: 'Meal Companion', desc: 'Teman waktu makan — pergi makan bersama di restoran, kafe, atau kedai kegemaran.' },
+      locum: { title: 'Locum Professional', desc: 'Penjaga bertauliah — jururawat, paramedik, atau pengasuh bersijil.' },
+      learning: { title: 'Learning Companion', desc: 'Belajar guna smartphone, WhatsApp, dan kemahiran digital.' },
+      business: { title: 'Errands Companion', desc: 'Teman ke bank, pasar, farmasi dan urusan harian di luar rumah.' },
     },
     howItWorks: {
       heading: 'Cara Ia Berfungsi',
@@ -737,10 +738,11 @@ export const translations = {
     services: {
       heading: 'Our Services',
       subheading: 'Various companion types for your elderly loved one\'s daily needs',
-      job: { title: 'Care Companion', desc: 'Home assistance, elderly care, accompany to clinic and hospital.' },
-      food: { title: 'Meal Companion', desc: 'Home cooking, food delivery, dining together.' },
+      job: { title: 'Daily Companion', desc: 'Home assistance, elderly care, accompany to clinic and hospital.' },
+      food: { title: 'Meal Companion', desc: 'A dining companion — go eat together at restaurants, cafes, or favourite spots.' },
+      locum: { title: 'Locum Professional', desc: 'Certified caregiver — nurse, paramedic, or certified carer.' },
       learning: { title: 'Learning Companion', desc: 'Learn smartphone, WhatsApp, and digital skills.' },
-      business: { title: 'Business Companion', desc: 'Single mother products — pastries, tailoring, handcraft orders.' },
+      business: { title: 'Errands Companion', desc: 'Accompany to bank, market, pharmacy and daily errands.' },
     },
     howItWorks: {
       heading: 'How It Works',

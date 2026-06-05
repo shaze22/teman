@@ -7,7 +7,7 @@ import { sendBookingNewProvider } from '@/lib/email'
 
 const schema = z.object({
   providerId: z.string(),
-  serviceType: z.enum(['job', 'food', 'learning', 'business', 'ibadah', 'repair', 'riadah', 'kombo']),
+  serviceType: z.enum(['job', 'food', 'learning', 'business', 'ibadah', 'repair', 'riadah', 'locum', 'kombo', 'medical_care']),
   scheduledDate: z.string(),
   startTime: z.string(),
   durationHours: z.number().int().min(1),

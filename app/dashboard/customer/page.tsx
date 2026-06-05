@@ -25,7 +25,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default async function CustomerDashboard() {
   const cookieStore = await cookies()
-  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const lang = (cookieStore.get('lang')?.value ?? 'en') as Lang
   const t = translations[lang]
   const dc = t.dashCommon
 

@@ -11,7 +11,7 @@ import { SERVICE_TYPES } from '@/lib/services'
 
 export default async function LandingPage() {
   const cookieStore = await cookies()
-  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const lang = (cookieStore.get('lang')?.value ?? 'en') as Lang
   const t = translations[lang]
 
   const stats = [
@@ -36,9 +36,9 @@ export default async function LandingPage() {
     { name: 'Cik Amy, 42', role: 'Family · Singapore', text: 'Can work peacefully knowing Dad has someone to eat with. SenioCare is affordable and the companion is so caring.', rating: 5 },
     { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'RM1,200 income monthly doing something I love — cooking and chatting with the elderly. Flexible hours too!', rating: 5 },
   ] : [
-    { name: 'Makcik Rohani, 68', role: 'Warga Emas · Damansara', text: 'Dulu makan sorang-sorang setiap hari. Sekarang ada Kak Siti datang tengahari, masak, bercerita. Saya rasa sangat dihargai.', rating: 5 },
+    { name: 'Makcik Rohani, 68', role: 'Warga Emas · Damansara', text: 'Dulu makan sorang-sorang setiap hari. Sekarang ada Kak Siti teman makan tengahari, berbual dan ketawa bersama. Rasa dihargai!', rating: 5 },
     { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Boleh kerja dengan tenang tahu ayah ada teman. SenioCare harga berpatutan dan Meal Companion sangat penyayang.', rating: 5 },
-    { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'Pendapatan RM1,200 sebulan buat benda yang saya suka — masak dan berbual dengan warga emas. Masa pun fleksibel!', rating: 5 },
+    { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'Pendapatan RM1,200 sebulan buat benda yang saya suka — teman warga emas makan dan berbual. Masa pun fleksibel!', rating: 5 },
   ]
 
   const ctaCustomerFeatures = lang === 'en'
@@ -173,7 +173,7 @@ export default async function LandingPage() {
             </h2>
             <p className="text-gray-500 max-w-lg mx-auto">{t.services.subheading}</p>
           </div>
-          {/* Featured active service — Teman Makan */}
+          {/* Featured active service — Meal Companion */}
           <Link href="/search?type=food"
             className="group block bg-gradient-to-br from-[#EEF2FF] to-[#E0E7FF] rounded-3xl p-7 border-2 border-[#6366F1]/40 hover:border-[#6366F1] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -190,8 +190,8 @@ export default async function LandingPage() {
                   </div>
                   <p className="text-gray-600 text-sm leading-relaxed max-w-lg">
                     {lang === 'en'
-                      ? 'Home cooking, dining companion, grocery shopping. A warm meal shared is a moment cherished.'
-                      : 'Masak di rumah, teman waktu makan, teman ke pasar. Makanan bersama lebih bermakna.'}
+                      ? 'A friendly companion who dines with your senior — at restaurants, cafes, or any favourite spot. No more eating alone.'
+                      : 'Teman yang menemani warga emas semasa makan — di restoran, kafe, atau tempat kegemaran mereka. Tak makan sorang lagi.'}
                   </p>
                 </div>
               </div>
@@ -206,12 +206,12 @@ export default async function LandingPage() {
             {lang === 'en' ? 'Coming Soon' : 'Akan Datang'}
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {SERVICE_TYPES.filter(s => s.id !== 'medical_care' && !s.active).map((s) => (
+            {SERVICE_TYPES.filter(s => !s.hidden && !s.active).map((s) => (
               <div key={s.id} className="bg-white rounded-2xl p-4 border border-gray-100 opacity-50 select-none">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3 bg-gray-100 text-gray-400">
                   <HandHeart className="w-4 h-4" />
                 </div>
-                <h3 className="font-semibold text-gray-400 text-xs mb-1">{s.label}</h3>
+                <h3 className="font-semibold text-gray-400 text-xs mb-1">{lang === 'en' ? s.labelEn : s.label}</h3>
                 <span className="text-xs text-gray-300 flex items-center gap-1">
                   <Clock className="w-2.5 h-2.5" /> {comingSoonLabel}
                 </span>
@@ -322,7 +322,7 @@ export default async function LandingPage() {
                 <p className="text-gray-600 mb-5 text-sm leading-relaxed">
                   {lang === 'en'
                     ? 'Verified companions who cook, dine with, and bring warmth to your loved one.'
-                    : 'Meal Companion terverifikasi yang masak, teman bersama, dan bawa semangat untuk warga emas anda.'}
+                    : 'Meal Companion terverifikasi yang teman warga emas semasa makan — mesra, boleh dipercayai, dan membawa semangat.'}
                 </p>
                 <div className="space-y-2 mb-7">
                   {ctaCustomerFeatures.map(f => (

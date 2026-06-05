@@ -20,7 +20,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const cookieStore = await cookies()
-  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const lang = (cookieStore.get('lang')?.value ?? 'en') as Lang
   return (
     <html lang={lang === 'en' ? 'en' : 'ms'} className={`${inter.variable} h-full`}>
       <head>

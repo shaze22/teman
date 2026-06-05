@@ -7,7 +7,7 @@ import { translations, type Lang } from '@/lib/i18n'
 
 export default async function NgoSettingsPage() {
   const cookieStore = await cookies()
-  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const lang = (cookieStore.get('lang')?.value ?? 'en') as Lang
   const t = translations[lang]
 
   const supabase = await createClient()

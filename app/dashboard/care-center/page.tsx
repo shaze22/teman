@@ -13,7 +13,7 @@ export default async function CareCenterDashboard() {
   if (!user) redirect('/login')
 
   const cookieStore = await cookies()
-  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const lang = (cookieStore.get('lang')?.value ?? 'en') as Lang
   const t = translations[lang]
 
   const { data: dbUser } = await supabaseAdmin

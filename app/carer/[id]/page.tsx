@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function TemanProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const cookieStore = await cookies()
-  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const lang = (cookieStore.get('lang')?.value ?? 'en') as Lang
   const t = translations[lang]
 
   const bd = t.bookingDetail

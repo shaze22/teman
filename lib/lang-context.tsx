@@ -11,8 +11,8 @@ type LangCtx = {
 }
 
 const LangContext = createContext<LangCtx>({
-  lang: 'bm',
-  t: translations.bm,
+  lang: 'en',
+  t: translations.en as unknown as Translations,
   toggle: () => {},
 })
 

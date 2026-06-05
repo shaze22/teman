@@ -18,7 +18,7 @@ const SERVICE_LABELS_EN: Record<string, string> = {
 
 export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const cookieStore = await cookies()
-  const lang = (cookieStore.get('lang')?.value ?? 'bm') as Lang
+  const lang = (cookieStore.get('lang')?.value ?? 'en') as Lang
   const t = translations[lang]
   const r = t.receipt
 

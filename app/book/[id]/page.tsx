@@ -266,7 +266,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setScopeModal(null)}>
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-1">
-              <h3 className="font-bold text-gray-900">{SERVICE_TYPES.find(s => s.id === scopeModal)?.label}</h3>
+              <h3 className="font-bold text-gray-900">{lang === 'en' ? SERVICE_TYPES.find(s => s.id === scopeModal)?.labelEn : SERVICE_TYPES.find(s => s.id === scopeModal)?.label}</h3>
               <button onClick={() => setScopeModal(null)} className="p-1 text-gray-400 hover:text-gray-600 rounded-lg">
                 <X className="w-4 h-4" />
               </button>
@@ -296,16 +296,17 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
               <h2 className="text-xl font-bold text-gray-900">{t.bookingPage.step1}</h2>
               <div className="space-y-2">
                 {SERVICE_TYPES.filter(opt => {
+                  if (opt.hidden) return false
                   if (opt.id === 'medical_care') return providerIsLocum
                   if (activeServiceTypes.length > 0) return activeServiceTypes.includes(opt.id)
-                  return opt.id !== 'medical_care'
+                  return true
                 }).map((opt) => (
                   <div key={opt.id} className="flex items-center gap-2">
                     <button type="button" onClick={() => setServiceType(opt.id)}
                       className={`flex-1 text-left px-4 py-3 rounded-xl border-2 font-medium transition-all ${
                         serviceType === opt.id ? 'border-[#6366F1] bg-[#EEF2FF] text-[#6366F1]' : 'border-gray-200 text-gray-600 hover:border-gray-300'
                       }`}>
-                      {opt.label}
+                      {lang === 'en' ? opt.labelEn : opt.label}
                     </button>
                     <button type="button" onClick={() => setScopeModal(opt.id)}
                       className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-[#6366F1] hover:border-[#6366F1] transition-colors flex-shrink-0">
@@ -516,7 +517,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
               <h2 className="text-xl font-bold text-gray-900">{t.bookingPage.step2}</h2>
 
               <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-                <Row label={t.bookingPage.serviceRow} value={SERVICE_TYPES.find((o) => o.id === serviceType)?.label ?? serviceType} />
+                <Row label={t.bookingPage.serviceRow} value={(lang === 'en' ? SERVICE_TYPES.find((o) => o.id === serviceType)?.labelEn : SERVICE_TYPES.find((o) => o.id === serviceType)?.label) ?? serviceType} />
                 <Row label={t.bookingPage.dateRow} value={new Date(date).toLocaleDateString(lang === 'en' ? 'en-MY' : 'ms-MY')} />
                 <Row label={t.bookingPage.timeRow} value={`${startTime} (${duration} ${t.bookingPage.hours})`} />
                 <Row label={t.bookingPage.addressRow} value={address} />
