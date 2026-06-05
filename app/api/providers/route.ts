@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       id, location_city, location_state, rating_avg, total_reviews, bio,
       verified_by_ngo, ic_verified, languages, has_transport, bangsa, age_range,
       is_locum, locum_verified, locum_cert_type,
-      users!inner(full_name, avatar_url),
+      users!inner(id, full_name, avatar_url),
       provider_skills(skill_category),
       provider_pricing(price, pricing_type, service_type, is_active)
     `)
@@ -120,29 +120,63 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  const formatted = providers.slice(0, 50).map((p) => ({
-    id: p.id,
-    fullName: p.users.full_name as string,
-    avatarUrl: p.users.avatar_url as string | null,
-    locationCity: p.location_city as string,
-    locationState: p.location_state as string,
-    ratingAvg: String(p.rating_avg),
-    totalReviews: p.total_reviews as number,
-    bio: p.bio as string | null,
-    verifiedByNgo: p.verified_by_ngo as boolean,
-    icVerified: p.ic_verified as boolean,
-    isLocum: p.is_locum as boolean ?? false,
-    locumVerified: p.locum_verified as boolean ?? false,
-    locumCertType: p.locum_cert_type as string | null,
-    bangsa: p.bangsa as string | null,
-    ageRange: p.age_range as string | null,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    skills: (p.provider_skills as any[]).map((s) => ({ skillCategory: s.skill_category })),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pricing: (p.provider_pricing as any[])
-      .filter((pr) => pr.is_active)
-      .map((pr) => ({ price: String(pr.price), pricingType: pr.pricing_type, serviceType: pr.service_type })),
-  }))
+  const sliced = providers.slice(0, 50)
+
+  // Fetch duo pairs for all provider user IDs in one query
+  const userIds = sliced.map((p) => p.users.id as string)
+  const { data: duoPairs } = await supabaseAdmin
+    .from('companion_pairs')
+    .select('requester_id, partner_id')
+    .or(userIds.map((id) => `requester_id.eq.${id},partner_id.eq.${id}`).join(','))
+    .eq('status', 'active')
+
+  const duoPartnerIdMap: Record<string, string> = {}
+  for (const pair of duoPairs ?? []) {
+    duoPartnerIdMap[pair.requester_id] = pair.partner_id
+    duoPartnerIdMap[pair.partner_id] = pair.requester_id
+  }
+
+  const partnerUserIds = [...new Set(Object.values(duoPartnerIdMap))]
+  const { data: partnerUsers } = partnerUserIds.length
+    ? await supabaseAdmin.from('users').select('id, full_name, avatar_url').in('id', partnerUserIds)
+    : { data: [] }
+  const partnerUserMap = Object.fromEntries((partnerUsers ?? []).map((u) => [u.id, u]))
+
+  const formatted = sliced.map((p) => {
+    const userId = p.users.id as string
+    const duoPartnerId = duoPartnerIdMap[userId] ?? null
+    const duoPartnerUser = duoPartnerId ? partnerUserMap[duoPartnerId] : null
+    return {
+      id: p.id,
+      userId,
+      fullName: p.users.full_name as string,
+      avatarUrl: p.users.avatar_url as string | null,
+      locationCity: p.location_city as string,
+      locationState: p.location_state as string,
+      ratingAvg: String(p.rating_avg),
+      totalReviews: p.total_reviews as number,
+      bio: p.bio as string | null,
+      verifiedByNgo: p.verified_by_ngo as boolean,
+      icVerified: p.ic_verified as boolean,
+      isLocum: p.is_locum as boolean ?? false,
+      locumVerified: p.locum_verified as boolean ?? false,
+      locumCertType: p.locum_cert_type as string | null,
+      bangsa: p.bangsa as string | null,
+      ageRange: p.age_range as string | null,
+      hasDuo: !!duoPartnerId,
+      duoPartner: duoPartnerUser ? {
+        id: duoPartnerId,
+        fullName: duoPartnerUser.full_name,
+        avatarUrl: duoPartnerUser.avatar_url,
+      } : null,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      skills: (p.provider_skills as any[]).map((s) => ({ skillCategory: s.skill_category })),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      pricing: (p.provider_pricing as any[])
+        .filter((pr) => pr.is_active)
+        .map((pr) => ({ price: String(pr.price), pricingType: pr.pricing_type, serviceType: pr.service_type })),
+    }
+  })
 
   return NextResponse.json(formatted)
 }

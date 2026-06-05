@@ -22,6 +22,9 @@ const schema = z.object({
   promoCode: z.string().optional(),
   discountAmount: z.number().default(0),
   creditUsed: z.number().default(0),
+  isDuo: z.boolean().default(false),
+  duoPartnerId: z.string().optional(),
+  duoPartnerPrice: z.number().optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -71,6 +74,9 @@ export async function POST(request: NextRequest) {
       payment_method: data.paymentMethod,
       promo_code: data.promoCode ?? null,
       discount_amount: data.discountAmount,
+      is_duo: data.isDuo,
+      duo_partner_id: data.duoPartnerId ?? null,
+      duo_partner_price: data.duoPartnerPrice ?? null,
       updated_at: new Date().toISOString(),
     })
     .select('id, booking_code')
@@ -93,6 +99,17 @@ export async function POST(request: NextRequest) {
   if (data.promoCode) {
     const { data: promo } = await supabaseAdmin.from('promo_codes').select('uses_count').eq('code', data.promoCode).single()
     if (promo) await supabaseAdmin.from('promo_codes').update({ uses_count: (promo.uses_count ?? 0) + 1 }).eq('code', data.promoCode)
+  }
+
+  // Notify duo partner if this is a duo booking
+  if (data.isDuo && data.duoPartnerId) {
+    await supabaseAdmin.from('notifications').insert({
+      user_id: data.duoPartnerId,
+      type: 'duo_booking',
+      title: 'Booking Duo Baru!',
+      body: `Pasangan duo anda telah mendapat booking baru pada ${data.scheduledDate}. Sila semak dashboard anda.`,
+      data: { bookingId: booking.id, bookingCode: booking.booking_code },
+    })
   }
 
   // Notify provider of new booking (in-app + email)

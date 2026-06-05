@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import Image from 'next/image'
-import { Heart, Star, MapPin, Clock, CheckCircle, Phone, ArrowLeft, Building2 } from 'lucide-react'
+import { Heart, Star, MapPin, Clock, CheckCircle, Phone, ArrowLeft, Building2, Users } from 'lucide-react'
 import BookingButton from './_booking-button'
 import FavoriteButton from './_favorite-button'
 import ShareButton from './_share-button'
@@ -86,6 +86,31 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const portfolio = ((raw as any).provider_portfolios ?? []) as Array<{ id: string; image_url: string; title: string | null }>
 
+  // Duo pair info
+  const { data: duoPair } = await supabaseAdmin
+    .from('companion_pairs')
+    .select('requester_id, partner_id')
+    .or(`requester_id.eq.${raw.user_id},partner_id.eq.${raw.user_id}`)
+    .eq('status', 'active')
+    .maybeSingle()
+
+  let duoPartner: { fullName: string; avatarUrl: string | null; locationCity: string; price: number | null } | null = null
+  if (duoPair) {
+    const partnerId = duoPair.requester_id === raw.user_id ? duoPair.partner_id : duoPair.requester_id
+    const [pu, pp] = await Promise.all([
+      supabaseAdmin.from('users').select('full_name, avatar_url').eq('id', partnerId).single(),
+      supabaseAdmin.from('single_mother_profiles').select('location_city, provider_pricing(price, is_active, service_type)').eq('user_id', partnerId).single(),
+    ])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const partnerFoodPrice = (pp.data?.provider_pricing as any[])?.find((pr) => pr.service_type === 'food' && pr.is_active)
+    duoPartner = {
+      fullName: pu.data?.full_name ?? '',
+      avatarUrl: pu.data?.avatar_url ?? null,
+      locationCity: pp.data?.location_city ?? '',
+      price: partnerFoodPrice ? parseFloat(partnerFoodPrice.price) : null,
+    }
+  }
+
   const { data: rawReviews } = await supabaseAdmin
     .from('reviews')
     .select('id, rating, comment, created_at, reviewer:users!reviews_reviewer_id_fkey(full_name, avatar_url)')
@@ -155,6 +180,11 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                         🩺 Locum Profesional
                       </span>
                     )}
+                    {duoPartner && (
+                      <span className="flex items-center gap-1 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
+                        <Users className="w-3 h-3" /> {lang === 'en' ? 'Duo Available' : 'Duo Tersedia'}
+                      </span>
+                    )}
                     {ngoName && (
                       <span className="flex items-center gap-1 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
                         <Building2 className="w-3 h-3" /> {ngoName}
@@ -183,6 +213,44 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                 </div>
               )}
             </div>
+
+            {/* Duo Companion section */}
+            {duoPartner && (
+              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-100">
+                <div className="flex items-center gap-2 mb-4">
+                  <Users className="w-4 h-4 text-purple-600" />
+                  <h2 className="font-semibold text-gray-900">
+                    {lang === 'en' ? 'Duo Companion Available — Dine as a Trio!' : 'Duo Companion Tersedia — Makan Bertiga!'}
+                  </h2>
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                  {lang === 'en'
+                    ? 'Book this companion with their duo partner for a more lively and social dining experience for your senior.'
+                    : 'Tempah companion ini bersama pasangan duo mereka untuk pengalaman makan yang lebih meriah dan sosial untuk warga emas anda.'}
+                </p>
+                <div className="flex items-center gap-3 bg-white rounded-xl p-3 border border-purple-100">
+                  {duoPartner.avatarUrl ? (
+                    <Image src={duoPartner.avatarUrl} alt={duoPartner.fullName} width={40} height={40} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                      {duoPartner.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900 text-sm">{duoPartner.fullName}</p>
+                    <p className="text-xs text-gray-500">{duoPartner.locationCity}</p>
+                  </div>
+                  {duoPartner.price && (
+                    <span className="text-sm font-bold text-purple-700">RM{duoPartner.price}/jam</span>
+                  )}
+                </div>
+                <p className="text-xs text-purple-600 mt-3 font-medium">
+                  {lang === 'en'
+                    ? '✓ Pilih "Duo" semasa booking untuk book mereka berdua.'
+                    : '✓ Select "Duo" during booking to book both of them.'}
+                </p>
+              </div>
+            )}
 
             {/* Skills */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">

@@ -47,6 +47,8 @@ type Provider = {
   isLocum: boolean
   locumVerified: boolean
   locumCertType: string | null
+  hasDuo: boolean
+  duoPartner: { id: string; fullName: string; avatarUrl: string | null } | null
 }
 
 type Filters = {
@@ -555,6 +557,9 @@ function ProviderCard({ provider: p }: { provider: Provider }) {
               )}
               {p.isLocum && p.locumVerified && (
                 <span className="text-xs bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">🩺 Locum ✓</span>
+              )}
+              {p.hasDuo && (
+                <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">👥 Duo</span>
               )}
             </div>
             <div className="flex items-center gap-1 text-sm text-gray-500 mt-0.5">

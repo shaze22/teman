@@ -3,7 +3,7 @@
 import { useState, use, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Heart, ArrowLeft, Calendar, Clock, MapPin, Loader2, HelpCircle, X, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Heart, ArrowLeft, Calendar, Clock, MapPin, Loader2, HelpCircle, X, AlertCircle, ChevronLeft, ChevronRight, Users, User } from 'lucide-react'
 import { generateBookingCode, formatRM } from '@/lib/utils'
 import { SERVICE_TYPES, SERVICE_SCOPE } from '@/lib/services'
 import { useLang } from '@/lib/lang-context'
@@ -73,6 +73,8 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
   const [useCredit, setUseCredit] = useState(false)
   const [providerIsLocum, setProviderIsLocum] = useState(false)
   const [activeServiceTypes, setActiveServiceTypes] = useState<string[]>([])
+  const [isDuo, setIsDuo] = useState(false)
+  const [duoPartner, setDuoPartner] = useState<{ id: string; name: string; avatarUrl: string | null; price: number } | null>(null)
   const [calMonth, setCalMonth] = useState(() => {
     const now = new Date()
     return new Date(now.getFullYear(), now.getMonth(), 1)
@@ -92,6 +94,14 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
         if (d?.is_locum && d?.locum_verified) setProviderIsLocum(true)
         if (Array.isArray(d?.activeServiceTypes) && d.activeServiceTypes.length > 0) {
           setActiveServiceTypes(d.activeServiceTypes)
+        }
+        if (d?.hasDuo && d?.duoPartnerId && d?.duoPartnerName) {
+          setDuoPartner({
+            id: d.duoPartnerId,
+            name: d.duoPartnerName,
+            avatarUrl: d.duoPartnerAvatarUrl ?? null,
+            price: d.duoPartnerPrice ?? 0,
+          })
         }
       })
       .catch(() => {})
@@ -144,8 +154,10 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
     ? getTimeOptions(availSlots, selectedDateObj.getDay())
     : null
 
-  const platformFee = pricePerHour * duration * 0.15
-  const providerPrice = pricePerHour * duration
+  const duoPartnerRate = (isDuo && duoPartner) ? duoPartner.price : 0
+  const combinedRate = pricePerHour + duoPartnerRate
+  const platformFee = combinedRate * duration * 0.15
+  const providerPrice = combinedRate * duration
   const creditApplied = useCredit ? Math.min(creditBalance, providerPrice + platformFee - promoDiscount) : 0
   const total = Math.max(0, providerPrice + platformFee - promoDiscount - creditApplied)
 
@@ -197,6 +209,9 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
         promoCode: appliedPromo || undefined,
         discountAmount: promoDiscount,
         creditUsed: creditApplied,
+        isDuo: isDuo && !!duoPartner,
+        duoPartnerId: (isDuo && duoPartner) ? duoPartner.id : undefined,
+        duoPartnerPrice: (isDuo && duoPartner) ? duoPartner.price * duration : undefined,
       }),
     })
 
@@ -299,6 +314,47 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                   </div>
                 ))}
               </div>
+
+              {/* Solo / Duo toggle */}
+              {duoPartner && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {lang === 'en' ? 'Number of Companions' : 'Bilangan Companion'}
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button type="button" onClick={() => setIsDuo(false)}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${!isDuo ? 'border-[#6366F1] bg-[#EEF2FF]' : 'border-gray-200 hover:border-gray-300'}`}>
+                      <User className={`w-6 h-6 ${!isDuo ? 'text-[#6366F1]' : 'text-gray-400'}`} />
+                      <span className={`text-sm font-semibold ${!isDuo ? 'text-[#6366F1]' : 'text-gray-600'}`}>
+                        {lang === 'en' ? 'Solo' : 'Solo'}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        RM{pricePerHour}/{lang === 'en' ? 'hr' : 'jam'}
+                      </span>
+                    </button>
+                    <button type="button" onClick={() => setIsDuo(true)}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${isDuo ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                      <Users className={`w-6 h-6 ${isDuo ? 'text-purple-600' : 'text-gray-400'}`} />
+                      <span className={`text-sm font-semibold ${isDuo ? 'text-purple-600' : 'text-gray-600'}`}>
+                        {lang === 'en' ? 'Duo — Dine as Trio' : 'Duo — Makan Bertiga'}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        RM{pricePerHour + duoPartner.price}/{lang === 'en' ? 'hr' : 'jam'}
+                      </span>
+                    </button>
+                  </div>
+                  {isDuo && (
+                    <div className="mt-2 flex items-center gap-2 bg-purple-50 rounded-xl px-3 py-2 border border-purple-100">
+                      <Users className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                      <p className="text-xs text-purple-700">
+                        {lang === 'en'
+                          ? `${duoPartner.name} will join this session.`
+                          : `${duoPartner.name} akan turut serta dalam sesi ini.`}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Calendar */}
               <div>
