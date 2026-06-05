@@ -161,6 +161,19 @@ Backup: https://teman-sigma.vercel.app
 - Login: Google button prominent (border-2, shadow-sm); LangToggle pindah ke top-right corner
 - Register: NGO/CareCenter collapsed under toggle; hanya Customer + Rakan Teman by default
 
+## Duo Companion (SELESAI — 2026-06-05)
+**Fasa 1 — Pair System:**
+- DB: `companion_pairs` table (requester_id, partner_id, status: pending/active/dissolved)
+- API: `GET /api/duo/status`, `POST /api/duo/request`, `POST /api/duo/respond`, `POST /api/duo/dissolve`, `GET /api/duo/search`
+- UI: `DuoSection` client component dalam provider dashboard — search, invite, terima/tolak, bubar
+
+**Fasa 2 — Booking Flow:**
+- DB: `bookings` + `is_duo`, `duo_partner_id`, `duo_partner_price` columns
+- Search card: badge ungu "👥 Duo" bila companion ada active pair
+- Carer profile: "Duo Tersedia" badge + section kad pasangan
+- Booking form: Solo/Duo toggle (muncul bila companion ada duo pair), harga gabungan auto-update
+- Notification dihantar kepada duo partner bila booking dibuat
+
 ## Known Issues
 - Google OAuth credentials perlu di-rotate (terdedah dalam chat)
 - Privacy page extra content dari homepage bila navigate client-side
