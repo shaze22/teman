@@ -187,7 +187,7 @@ Backup: https://teman-sigma.vercel.app
 - Stripe masih test mode
 - RLS disabled pada 22 tables Supabase
 ## Git
-- Repo: https://github.com/syedshazni/teman
+- Repo: https://github.com/shaze22/teman (remote ditukar 2026-06-06 — syedshazni/teman tidak wujud)
 - Push: `git push origin master`
 
 ## Language & Services Update (2026-06-05)
@@ -197,3 +197,8 @@ Backup: https://teman-sigma.vercel.app
 - SERVICE_SCOPE.food updated: going out to eat together, warm conversation
 - 8 visible services: Meal Companion (active) + Daily/Learning/Worship/Wellness/Errands/Repair/Locum (Segera Hadir)
 - Booking form + landing page: use labelEn when lang=en, filter hidden services
+
+## Favicon (2026-06-06)
+- `app/icon.svg` — SVG heart logo (indigo #6366F1 bg + white heart) untuk modern browsers
+- `app/favicon.ico` — PNG-in-ICO (192×192) wrapper dari public/icon-192.png untuk legacy browsers
+- Next.js App Router auto-serve kedua-dua: SVG untuk modern, ICO untuk legacy
