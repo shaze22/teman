@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { compareFaceWithIC } from '@/lib/gemini'
+
+async function fileToBase64(file: File): Promise<{ base64: string; mimeType: string }> {
+  const buf = Buffer.from(await file.arrayBuffer())
+  return { base64: buf.toString('base64'), mimeType: file.type || 'image/jpeg' }
+}
 
 export async function POST(request: NextRequest) {
   let form: FormData
@@ -16,10 +22,25 @@ export async function POST(request: NextRequest) {
   const icFrontFile   = form.get('icFront') as File | null
   const icBackFile    = form.get('icBack') as File | null
   const selfieFile    = form.get('selfie') as File | null
-  const geminiPassed  = form.get('geminiPassed') === 'true'
 
   if (!userId || !fullName || !email || !phone || !locationState || !locationCity) {
     return NextResponse.json({ message: 'Data tidak lengkap' }, { status: 400 })
+  }
+  if (!icFrontFile || !selfieFile) {
+    return NextResponse.json({ message: 'IC dan selfie diperlukan' }, { status: 400 })
+  }
+
+  // Server-side Gemini verification — never trust client's geminiPassed claim
+  let geminiPassed = false
+  try {
+    const [ic, selfie] = await Promise.all([fileToBase64(icFrontFile), fileToBase64(selfieFile)])
+    const result = await compareFaceWithIC(ic.base64, ic.mimeType, selfie.base64, selfie.mimeType)
+    geminiPassed = !!(result.faceMatch && result.icAuthentic && result.isAdult)
+    if (!geminiPassed) {
+      return NextResponse.json({ message: 'Pengesahan identiti gagal. Sila cuba semula dengan gambar yang lebih jelas.' }, { status: 422 })
+    }
+  } catch {
+    return NextResponse.json({ message: 'Pengesahan identiti gagal. Cuba lagi.' }, { status: 500 })
   }
 
   try {
@@ -38,9 +59,9 @@ export async function POST(request: NextRequest) {
       return data.publicUrl
     }
 
-    const icFrontUrl  = icFrontFile ? await uploadFile(icFrontFile,  `${userId}/ic-front.jpg`) : null
-    const icBackUrl   = icBackFile  ? await uploadFile(icBackFile,   `${userId}/ic-back.jpg`)  : null
-    const selfieUrl   = selfieFile  ? await uploadFile(selfieFile,   `${userId}/selfie.jpg`)   : null
+    const icFrontUrl  = await uploadFile(icFrontFile,  `${userId}/ic-front.jpg`)
+    const icBackUrl   = icBackFile ? await uploadFile(icBackFile, `${userId}/ic-back.jpg`) : null
+    const selfieUrl   = await uploadFile(selfieFile,   `${userId}/selfie.jpg`)
 
     // Create user record
     const { error: userError } = await supabaseAdmin.from('users').insert({
@@ -49,7 +70,7 @@ export async function POST(request: NextRequest) {
       phone,
       full_name: fullName,
       role: 'companion',
-      status: geminiPassed ? 'active' : 'pending',
+      status: 'active',
       updated_at: now,
     })
     if (userError) throw new Error(userError.message)
@@ -63,13 +84,13 @@ export async function POST(request: NextRequest) {
       location_city: locationCity,
       languages: ['bm'],
       has_transport: 'none',
-      is_active: geminiPassed,
+      is_active: true,
       ic_front_url: icFrontUrl,
       ic_back_url: icBackUrl,
       ic_submitted_at: icFrontUrl ? now : null,
-      ic_verified: geminiPassed,
+      ic_verified: true,
       selfie_url: selfieUrl,
-      selfie_verified_at: geminiPassed && selfieUrl ? now : null,
+      selfie_verified_at: selfieUrl ? now : null,
       companion_consent: true,
       companion_consent_at: now,
       updated_at: now,
