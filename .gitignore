@@ -43,3 +43,6 @@ next-env.d.ts
 /app/generated/prisma
 
 .vercel
+
+# stray binary artifact from ICO encoding script
+re-encoded

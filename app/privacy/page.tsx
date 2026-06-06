@@ -73,7 +73,7 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-[#0F0E17]">6. Hubungi Kami</h2>
-            <p>Untuk sebarang pertanyaan berkaitan privasi, hubungi: <a href="mailto:privacy@teman.my" className="text-[#6366F1] hover:underline">privacy@teman.my</a></p>
+            <p>Untuk sebarang pertanyaan berkaitan privasi, hubungi: <a href="mailto:privacy@seniocare.app" className="text-[#6366F1] hover:underline">privacy@seniocare.app</a></p>
           </section>
         </div>
 

@@ -254,6 +254,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
             paymentStatus={b.payment_status}
             fundsReleasedAt={fundsReleasedAt}
             hasDispute={!!existingDispute}
+            lang={lang}
           />
         )}
 

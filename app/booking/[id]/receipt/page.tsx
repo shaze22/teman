@@ -114,7 +114,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
         <div className="footer">
           <p>{r.thanks}</p>
           <p style={{ marginTop: '4px' }}>{r.generatedOn} {new Date().toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-          <p style={{ marginTop: '4px' }}>teman-sigma.vercel.app</p>
+          <p style={{ marginTop: '4px' }}>seniocare.app</p>
         </div>
 
         <div className="no-print" style={{ marginTop: '32px', textAlign: 'center' }}>

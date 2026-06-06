@@ -13,10 +13,15 @@ interface Props {
   paymentStatus: string
   fundsReleasedAt?: string | null
   hasDispute?: boolean
+  lang?: string
+}
+
+function tx(lang: string, en: string, bm: string) {
+  return lang === 'en' ? en : bm
 }
 
 export default function BookingDetailActions({
-  bookingId, status, isProvider, hasReview, fundsReleased, paymentStatus, fundsReleasedAt, hasDispute,
+  bookingId, status, isProvider, hasReview, fundsReleased, paymentStatus, fundsReleasedAt, hasDispute, lang = 'en',
 }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState<string | null>(null)
@@ -25,7 +30,7 @@ export default function BookingDetailActions({
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
   const [reviewDone, setReviewDone] = useState(hasReview)
-  const [released, setReleased] = useState(fundsReleased)
+  const [released] = useState(fundsReleased)
   const [refundInfo, setRefundInfo] = useState<{ amount: number; status: string } | null>(null)
   const [showDisputeForm, setShowDisputeForm] = useState(false)
   const [disputeReason, setDisputeReason] = useState('')
@@ -76,24 +81,6 @@ export default function BookingDetailActions({
     }
   }
 
-  async function releaseFunds() {
-    setLoading('release')
-    setError(null)
-    try {
-      const res = await fetch(`/api/bookings/${bookingId}/release`, {
-        method: 'POST',
-      })
-      const data = await res.json()
-      if (!res.ok) { setError(data.message); return }
-      setReleased(true)
-      router.refresh()
-    } catch {
-      setError('Ralat rangkaian. Cuba lagi.')
-    } finally {
-      setLoading(null)
-    }
-  }
-
   async function submitReview() {
     setLoading('review')
     setError(null)
@@ -128,7 +115,7 @@ export default function BookingDetailActions({
         <div className="flex items-start gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-sm text-green-700">
           <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />
           <span>
-            Bayaran balik <strong>RM{refundInfo.amount.toFixed(2)}</strong> ({refundInfo.status === 'full' ? 'bayaran penuh' : '50% — batalkan &lt;24 jam'}) sedang diproses ke kad anda.
+            {tx(lang, 'Refund of', 'Bayaran balik')} <strong>RM{refundInfo.amount.toFixed(2)}</strong> ({refundInfo.status === 'full' ? tx(lang, 'full refund', 'bayaran penuh') : tx(lang, '50% — cancelled <24h', '50% — batalkan <24 jam')}) {tx(lang, 'is being processed to your card.', 'sedang diproses ke kad anda.')}
           </span>
         </div>
       )}
@@ -136,7 +123,7 @@ export default function BookingDetailActions({
       {/* Provider: accept/reject pending booking */}
       {isProvider && status === 'pending' && (
         <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Tindakan</h2>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{tx(lang, 'Actions', 'Tindakan')}</h2>
           <div className="flex gap-3">
             <button
               onClick={() => updateStatus('confirmed')}
@@ -144,7 +131,7 @@ export default function BookingDetailActions({
               className="flex-1 flex items-center justify-center gap-2 bg-[#6366F1] text-white py-3 rounded-xl font-semibold hover:bg-[#4F46E5] disabled:opacity-50 transition-colors"
             >
               {isLoading('confirmed') ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
-              Terima
+              {tx(lang, 'Accept', 'Terima')}
             </button>
             <button
               onClick={() => updateStatus('cancelled')}
@@ -152,7 +139,7 @@ export default function BookingDetailActions({
               className="flex-1 flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-semibold hover:bg-red-100 disabled:opacity-50 transition-colors"
             >
               {isLoading('cancelled') ? <Loader2 className="w-5 h-5 animate-spin" /> : <XCircle className="w-5 h-5" />}
-              Tolak
+              {tx(lang, 'Reject', 'Tolak')}
             </button>
           </div>
         </div>
@@ -161,14 +148,14 @@ export default function BookingDetailActions({
       {/* Provider: check-in */}
       {isProvider && status === 'confirmed' && (
         <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Tindakan</h2>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{tx(lang, 'Actions', 'Tindakan')}</h2>
           <button
             onClick={() => updateStatus('in_progress')}
             disabled={!!loading}
             className="w-full flex items-center justify-center gap-2 bg-orange-500 text-white py-3 rounded-xl font-semibold hover:bg-orange-600 disabled:opacity-50 transition-colors"
           >
             {isLoading('in_progress') ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogIn className="w-5 h-5" />}
-            Mula Sesi (Check-In)
+            {tx(lang, 'Start Session (Check-In)', 'Mula Sesi (Check-In)')}
           </button>
         </div>
       )}
@@ -176,14 +163,14 @@ export default function BookingDetailActions({
       {/* Provider: check-out */}
       {isProvider && status === 'in_progress' && (
         <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Tindakan</h2>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{tx(lang, 'Actions', 'Tindakan')}</h2>
           <button
             onClick={() => updateStatus('completed')}
             disabled={!!loading}
             className="w-full flex items-center justify-center gap-2 bg-[#6366F1] text-white py-3 rounded-xl font-semibold hover:bg-[#4F46E5] disabled:opacity-50 transition-colors"
           >
             {isLoading('completed') ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
-            Tamat Sesi (Check-Out)
+            {tx(lang, 'End Session (Check-Out)', 'Tamat Sesi (Check-Out)')}
           </button>
         </div>
       )}
@@ -193,9 +180,9 @@ export default function BookingDetailActions({
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-3">
           <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-amber-800 text-sm">Sesi Selesai — Pendapatan Diproses</p>
+            <p className="font-semibold text-amber-800 text-sm">{tx(lang, 'Session Complete — Earnings Processing', 'Sesi Selesai — Pendapatan Diproses')}</p>
             <p className="text-xs text-amber-700 mt-1">
-              Pendapatan anda sedang dikreditkan ke wallet. Permohonan pengeluaran boleh dibuat dari halaman Pendapatan.
+              {tx(lang, 'Your earnings are being credited to your wallet. Withdrawal requests can be made from the Earnings page.', 'Pendapatan anda sedang dikreditkan ke wallet. Permohonan pengeluaran boleh dibuat dari halaman Pendapatan.')}
             </p>
           </div>
         </div>
@@ -206,8 +193,8 @@ export default function BookingDetailActions({
         <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 flex items-center gap-3">
           <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-emerald-700">Bayaran dikreditkan ke wallet anda.</p>
-            <p className="text-xs text-emerald-600 mt-0.5">Admin akan transfer dalam 7 hari bekerja selepas permohonan pengeluaran dibuat.</p>
+            <p className="text-sm font-semibold text-emerald-700">{tx(lang, 'Payment credited to your wallet.', 'Bayaran dikreditkan ke wallet anda.')}</p>
+            <p className="text-xs text-emerald-600 mt-0.5">{tx(lang, 'Admin will transfer within 7 working days after a withdrawal request is submitted.', 'Admin akan transfer dalam 7 hari bekerja selepas permohonan pengeluaran dibuat.')}</p>
           </div>
         </div>
       )}
@@ -215,14 +202,14 @@ export default function BookingDetailActions({
       {/* Customer: cancel */}
       {!isProvider && (status === 'pending' || status === 'confirmed') && (
         <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Tindakan</h2>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{tx(lang, 'Actions', 'Tindakan')}</h2>
           <button
-            onClick={() => updateStatus('cancelled', 'Dibatalkan oleh pelanggan')}
+            onClick={() => updateStatus('cancelled', tx(lang, 'Cancelled by customer', 'Dibatalkan oleh pelanggan'))}
             disabled={!!loading}
             className="w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-semibold hover:bg-red-100 disabled:opacity-50 transition-colors"
           >
             {isLoading('cancelled') ? <Loader2 className="w-5 h-5 animate-spin" /> : <XCircle className="w-5 h-5" />}
-            Batalkan Booking
+            {tx(lang, 'Cancel Booking', 'Batalkan Booking')}
           </button>
         </div>
       )}
@@ -231,7 +218,7 @@ export default function BookingDetailActions({
       {!isProvider && status === 'completed' && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 flex items-center gap-3">
           <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-          <p className="text-sm font-semibold text-emerald-700">Sesi selesai. Bayaran akan diuruskan dalam 7 hari bekerja. Terima kasih!</p>
+          <p className="text-sm font-semibold text-emerald-700">{tx(lang, 'Session complete. Payment will be processed within 7 working days. Thank you!', 'Sesi selesai. Bayaran akan diuruskan dalam 7 hari bekerja. Terima kasih!')}</p>
         </div>
       )}
 
@@ -264,21 +251,21 @@ export default function BookingDetailActions({
             onClick={() => setShowDisputeForm(true)}
             className="w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-semibold hover:bg-red-100 transition-colors text-sm"
           >
-            ⚠ Buka Aduan (Tidak Berpuas Hati)
+            ⚠ {tx(lang, 'Open Dispute (Not Satisfied)', 'Buka Aduan (Tidak Berpuas Hati)')}
           </button>
-          <p className="text-xs text-gray-400 text-center mt-2">Window aduan tutup 48 jam selepas bayaran dilepaskan</p>
+          <p className="text-xs text-gray-400 text-center mt-2">{tx(lang, 'Dispute window closes 48 hours after payment is released', 'Window aduan tutup 48 jam selepas bayaran dilepaskan')}</p>
         </div>
       )}
 
       {showDisputeForm && (
         <div className="bg-white rounded-2xl border-2 border-red-200 p-5 space-y-3">
-          <h3 className="font-semibold text-red-700">Buka Aduan</h3>
-          <p className="text-sm text-gray-500">Terangkan masalah anda dengan terperinci. Admin akan menyemak dan menghubungi anda.</p>
+          <h3 className="font-semibold text-red-700">{tx(lang, 'Open Dispute', 'Buka Aduan')}</h3>
+          <p className="text-sm text-gray-500">{tx(lang, 'Describe your issue in detail. Admin will review and contact you.', 'Terangkan masalah anda dengan terperinci. Admin akan menyemak dan menghubungi anda.')}</p>
           <textarea
             value={disputeReason}
             onChange={e => setDisputeReason(e.target.value)}
             rows={4}
-            placeholder="Contoh: Teman tidak muncul / Perkhidmatan tidak memuaskan / Masa tidak ditepati..."
+            placeholder={tx(lang, 'e.g. Companion did not show up / Service was unsatisfactory / Late arrival...', 'Contoh: Teman tidak muncul / Perkhidmatan tidak memuaskan / Masa tidak ditepati...')}
             className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
           />
           <div className="flex gap-2">
@@ -288,10 +275,10 @@ export default function BookingDetailActions({
               className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white py-2.5 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 text-sm"
             >
               {isLoading('dispute') ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              Hantar Aduan
+              {tx(lang, 'Submit Dispute', 'Hantar Aduan')}
             </button>
             <button onClick={() => setShowDisputeForm(false)} className="px-4 py-2.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-              Batal
+              {tx(lang, 'Cancel', 'Batal')}
             </button>
           </div>
         </div>
@@ -300,7 +287,7 @@ export default function BookingDetailActions({
       {disputeSubmitted && (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-center gap-3">
           <span className="text-red-600">⚠</span>
-          <p className="text-sm font-semibold text-red-700">Aduan telah dihantar. Admin akan menghubungi anda dalam masa 1-2 hari bekerja.</p>
+          <p className="text-sm font-semibold text-red-700">{tx(lang, 'Dispute submitted. Admin will contact you within 1-2 working days.', 'Aduan telah dihantar. Admin akan menghubungi anda dalam masa 1-2 hari bekerja.')}</p>
         </div>
       )}
 
@@ -309,7 +296,7 @@ export default function BookingDetailActions({
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <div className="border border-yellow-200 rounded-xl p-4 space-y-3 bg-yellow-50">
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Rating</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">{tx(lang, 'Rating', 'Rating')}</p>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button
@@ -323,12 +310,12 @@ export default function BookingDetailActions({
               </div>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-1">Komen (pilihan)</p>
+              <p className="text-sm font-medium text-gray-700 mb-1">{tx(lang, 'Comment (optional)', 'Komen (pilihan)')}</p>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={3}
-                placeholder="Kongsikan pengalaman anda..."
+                placeholder={tx(lang, 'Share your experience...', 'Kongsikan pengalaman anda...')}
                 className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
               />
             </div>
@@ -339,13 +326,13 @@ export default function BookingDetailActions({
                 className="flex-1 flex items-center justify-center gap-2 bg-yellow-500 text-white py-2.5 rounded-lg font-semibold hover:bg-yellow-600 disabled:opacity-50 transition-colors text-sm"
               >
                 {isLoading('review') ? <Loader2 className="w-4 h-4 animate-spin" /> : <Star className="w-4 h-4" />}
-                Hantar Ulasan
+                {tx(lang, 'Submit Review', 'Hantar Ulasan')}
               </button>
               <button
                 onClick={() => setShowReview(false)}
                 className="px-4 py-2.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Batal
+                {tx(lang, 'Cancel', 'Batal')}
               </button>
             </div>
           </div>
