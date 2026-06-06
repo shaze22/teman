@@ -192,6 +192,16 @@ Backup: https://teman-sigma.vercel.app
 - `is_admin()` helper function: checks `users.role = 'super_admin'` via `auth.uid()::text`
 - `withdrawal_requests.provider_id` adalah UUID (semua lain TEXT) — policy tanpa cast
 - Policies: read (public/auth), write (own data), admin bypass semua tables
+- **Gemini server-side verify** (commit `8a15838`) — `/api/auth/register/companion` kini re-run `compareFaceWithIC()` server-side. Tidak percaya `geminiPassed` dari client. Gagal → 422. ✅
+
+## About Page Revamp (2026-06-06, commit `fc17b07`)
+- Buang semua reference "ibu tunggal" / "single mother" / "NGO verification"
+- Mission baru: "pastikan tiada warga emas makan berseorangan"
+- Nilai "Komuniti" → "Inklusif" (terbuka semua 18+), icon Users → Globe
+- "Keselamatan": NGO verification → IC + selfie verification
+- Story: fokus warga emas keseorangan, bukan ibu tunggal kerja 3 jobs
+- CTA "Jadi Meal Companion" → `/register/companion`
+- BM + EN translations dikemaskini sepenuhnya
 ## Git
 - Repo: https://github.com/shaze22/teman (remote ditukar 2026-06-06 — syedshazni/teman tidak wujud)
 - Push: `git push origin master`
