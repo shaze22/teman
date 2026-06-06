@@ -77,7 +77,7 @@ export default function WithdrawalForm({ walletBalance }: Props) {
             <div className="py-6 text-center">
               <div className="text-4xl mb-3">✅</div>
               <p className="font-semibold text-gray-900">Permohonan Dihantar!</p>
-              <p className="text-sm text-gray-500 mt-1">Admin akan proses dalam 1-3 hari bekerja.</p>
+              <p className="text-sm text-gray-500 mt-1">Admin akan proses dan transfer dalam 7 hari bekerja.</p>
               <button onClick={() => { setSuccess(false); setOpen(false) }}
                 className="mt-4 text-sm text-[#6366F1] hover:underline">Tutup</button>
             </div>

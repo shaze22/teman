@@ -26,7 +26,7 @@ export default async function AdminWithdrawalsPage() {
     <div className="p-6 max-w-4xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Permohonan Pengeluaran</h1>
-        <p className="text-sm text-gray-500 mt-1">{pending.length} menunggu kelulusan</p>
+        <p className="text-sm text-gray-500 mt-1">{pending.length} menunggu — transfer melalui DuitNow/FPX dalam 7 hari bekerja</p>
       </div>
 
       {pending.length > 0 && (

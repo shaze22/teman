@@ -188,24 +188,27 @@ export default function BookingDetailActions({
         </div>
       )}
 
-      {/* Provider: waiting for customer confirmation */}
+      {/* Provider: pending admin transfer */}
       {isProvider && status === 'completed' && !released && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-3">
           <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-amber-800 text-sm">Menunggu Pengesahan Pelanggan</p>
+            <p className="font-semibold text-amber-800 text-sm">Sesi Selesai — Pendapatan Diproses</p>
             <p className="text-xs text-amber-700 mt-1">
-              Pelanggan perlu mengesahkan sesi selesai sebelum bayaran dilepaskan ke wallet anda.
+              Pendapatan anda sedang dikreditkan ke wallet. Permohonan pengeluaran boleh dibuat dari halaman Pendapatan.
             </p>
           </div>
         </div>
       )}
 
-      {/* Provider: funds released */}
+      {/* Provider: funds released, request withdrawal */}
       {isProvider && status === 'completed' && released && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 flex items-center gap-3">
           <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-          <p className="text-sm font-semibold text-emerald-700">Bayaran telah dikreditkan ke wallet anda.</p>
+          <div>
+            <p className="text-sm font-semibold text-emerald-700">Bayaran dikreditkan ke wallet anda.</p>
+            <p className="text-xs text-emerald-600 mt-0.5">Admin akan transfer dalam 7 hari bekerja selepas permohonan pengeluaran dibuat.</p>
+          </div>
         </div>
       )}
 
@@ -224,39 +227,16 @@ export default function BookingDetailActions({
         </div>
       )}
 
-      {/* Customer: confirm completion + release funds (ESCROW) */}
-      {!isProvider && status === 'completed' && paymentStatus === 'paid' && !released && (
-        <div className="bg-white rounded-2xl border-2 border-[#6366F1]/30 p-5 space-y-4">
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="w-6 h-6 text-[#6366F1] flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold text-gray-900">Sahkan Sesi Selesai</p>
-              <p className="text-sm text-gray-500 mt-1">
-                Setelah anda sahkan, bayaran akan dilepaskan kepada Pengasuh anda. Pastikan anda berpuas hati dengan perkhidmatan yang diberikan.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={releaseFunds}
-            disabled={!!loading}
-            className="w-full flex items-center justify-center gap-2 bg-[#6366F1] text-white py-3.5 rounded-xl font-semibold hover:bg-[#4F46E5] disabled:opacity-50 transition-colors text-base"
-          >
-            {isLoading('release') ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />}
-            Ya, Sesi Selesai — Lepaskan Bayaran
-          </button>
-        </div>
-      )}
-
-      {/* Customer: funds released confirmation */}
-      {!isProvider && released && (
+      {/* Customer: session complete notice */}
+      {!isProvider && status === 'completed' && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 flex items-center gap-3">
           <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-          <p className="text-sm font-semibold text-emerald-700">Bayaran telah dilepaskan kepada Pengasuh anda. Terima kasih!</p>
+          <p className="text-sm font-semibold text-emerald-700">Sesi selesai. Bayaran akan diuruskan dalam 7 hari bekerja. Terima kasih!</p>
         </div>
       )}
 
-      {/* Customer: review — only after funds released */}
-      {!isProvider && status === 'completed' && released && !reviewDone && !showReview && (
+      {/* Customer: review — after session completed */}
+      {!isProvider && status === 'completed' && !reviewDone && !showReview && (
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <button
             onClick={() => setShowReview(true)}
@@ -268,7 +248,7 @@ export default function BookingDetailActions({
         </div>
       )}
 
-      {!isProvider && status === 'completed' && released && reviewDone && (
+      {!isProvider && status === 'completed' && reviewDone && (
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <div className="flex items-center gap-2 text-sm text-[#3730A3] bg-[#EEF2FF] rounded-xl px-4 py-3">
             <CheckCircle className="w-4 h-4" />

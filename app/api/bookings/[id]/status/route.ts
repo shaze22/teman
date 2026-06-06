@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { stripe } from '@/lib/stripe'
 import { z } from 'zod'
-import { notifyBookingStatusChange } from '@/lib/notifications'
+import { notifyBookingStatusChange, notifyFundsReleased } from '@/lib/notifications'
 import {
   sendBookingConfirmedCustomer,
   sendBookingCancelledBoth,
@@ -96,6 +96,36 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   const { error } = await supabaseAdmin.from('bookings').update(update).eq('id', id)
   if (error) return NextResponse.json({ message: error.message }, { status: 500 })
+
+  // Auto-release escrow when booking is completed
+  if (status === 'completed' && b.payment_status === 'paid') {
+    const providerNet = parseFloat(String(b.provider_price)) * 0.85
+    const { data: provProfile } = await supabaseAdmin
+      .from('single_mother_profiles')
+      .select('id, earnings_total')
+      .eq('user_id', b.provider_id)
+      .single()
+
+    if (provProfile) {
+      const balanceAfter = parseFloat(String(provProfile.earnings_total ?? 0)) + providerNet
+      await Promise.all([
+        supabaseAdmin.from('bookings').update({ funds_released: true, funds_released_at: now }).eq('id', id),
+        supabaseAdmin.from('single_mother_profiles').update({ earnings_total: balanceAfter }).eq('id', provProfile.id),
+        supabaseAdmin.from('wallet_transactions').insert({
+          id: crypto.randomUUID(),
+          user_id: b.provider_id,
+          type: 'credit',
+          amount: providerNet,
+          balance_after: balanceAfter,
+          reference_type: 'booking',
+          reference_id: id,
+          description: `Pendapatan booking #${b.booking_code}`,
+          created_at: now,
+        }),
+      ])
+      notifyFundsReleased({ bookingId: id, bookingCode: b.booking_code, providerId: b.provider_id, amount: providerNet }).catch(() => {})
+    }
+  }
 
   // Fetch emails for notifications
   const [customerAuth, providerAuth] = await Promise.all([

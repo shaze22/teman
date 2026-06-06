@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     const { data: booking } = await supabaseAdmin
       .from('bookings')
       .select(`
-        booking_code, scheduled_date, total_amount, provider_price,
+        booking_code, scheduled_date, total_amount, provider_price, customer_id, provider_id,
         customer:users!bookings_customer_id_fkey(full_name),
         provider:users!bookings_provider_id_fkey(full_name)
       `)
@@ -62,16 +62,12 @@ export async function POST(request: NextRequest) {
     if (booking) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const b = booking as any
-      const customerId = userId ?? ''
-      const { data: providerUser } = await supabaseAdmin
-        .from('users')
-        .select('id')
-        .eq('full_name', b.provider?.full_name)
-        .single()
+      const customerId = (b.customer_id ?? userId) as string
+      const providerId = b.provider_id as string
 
       const [customerAuth, providerAuth] = await Promise.all([
         customerId ? supabaseAdmin.auth.admin.getUserById(customerId) : Promise.resolve({ data: { user: null } }),
-        providerUser ? supabaseAdmin.auth.admin.getUserById(providerUser.id) : Promise.resolve({ data: { user: null } }),
+        providerId ? supabaseAdmin.auth.admin.getUserById(providerId) : Promise.resolve({ data: { user: null } }),
       ])
 
       const customerEmail = (customerAuth as any)?.data?.user?.email ?? ''
@@ -82,9 +78,9 @@ export async function POST(request: NextRequest) {
       const providerAmount = parseFloat(String(b.provider_price)) * 0.85
 
       // In-app notification to provider
-      if (providerUser) {
+      if (providerId) {
         createNotification({
-          userId: providerUser.id,
+          userId: providerId,
           type: 'booking_confirmed',
           title: 'Booking Baru Disahkan',
           message: `${customerName} telah membuat booking #${b.booking_code}. Pembayaran berjaya diterima.`,
