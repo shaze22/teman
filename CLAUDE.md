@@ -182,7 +182,7 @@ Backup: https://teman-sigma.vercel.app
 
 ## Known Issues
 - Google OAuth credentials perlu di-rotate (terdedah dalam chat) — user action required
-- Stripe masih test mode — tukar ke sk_live_... di Stripe dashboard + update Vercel env
+- **Stripe LIVE** (2026-06-06) — sk_live + pk_live set dalam Vercel ✅. Perlu cipta webhook baru di Stripe live dashboard → `https://seniocare.app/api/payment/webhook` → update `STRIPE_WEBHOOK_SECRET` dalam Vercel
 
 ## Security (2026-06-06)
 - **RLS ENABLED** — semua 30 tables kini ada Row Level Security ✅
