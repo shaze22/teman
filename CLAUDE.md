@@ -215,3 +215,26 @@ Backup: https://teman-sigma.vercel.app
   - Ditambah ke customer + provider dashboard (`md:hidden`)
   - Dashboard: `pb-16 md:pb-0` supaya content tak tersembunyi
 - `globals.css`: `.scrollbar-none`, `.safe-area-pb` utilities
+
+## Payment — Pilihan A Payout (2026-06-06)
+**Flow:** Customer bayar Stripe → booking confirmed → provider mark completed → auto-credit wallet → provider request withdrawal → admin transfer DuitNow/FPX dalam 7 hari bekerja
+
+**Auto-release escrow:**
+- `app/api/bookings/[id]/status/route.ts` — bila `status === 'completed' && payment_status === 'paid'`, terus:
+  - Set `funds_released: true` pada booking
+  - Credit `earnings_total` pada `single_mother_profiles`
+  - Insert ke `wallet_transactions`
+  - Notify provider via `notifyFundsReleased`
+- Customer **tidak perlu** tekan "Release Funds" lagi
+
+**Webhook fix:**
+- `app/api/payment/webhook/route.ts` — guna `provider_id` dari booking terus (sebelum ini lookup by `full_name` — fragile bug)
+
+**UI changes:**
+- Customer: buang button "Release Funds"; ganti dengan mesej "7 hari bekerja"
+- Provider: booking detail tunjuk "Admin akan transfer dalam 7 hari bekerja"
+- Withdrawal form: "1-3 hari" → "7 hari bekerja"
+- Admin `/admin/withdrawals`: subtitle update dengan DuitNow/FPX policy
+- Review button: gated by `completed` (bukan `released`) — boleh review terus selepas sesi selesai
+
+**Tables involved:** `bookings` (funds_released, funds_released_at), `wallet_transactions`, `single_mother_profiles` (earnings_total), `withdrawal_requests`, `payments`
