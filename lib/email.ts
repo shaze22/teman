@@ -2,7 +2,7 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const FROM = process.env.EMAIL_FROM ?? 'Teman <noreply@teman.my>'
+const FROM = process.env.EMAIL_FROM || 'SenioCare <noreply@seniocare.app>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
 function base(content: string) {

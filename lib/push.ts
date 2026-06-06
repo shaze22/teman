@@ -3,7 +3,7 @@ import { supabaseAdmin } from './supabase/admin'
 
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
-    'mailto:admin@teman.my',
+    'mailto:admin@seniocare.app',
     process.env.VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   )
