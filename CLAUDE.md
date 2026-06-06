@@ -243,7 +243,13 @@ Backup: https://teman-sigma.vercel.app
 
 **Feature 9 — FPX Online Banking:**
 - `app/api/payment/create/route.ts`: `payment_method_types: ['card', 'fpx']`
-- ⚠️ Perlu enable FPX dalam Stripe Dashboard → Settings → Payment Methods
+- FPX AKTIF — dah enable dalam Stripe Dashboard (2026-06-06)
+
+**Domain fix (2026-06-06, commit fe9fcc6):**
+- `NEXT_PUBLIC_APP_URL` dikemaskini ke `https://seniocare.app` dalam Vercel production env (sebelum ini kosong — menyebabkan Stripe redirect ke URL lama)
+- `payment/create/route.ts`: `??` → `||` untuk handle empty string APP_URL
+- `lib/email.ts`: fallback FROM → `SenioCare <noreply@seniocare.app>` (guna `||` bukan `??`)
+- `lib/push.ts`: VAPID contact → `admin@seniocare.app`
 
 **Feature 10 — Booking Reminder 24 Jam:**
 - `app/api/cron/booking-reminders/route.ts` — GET endpoint, secured by `CRON_SECRET` header
