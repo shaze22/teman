@@ -184,7 +184,7 @@ Backup: https://teman-sigma.vercel.app
 - Tiada isu kritikal ✅
 
 ## Credentials Rotated (2026-06-06)
-- **Google OAuth** — credential lama dihapus, baru dicipta. New Client ID: `364866145455-8hicoq88jpliu9hc224ud02ov8gptsgh.apps.googleusercontent.com`. Supabase provider dikemaskini ✅
+- **Google OAuth** — credential lama dihapus, baru dicipta. New Client ID: `364866145455-8hicoq88jpliu9hc224ud02ov8gptsgh.apps.googleusercontent.com`. Supabase provider dikemaskini ✅. OAuth consent screen: **In production** (semua Google user boleh login) ✅
 - **Stripe LIVE** — sk_live + pk_live + webhook secret live (`we_1TfIpLC37VvIcHTWaHJLeW9I`) semuanya set dalam Vercel ✅
 
 ## Security (2026-06-06)
