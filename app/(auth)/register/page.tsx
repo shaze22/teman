@@ -10,7 +10,7 @@ import LangToggle from '@/app/_lang-toggle'
 function RegisterContent() {
   const searchParams = useSearchParams()
   const preselected = searchParams.get('role')
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const [showOrg, setShowOrg] = useState(false)
 
   const mainRoles = [
@@ -103,8 +103,8 @@ function RegisterContent() {
           className="w-full flex items-center justify-center gap-2 text-sm text-gray-400 hover:text-gray-600 transition-colors mt-5 py-2"
         >
           {showOrg
-            ? (t as { lang?: string } & Record<string, unknown>).lang === 'en' ? 'Hide organisation options' : 'Sembunyikan pilihan organisasi'
-            : (t as { lang?: string } & Record<string, unknown>).lang === 'en' ? 'Register as an organisation' : 'Daftar sebagai organisasi'
+            ? (lang === 'en' ? 'Hide organisation options' : 'Sembunyikan pilihan organisasi')
+            : (lang === 'en' ? 'Register as an organisation' : 'Daftar sebagai organisasi')
           }
           <ChevronDown className={`w-4 h-4 transition-transform ${showOrg ? 'rotate-180' : ''}`} />
         </button>

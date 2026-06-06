@@ -201,6 +201,7 @@ export const translations = {
       requestAgain: 'Minta semula',
       googleLogin: 'Log Masuk dengan Google',
       googleRegister: 'Daftar dengan Google',
+      orEmail: 'atau guna email',
     },
     register: {
       title: 'Daftar Akaun Baru',
@@ -912,6 +913,7 @@ export const translations = {
       requestAgain: 'Request again',
       googleLogin: 'Continue with Google',
       googleRegister: 'Register with Google',
+      orEmail: 'or use email',
     },
     register: {
       title: 'Create New Account',

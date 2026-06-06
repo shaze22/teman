@@ -14,6 +14,7 @@ import NotificationBell from '../_notification-bell'
 import PushSetup from '../_push-setup'
 import DuoSection from './_duo-section'
 import { translations, type Lang } from '@/lib/i18n'
+import MobileBottomNav from '@/app/_mobile-bottom-nav'
 
 const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-700',
@@ -86,7 +87,7 @@ export default async function ProviderDashboard() {
     : t.profilePage.newLabel
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] pb-16 md:pb-0">
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -216,6 +217,7 @@ export default async function ProviderDashboard() {
           </div>
         </div>
       </div>
+      <MobileBottomNav role="provider" />
     </div>
   )
 }

@@ -563,75 +563,69 @@ function ProviderCard({ provider: p }: { provider: Provider }) {
   return (
     <Link href={`/carer/${p.id}`} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 group overflow-hidden">
       <div className="p-4">
-        <div className="flex items-start gap-3 mb-3">
+        {/* Header row: avatar + name + price */}
+        <div className="flex items-center gap-3">
           {p.avatarUrl ? (
-            <Image src={p.avatarUrl} alt={p.fullName} width={56} height={56} className="w-14 h-14 rounded-full object-cover flex-shrink-0" />
+            <Image src={p.avatarUrl} alt={p.fullName} width={48} height={48} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
           ) : (
-            <div className={`w-14 h-14 rounded-full ${avatarBg} text-white flex items-center justify-center text-lg font-bold flex-shrink-0`}>
+            <div className={`w-12 h-12 rounded-full ${avatarBg} text-white flex items-center justify-center text-base font-bold flex-shrink-0`}>
               {initials}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <h3 className="font-semibold text-gray-900 truncate">{p.fullName}</h3>
-              {p.verifiedByNgo && (
-                <span className="text-xs bg-[#E0E7FF] text-[#6366F1] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">NGO ✓</span>
-              )}
-              {p.icVerified && (
-                <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">IC ✓</span>
-              )}
-              {p.isLocum && p.locumVerified && (
-                <span className="text-xs bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">🩺 Locum ✓</span>
-              )}
-              {p.hasDuo && (
-                <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">👥 Duo</span>
-              )}
+            <div className="flex items-center gap-1 flex-wrap">
+              <h3 className="font-semibold text-gray-900 truncate text-sm">{p.fullName}</h3>
+              {p.icVerified && <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">✓</span>}
+              {p.isLocum && p.locumVerified && <span className="text-xs bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">🩺</span>}
+              {p.hasDuo && <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-medium flex-shrink-0">👥</span>}
             </div>
-            <div className="flex items-center gap-1 text-sm text-gray-500 mt-0.5">
-              <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-              <span className="truncate">{p.locationCity}, {p.locationState}</span>
+            <div className="flex items-center justify-between mt-0.5">
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <MapPin className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{p.locationCity}</span>
+              </div>
+              <div className="flex items-center gap-0.5">
+                <Star className="w-3.5 h-3.5 text-yellow-400" fill="currentColor" />
+                <span className="text-xs font-semibold text-gray-800">
+                  {parseFloat(p.ratingAvg) > 0 ? parseFloat(p.ratingAvg).toFixed(1) : t.search.new}
+                </span>
+                {p.totalReviews > 0 && <span className="text-xs text-gray-400 ml-0.5">({p.totalReviews})</span>}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 text-yellow-400" fill="currentColor" />
-            <span className="text-sm font-semibold text-gray-900">
-              {parseFloat(p.ratingAvg) > 0 ? parseFloat(p.ratingAvg).toFixed(1) : t.search.new}
-            </span>
-          </div>
-          {p.totalReviews > 0 && (
-            <span className="text-xs text-gray-400">({p.totalReviews} {t.search.reviews})</span>
-          )}
-        </div>
-
+        {/* Skills */}
         {p.skills.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
-            {p.skills.slice(0, 3).map((s) => (
-              <span key={s.skillCategory} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+          <div className="flex flex-wrap gap-1 mt-3">
+            {p.skills.slice(0, 2).map((s) => (
+              <span key={s.skillCategory} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                 {t.skills[s.skillCategory as keyof typeof t.skills] ?? s.skillCategory}
               </span>
             ))}
-            {p.skills.length > 3 && <span className="text-xs text-gray-400 px-1 py-1">+{p.skills.length - 3}</span>}
+            {p.skills.length > 2 && <span className="text-xs text-gray-400 py-0.5">+{p.skills.length - 2}</span>}
           </div>
         )}
 
-        {p.bio && <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 mb-3">{p.bio}</p>}
-
+        {/* Price + CTA */}
         {price && (
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-            <span className="text-xs text-gray-400">{lang === 'en' ? 'per hour' : 'sejam'}</span>
-            <span className="font-bold text-[#6366F1] text-xl">
-              RM{parseFloat(price.price).toFixed(0)}
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+            <div>
+              <span className="font-bold text-[#6366F1] text-lg">RM{parseFloat(price.price).toFixed(0)}</span>
+              <span className="text-xs text-gray-400 ml-1">{lang === 'en' ? '/hr' : '/jam'}</span>
+            </div>
+            <span className="bg-[#6366F1] text-white text-xs font-semibold px-3 py-1.5 rounded-full group-hover:bg-[#4F46E5] transition-colors">
+              {t.search.viewProfile} →
             </span>
           </div>
         )}
-      </div>
-      <div className="px-4 pb-4">
-        <div className="w-full text-center py-2 bg-[#6366F1] text-white text-sm font-semibold rounded-xl group-hover:bg-[#4F46E5] transition-colors">
-          {t.search.viewProfile}
-        </div>
+        {!price && (
+          <div className="mt-3 pt-3 border-t border-gray-100 text-right">
+            <span className="bg-[#6366F1] text-white text-xs font-semibold px-3 py-1.5 rounded-full group-hover:bg-[#4F46E5] transition-colors">
+              {t.search.viewProfile} →
+            </span>
+          </div>
+        )}
       </div>
     </Link>
   )

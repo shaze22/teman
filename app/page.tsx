@@ -83,13 +83,13 @@ export default async function LandingPage() {
         <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-[#F43F5E]/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 -translate-y-1/2 left-0 w-64 h-64 bg-purple-900/30 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative max-w-5xl mx-auto px-4 pt-24 pb-20 md:pt-36 md:pb-28 text-center">
+        <div className="relative max-w-5xl mx-auto px-4 pt-20 pb-14 md:pt-36 md:pb-28 text-center">
           <div className="inline-flex items-center gap-2 bg-white/8 backdrop-blur-sm text-white/70 text-xs font-medium px-4 py-2 rounded-full border border-white/10 mb-8">
             <Sparkles className="w-3.5 h-3.5 text-[#818CF8]" />
             {t.hero.badge}
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-6">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-5">
             {t.hero.title}{' '}
             <span className="bg-gradient-to-r from-[#818CF8] via-[#A78BFA] to-[#F43F5E] bg-clip-text text-transparent">
               {t.hero.titleHighlight}
@@ -119,7 +119,7 @@ export default async function LandingPage() {
           </div>
 
           {/* Floating preview cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+          <div className="flex gap-3 overflow-x-auto sm:grid sm:grid-cols-3 sm:overflow-visible max-w-2xl mx-auto pb-1 snap-x snap-mandatory scrollbar-none">
             {[
               {
                 label: 'Kak Siti',
@@ -140,7 +140,7 @@ export default async function LandingPage() {
                 badgeColor: 'bg-[#F43F5E]',
               },
             ].map((c) => (
-              <div key={c.label} className="bg-white/6 backdrop-blur-sm border border-white/10 rounded-2xl p-4 text-left">
+              <div key={c.label} className="bg-white/6 backdrop-blur-sm border border-white/10 rounded-2xl p-4 text-left flex-shrink-0 w-[70vw] sm:w-auto snap-start">
                 <span className={`${c.badgeColor} text-white text-xs font-semibold px-2.5 py-1 rounded-full inline-block mb-3`}>{c.badge}</span>
                 <div className="text-white font-semibold text-sm">{c.label}</div>
                 <div className="text-gray-400 text-xs mt-1">{c.sub}</div>
@@ -163,9 +163,9 @@ export default async function LandingPage() {
       </section>
 
       {/* SERVICES */}
-      <section className="py-24 px-4">
+      <section className="py-14 md:py-24 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
+          <div className="text-center mb-8 md:mb-14">
             <span className="text-xs font-semibold tracking-widest text-[#6366F1] uppercase">{t.services.heading}</span>
             <h2 className="text-2xl md:text-3xl font-bold text-[#0F0E17] mt-2 mb-2">
               {lang === 'en' ? 'Starting with' : 'Bermula dengan'}{' '}
@@ -175,7 +175,7 @@ export default async function LandingPage() {
           </div>
           {/* Featured active service — Meal Companion */}
           <Link href="/search?type=food"
-            className="group block bg-gradient-to-br from-[#EEF2FF] to-[#E0E7FF] rounded-3xl p-7 border-2 border-[#6366F1]/40 hover:border-[#6366F1] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 mb-4">
+            className="group block bg-gradient-to-br from-[#EEF2FF] to-[#E0E7FF] rounded-3xl p-5 md:p-7 border-2 border-[#6366F1]/40 hover:border-[#6366F1] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-5">
                 <div className="w-16 h-16 rounded-2xl bg-[#6366F1] flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-200">
@@ -225,21 +225,23 @@ export default async function LandingPage() {
       <FeaturedProviders lang={lang} />
 
       {/* HOW IT WORKS */}
-      <section className="py-24 px-4 bg-white">
+      <section className="py-14 md:py-24 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
+          <div className="text-center mb-8 md:mb-14">
             <span className="text-xs font-semibold tracking-widest text-[#6366F1] uppercase">{t.howItWorks.heading}</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0F0E17] mt-2">{t.howItWorks.subheading}</h2>
+            <h2 className="text-2xl md:text-4xl font-bold text-[#0F0E17] mt-2">{t.howItWorks.subheading}</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-10 relative">
+          <div className="grid md:grid-cols-3 gap-6 md:gap-10 relative">
             <div className="hidden md:block absolute top-10 left-[calc(16.7%+2.5rem)] right-[calc(16.7%+2.5rem)] h-px bg-gradient-to-r from-transparent via-[#6366F1]/40 to-transparent" />
             {steps.map((item) => (
-              <div key={item.n} className="flex flex-col items-center text-center">
-                <div className="w-20 h-20 rounded-2xl bg-[#EEF2FF] text-[#6366F1] flex items-center justify-center text-2xl font-bold mb-5 ring-1 ring-[#C7D2FE]">
+              <div key={item.n} className="flex md:flex-col items-start md:items-center gap-4 md:gap-0 text-left md:text-center">
+                <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-[#EEF2FF] text-[#6366F1] flex items-center justify-center text-xl md:text-2xl font-bold md:mb-5 ring-1 ring-[#C7D2FE] flex-shrink-0">
                   {item.n}
                 </div>
-                <h3 className="text-lg font-bold text-[#0F0E17] mb-2">{item.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
+                <div>
+                  <h3 className="text-base md:text-lg font-bold text-[#0F0E17] mb-1 md:mb-2">{item.title}</h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -247,15 +249,15 @@ export default async function LandingPage() {
       </section>
 
       {/* SAFETY "" dark */}
-      <section className="py-24 px-4 bg-[#0F0E17] relative overflow-hidden">
+      <section className="py-14 md:py-24 px-4 bg-[#0F0E17] relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#6366F1]/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#F43F5E]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <span className="text-xs font-semibold tracking-widest text-[#818CF8] uppercase">{t.safety.heading}</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mt-2 mb-3">{t.safety.subheading}</h2>
+            <h2 className="text-2xl md:text-4xl font-bold text-white mt-2 mb-3">{t.safety.subheading}</h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {safety.map((item) => (
               <div key={item.title} className="bg-white/5 border border-white/8 rounded-2xl p-5 flex gap-4 hover:bg-white/10 transition-colors">
                 <div className="w-10 h-10 rounded-xl bg-[#6366F1]/20 text-[#818CF8] flex items-center justify-center flex-shrink-0">
@@ -276,11 +278,11 @@ export default async function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <span className="text-xs font-semibold tracking-widest text-[#6366F1] uppercase">{t.testimonials.heading}</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0F0E17] mt-2">{t.testimonials.subheading}</h2>
+            <h2 className="text-2xl md:text-4xl font-bold text-[#0F0E17] mt-2">{t.testimonials.subheading}</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-3 md:overflow-visible pb-2 snap-x snap-mandatory scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
             {testimonials.map((testimonial) => (
-              <div key={testimonial.name} className="bg-white rounded-3xl p-7 shadow-sm border border-gray-100 flex flex-col">
+              <div key={testimonial.name} className="bg-white rounded-3xl p-5 md:p-7 shadow-sm border border-gray-100 flex flex-col flex-shrink-0 w-[80vw] md:w-auto snap-start">
                 <div className="flex gap-1 mb-4">
                   {Array.from({ length: testimonial.rating }).map((_, i) => (
                     <Star key={i} className="w-4 h-4 text-amber-400" fill="currentColor" />
@@ -303,14 +305,14 @@ export default async function LandingPage() {
       </section>
 
       {/* DUAL CTA */}
-      <section className="py-24 px-4 bg-white">
+      <section className="py-14 md:py-24 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0F0E17] mb-3">{t.cta.heading}</h2>
+            <h2 className="text-2xl md:text-4xl font-bold text-[#0F0E17] mb-3">{t.cta.heading}</h2>
             <p className="text-gray-500">{t.cta.subheading}</p>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="relative bg-[#EEF2FF] rounded-3xl p-8 overflow-hidden">
+            <div className="relative bg-[#EEF2FF] rounded-3xl p-6 md:p-8 overflow-hidden">
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#6366F1]/15 rounded-full blur-2xl" />
               <div className="relative">
                 <div className="w-12 h-12 rounded-2xl bg-[#6366F1] flex items-center justify-center mb-5">
@@ -339,7 +341,7 @@ export default async function LandingPage() {
               </div>
             </div>
 
-            <div className="relative bg-[#FFF1F2] rounded-3xl p-8 overflow-hidden">
+            <div className="relative bg-[#FFF1F2] rounded-3xl p-6 md:p-8 overflow-hidden">
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#F43F5E]/15 rounded-full blur-2xl" />
               <div className="relative">
                 <div className="w-12 h-12 rounded-2xl bg-[#F43F5E] flex items-center justify-center mb-5">
