@@ -181,8 +181,11 @@ Backup: https://teman-sigma.vercel.app
 - Booking detail: duo partner boleh view; row "Duo Companion" tunjuk kedua-dua nama
 
 ## Known Issues
-- Google OAuth credentials perlu di-rotate (terdedah dalam chat) — user action required
-- **Stripe LIVE** (2026-06-06) — sk_live + pk_live set dalam Vercel ✅. Perlu cipta webhook baru di Stripe live dashboard → `https://seniocare.app/api/payment/webhook` → update `STRIPE_WEBHOOK_SECRET` dalam Vercel
+- Tiada isu kritikal ✅
+
+## Credentials Rotated (2026-06-06)
+- **Google OAuth** — credential lama dihapus, baru dicipta. New Client ID: `364866145455-8hicoq88jpliu9hc224ud02ov8gptsgh.apps.googleusercontent.com`. Supabase provider dikemaskini ✅
+- **Stripe LIVE** — sk_live + pk_live + webhook secret live (`we_1TfIpLC37VvIcHTWaHJLeW9I`) semuanya set dalam Vercel ✅
 
 ## Security (2026-06-06)
 - **RLS ENABLED** — semua 30 tables kini ada Row Level Security ✅
