@@ -202,3 +202,16 @@ Backup: https://teman-sigma.vercel.app
 - `app/icon.svg` — SVG heart logo (indigo #6366F1 bg + white heart) untuk modern browsers
 - `app/favicon.ico` — PNG-in-ICO (192×192) wrapper dari public/icon-192.png untuk legacy browsers
 - Next.js App Router auto-serve kedua-dua: SVG untuk modern, ICO untuk legacy
+
+## Mobile UX Overhaul (2026-06-06)
+- Hero: `text-4xl md:text-6xl lg:text-7xl`, padding dikurangkan
+- Sections: `py-24` → `py-14 md:py-24`, headings `text-2xl md:text-4xl`
+- Hero preview cards + testimonials: horizontal snap scroll pada mobile
+- Steps (How It Works): icon kiri + teks kanan pada mobile (bukan stack)
+- Search cards: compact — 1-row header, 2 skill chips, price+CTA inline, bio hidden
+- Login: `t.login.orEmail` bilingual (tambah ke i18n BM+EN)
+- Register: org toggle pakai `lang` dari `useLang()` (bukannya type cast hack)
+- Mobile bottom nav: `app/_mobile-bottom-nav.tsx` — 4 tab (Search/Home/Bookings/Profile)
+  - Ditambah ke customer + provider dashboard (`md:hidden`)
+  - Dashboard: `pb-16 md:pb-0` supaya content tak tersembunyi
+- `globals.css`: `.scrollbar-none`, `.safe-area-pb` utilities
