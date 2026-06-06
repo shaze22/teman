@@ -181,11 +181,14 @@ Backup: https://teman-sigma.vercel.app
 - Booking detail: duo partner boleh view; row "Duo Companion" tunjuk kedua-dua nama
 
 ## Known Issues
-- Google OAuth credentials perlu di-rotate (terdedah dalam chat)
-- Privacy page extra content dari homepage bila navigate client-side
-- FPX payments disabled
-- Stripe masih test mode
-- RLS disabled pada 22 tables Supabase
+- Google OAuth credentials perlu di-rotate (terdedah dalam chat) — user action required
+- Stripe masih test mode — tukar ke sk_live_... di Stripe dashboard + update Vercel env
+
+## Security (2026-06-06)
+- **RLS ENABLED** — semua 30 tables kini ada Row Level Security ✅
+- `is_admin()` helper function: checks `users.role = 'super_admin'` via `auth.uid()::text`
+- `withdrawal_requests.provider_id` adalah UUID (semua lain TEXT) — policy tanpa cast
+- Policies: read (public/auth), write (own data), admin bypass semua tables
 ## Git
 - Repo: https://github.com/shaze22/teman (remote ditukar 2026-06-06 — syedshazni/teman tidak wujud)
 - Push: `git push origin master`
