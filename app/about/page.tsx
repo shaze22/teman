@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { Heart, Shield, Users, Target, ArrowRight } from 'lucide-react'
+import { Heart, Shield, Globe, Target, ArrowRight } from 'lucide-react'
 import { translations, type Lang } from '@/lib/i18n'
 
 export default async function AboutPage() {
@@ -11,7 +11,7 @@ export default async function AboutPage() {
   const values = [
     { icon: Heart, title: a.v1Title, desc: a.v1Desc, color: 'bg-rose-50 text-rose-500' },
     { icon: Shield, title: a.v2Title, desc: a.v2Desc, color: 'bg-[#EEF2FF] text-[#6366F1]' },
-    { icon: Users, title: a.v3Title, desc: a.v3Desc, color: 'bg-amber-50 text-amber-600' },
+    { icon: Globe, title: a.v3Title, desc: a.v3Desc, color: 'bg-amber-50 text-amber-600' },
     { icon: Target, title: a.v4Title, desc: a.v4Desc, color: 'bg-emerald-50 text-emerald-600' },
   ]
 
@@ -90,7 +90,7 @@ export default async function AboutPage() {
             <Link href="/register?role=customer" className="inline-flex items-center justify-center gap-2 bg-[#6366F1] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#4F46E5] transition-colors">
               {a.ctaFind} <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href="/register?role=provider" className="inline-flex items-center justify-center gap-2 border border-[#6366F1] text-[#6366F1] font-semibold px-6 py-3 rounded-full hover:bg-[#EEF2FF] transition-colors">
+            <Link href="/register/companion" className="inline-flex items-center justify-center gap-2 border border-[#6366F1] text-[#6366F1] font-semibold px-6 py-3 rounded-full hover:bg-[#EEF2FF] transition-colors">
               {a.ctaBecome}
             </Link>
           </div>
