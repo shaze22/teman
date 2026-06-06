@@ -238,3 +238,28 @@ Backup: https://teman-sigma.vercel.app
 - Review button: gated by `completed` (bukan `released`) — boleh review terus selepas sesi selesai
 
 **Tables involved:** `bookings` (funds_released, funds_released_at), `wallet_transactions`, `single_mother_profiles` (earnings_total), `withdrawal_requests`, `payments`
+
+## Features 9–11 (2026-06-06, commit 99f5958)
+
+**Feature 9 — FPX Online Banking:**
+- `app/api/payment/create/route.ts`: `payment_method_types: ['card', 'fpx']`
+- ⚠️ Perlu enable FPX dalam Stripe Dashboard → Settings → Payment Methods
+
+**Feature 10 — Booking Reminder 24 Jam:**
+- `app/api/cron/booking-reminders/route.ts` — GET endpoint, secured by `CRON_SECRET` header
+- Cari booking `confirmed` dalam window 20–28 jam dari sekarang, `reminder_sent = false`
+- Hantar in-app notification + email kepada customer + provider
+- Set `reminder_sent = true` selepas hantar
+- `vercel.json`: cron `"0 18 * * *"` = 2am MYT (Hobby plan = daily max)
+- DB: `bookings.reminder_sent BOOLEAN DEFAULT FALSE` (migration applied)
+- Env: `CRON_SECRET` ditambah ke Vercel production
+
+**Feature 11 — Booking Reschedule:**
+- DB: `reschedule_requests` table (id UUID, booking_id TEXT, requested_by TEXT, new_date DATE, new_time TIME, note TEXT, status TEXT, responded_at, created_at)
+- `POST /api/bookings/[id]/reschedule` — create request (max 1 pending at a time)
+- `PATCH /api/bookings/[id]/reschedule` — accept/reject (only by OTHER party)
+- Accept → `bookings.scheduled_date` + `start_time` dikemaskini
+- `app/booking/[id]/_reschedule-section.tsx` — client component, bilingual via `tx(lang, en, bm)`
+- Visible untuk booking `pending` atau `confirmed` sahaja
+- Email: `sendRescheduleRequest`, `sendRescheduleResponse` dalam `lib/email.ts`
+- `sendBookingReminder` juga ditambah ke `lib/email.ts`
