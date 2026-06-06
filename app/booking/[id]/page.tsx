@@ -6,6 +6,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { isAdmin } from '@/lib/admin-auth'
 import { Heart, ArrowLeft, Calendar, Clock, MapPin, User, Users, Phone, CheckCircle, AlertCircle, XCircle } from 'lucide-react'
 import BookingDetailActions from './_booking-detail-actions'
+import RescheduleSection from './_reschedule-section'
 import PayButton from './_pay-button'
 import { formatWAPhone } from '@/lib/utils'
 import { translations, type Lang } from '@/lib/i18n'
@@ -92,7 +93,23 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
     .eq('user_id', b.provider_id)
     .single()
 
+  const { data: pendingReschedule } = await supabaseAdmin
+    .from('reschedule_requests')
+    .select('id, requested_by, new_date, new_time, note, status')
+    .eq('booking_id', id)
+    .eq('status', 'pending')
+    .single()
+
   const dateLocale = bd.dateLocale as string
+
+  const pendingRescheduleRequest = pendingReschedule ? {
+    id: String(pendingReschedule.id),
+    requestedBy: String(pendingReschedule.requested_by),
+    newDate: String(pendingReschedule.new_date),
+    newTime: String(pendingReschedule.new_time),
+    note: (pendingReschedule.note as string | null),
+    status: String(pendingReschedule.status),
+  } : null
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -245,17 +262,27 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
 
         {/* Actions */}
         {b.status !== 'cancelled' && (
-          <BookingDetailActions
-            bookingId={b.id}
-            status={b.status}
-            isProvider={isProvider}
-            hasReview={!!existingReview}
-            fundsReleased={fundsReleased}
-            paymentStatus={b.payment_status}
-            fundsReleasedAt={fundsReleasedAt}
-            hasDispute={!!existingDispute}
-            lang={lang}
-          />
+          <>
+            <BookingDetailActions
+              bookingId={b.id}
+              status={b.status}
+              isProvider={isProvider}
+              hasReview={!!existingReview}
+              fundsReleased={fundsReleased}
+              paymentStatus={b.payment_status}
+              fundsReleasedAt={fundsReleasedAt}
+              hasDispute={!!existingDispute}
+              lang={lang}
+            />
+            <RescheduleSection
+              bookingId={b.id}
+              isProvider={isProvider}
+              userId={user.id}
+              status={b.status}
+              lang={lang}
+              pendingRequest={pendingRescheduleRequest}
+            />
+          </>
         )}
 
         {/* Receipt + Repeat booking */}

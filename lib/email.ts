@@ -224,3 +224,63 @@ export function sendIcRejected(opts: { to: string; providerName: string; reason:
   `)
   return sendEmail(opts.to, '❌ IC Tidak Dapat Disahkan — SenioCare', html)
 }
+
+export function sendBookingReminder(opts: {
+  to: string; name: string; otherName: string; role: 'customer' | 'provider'
+  bookingCode: string; bookingId: string; scheduledDate: string; startTime: string
+}) {
+  const isProvider = opts.role === 'provider'
+  const html = base(`
+    <h2 style="color:#0F0E17;font-size:20px;font-weight:700;margin:0 0 8px;">⏰ Peringatan Sesi Esok</h2>
+    <p style="color:#6B7280;margin:0 0 20px;">Sesi anda dengan <strong>${opts.otherName}</strong> akan bermula esok.</p>
+    <div style="background:#EEF2FF;border-radius:12px;padding:16px;margin-bottom:20px;">
+      <p style="margin:0 0 6px;font-size:13px;color:#4B5563;"><strong>Booking:</strong> #${opts.bookingCode}</p>
+      <p style="margin:0 0 6px;font-size:13px;color:#4B5563;"><strong>Tarikh:</strong> ${new Date(opts.scheduledDate).toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+      <p style="margin:0;font-size:13px;color:#4B5563;"><strong>Masa:</strong> ${opts.startTime}</p>
+    </div>
+    <p style="color:#6B7280;font-size:13px;">
+      ${isProvider ? 'Pastikan anda bersedia dan hadir tepat pada masa.' : 'Pastikan anda bersedia untuk menerima Meal Companion anda.'}
+    </p>
+    ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Lihat Booking')}
+  `)
+  return sendEmail(opts.to, `⏰ Peringatan — Sesi Esok #${opts.bookingCode}`, html)
+}
+
+export function sendRescheduleRequest(opts: {
+  to: string; requesterName: string; otherName: string
+  bookingCode: string; bookingId: string
+  newDate: string; newTime: string
+}) {
+  const html = base(`
+    <h2 style="color:#0F0E17;font-size:20px;font-weight:700;margin:0 0 8px;">📅 Permintaan Tukar Jadual</h2>
+    <p style="color:#6B7280;margin:0 0 20px;"><strong>${opts.requesterName}</strong> meminta untuk menukar jadual booking <strong>#${opts.bookingCode}</strong>.</p>
+    <div style="background:#FFF7ED;border-radius:12px;padding:16px;margin-bottom:20px;border:1px solid #FED7AA;">
+      <p style="margin:0 0 6px;font-size:13px;color:#4B5563;"><strong>Tarikh Baru:</strong> ${new Date(opts.newDate).toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+      <p style="margin:0;font-size:13px;color:#4B5563;"><strong>Masa Baru:</strong> ${opts.newTime}</p>
+    </div>
+    <p style="color:#6B7280;font-size:13px;">Sila semak dan terima atau tolak permintaan ini dalam apl.</p>
+    ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Semak Permintaan')}
+  `)
+  return sendEmail(opts.to, `📅 Permintaan Tukar Jadual — #${opts.bookingCode}`, html)
+}
+
+export function sendRescheduleResponse(opts: {
+  to: string; responderName: string; bookingCode: string; bookingId: string
+  accepted: boolean; newDate?: string; newTime?: string
+}) {
+  const html = base(`
+    <h2 style="color:#0F0E17;font-size:20px;font-weight:700;margin:0 0 8px;">
+      ${opts.accepted ? '✅ Tukar Jadual Diterima' : '❌ Tukar Jadual Ditolak'}
+    </h2>
+    <p style="color:#6B7280;margin:0 0 20px;">
+      <strong>${opts.responderName}</strong> telah ${opts.accepted ? 'menerima' : 'menolak'} permintaan tukar jadual untuk booking <strong>#${opts.bookingCode}</strong>.
+    </p>
+    ${opts.accepted && opts.newDate ? `
+    <div style="background:#ECFDF5;border-radius:12px;padding:16px;margin-bottom:20px;border:1px solid #6EE7B7;">
+      <p style="margin:0 0 6px;font-size:13px;color:#4B5563;"><strong>Tarikh Baru:</strong> ${new Date(opts.newDate).toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+      <p style="margin:0;font-size:13px;color:#4B5563;"><strong>Masa Baru:</strong> ${opts.newTime}</p>
+    </div>` : ''}
+    ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Lihat Booking')}
+  `)
+  return sendEmail(opts.to, `${opts.accepted ? '✅' : '❌'} Tukar Jadual — #${opts.bookingCode}`, html)
+}
