@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     riadah: 'Teman Riadah', kombo: 'Teman Kombo',
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   const amountSen = Math.round(parseFloat(String(booking.total_amount)) * 100)
 
   let session: { id: string; url: string | null }
