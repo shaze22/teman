@@ -63,6 +63,7 @@ export default async function LandingPage() {
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-500">
             <Link href="/search" className="hover:text-[#6366F1] transition-colors">{t.nav.search}</Link>
+            <Link href="/how-it-works" className="hover:text-[#6366F1] transition-colors">{t.nav.howItWorks}</Link>
             <Link href="/about" className="hover:text-[#6366F1] transition-colors">{t.nav.about}</Link>
           </div>
           <div className="flex items-center gap-3">
@@ -391,6 +392,9 @@ export default async function LandingPage() {
             </Link>
             <Link href="/terms" className="hover:text-white transition-colors">
               {lang === 'en' ? 'Terms' : 'Terma'}
+            </Link>
+            <Link href="/how-it-works" className="hover:text-white transition-colors">
+              {lang === 'en' ? 'How It Works' : 'Cara Guna'}
             </Link>
             <Link href="/about" className="hover:text-white transition-colors">
               {lang === 'en' ? 'About' : 'Tentang'}
