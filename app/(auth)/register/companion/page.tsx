@@ -81,6 +81,7 @@ export default function RegisterCompanionPage() {
   const [consent2, setConsent2] = useState(false)
   const [consent3, setConsent3] = useState(false)
   const [consent4, setConsent4] = useState(false)
+  const [consent5, setConsent5] = useState(false)
   const [done, setDone] = useState(false)
 
   // Camera
@@ -190,7 +191,7 @@ export default function RegisterCompanionPage() {
     if (step === 1) return !!icFront
     if (step === 2) return !!selfieFile
     if (step === 3) return verifyStatus === 'pass'
-    if (step === 4) return consent1 && consent2 && consent3 && consent4
+    if (step === 4) return consent1 && consent2 && consent3 && consent4 && consent5
     return false
   }
 
@@ -425,8 +426,9 @@ export default function RegisterCompanionPage() {
               {[
                 { state: consent1, set: setConsent1, text: 'Saya faham bahawa SenioCare adalah platform teman makan dan penjagaan warga emas. Saya TIDAK akan menawarkan sebarang perkhidmatan yang menyalahi undang-undang Malaysia.' },
                 { state: consent2, set: setConsent2, text: 'Saya TIDAK akan menawarkan perkhidmatan yang tidak senonoh, tidak bermoral, atau bertentangan dengan nilai dan budaya Malaysia.' },
-                { state: consent3, set: setConsent3, text: 'Saya bersetuju dengan Terma Perkhidmatan dan Dasar Privasi SenioCare.' },
-                { state: consent4, set: setConsent4, text: 'Saya mengesahkan bahawa semua maklumat yang diberikan adalah benar dan IC yang dimuat naik adalah milik saya sendiri.' },
+                { state: consent3, set: setConsent3, text: 'Saya faham bahawa sebagai Meal Companion, saya WAJIB makan bersama pelanggan semasa sesi di restoran. Kos makan saya ditanggung oleh pelanggan terus di restoran. Sesi MESTI diadakan di restoran yang ada perkhidmatan waiter (bukan buffet, nasi campur atau fast food).' },
+                { state: consent4, set: setConsent4, text: 'Saya bersetuju dengan Terma Perkhidmatan dan Dasar Privasi SenioCare.' },
+                { state: consent5, set: setConsent5, text: 'Saya mengesahkan bahawa semua maklumat yang diberikan adalah benar dan IC yang dimuat naik adalah milik saya sendiri.' },
               ].map((c, i) => (
                 <label key={i} className="flex items-start gap-3 cursor-pointer group">
                   <div className={`w-5 h-5 rounded flex-shrink-0 mt-0.5 border-2 flex items-center justify-center transition-colors ${c.state ? 'bg-[#6366F1] border-[#6366F1]' : 'border-gray-300 group-hover:border-[#6366F1]'}`}

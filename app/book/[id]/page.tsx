@@ -587,6 +587,10 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                 </div>
               )}
 
+              <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-sm text-indigo-800">
+                🍽️ {t.bookingPage.diningRule}
+              </div>
+
               {paymentMethod === 'stripe' ? (
                 <div className="bg-[#FFF1F2] rounded-xl p-4 text-sm text-orange-800">{t.bookingPage.escrowNote}</div>
               ) : (

@@ -165,6 +165,58 @@ export default function HowItWorksPage() {
           </section>
         )}
 
+        {/* Platform Rules */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold text-[#0F0E17]">
+            {lang === 'en' ? 'Platform Rules' : 'Peraturan Platform'}
+          </h2>
+          <p className="text-gray-500 text-sm">
+            {lang === 'en'
+              ? 'These rules apply to every session to ensure safety, dignity, and clarity for all parties.'
+              : 'Peraturan ini terpakai pada setiap sesi untuk memastikan keselamatan, maruah, dan kejelasan untuk semua pihak.'}
+          </p>
+          <div className="space-y-3">
+            {[
+              {
+                icon: '🍽️',
+                title: lang === 'en' ? 'Companion must dine together' : 'Companion wajib makan bersama',
+                desc: lang === 'en'
+                  ? 'The Meal Companion must eat at the same table during the session — not watch, not assist feeding. This is genuine companionship over a shared meal.'
+                  : 'Meal Companion WAJIB makan di meja yang sama semasa sesi — bukan sekadar teman melihat atau suapkan pelanggan makan. Ini adalah teman makan yang sebenar.',
+              },
+              {
+                icon: '💳',
+                title: lang === 'en' ? 'Customer covers companion\'s meal' : 'Pelanggan tanggung makan companion',
+                desc: lang === 'en'
+                  ? 'The companion\'s meal cost is paid directly by the customer at the restaurant. It is not included in the booking fee — the booking fee covers the companion\'s time only.'
+                  : 'Kos makan Companion dibayar terus oleh pelanggan di restoran. Ia tidak termasuk dalam booking fee — booking fee hanya untuk masa companion.',
+              },
+              {
+                icon: '🏪',
+                title: lang === 'en' ? 'Table-service restaurants only' : 'Restoran berkhidmat waiter sahaja',
+                desc: lang === 'en'
+                  ? 'Sessions must be held at restaurants where a waiter takes orders at the table and serves food to the table. Buffets, nasi campur (self-serve), and fast food counters are not suitable.'
+                  : 'Sesi MESTI diadakan di restoran yang mempunyai waiter yang ambil order di meja dan hidang ke meja. Buffet, nasi campur (ambil sendiri), dan kaunter fast food tidak sesuai.',
+              },
+              {
+                icon: '🚫',
+                title: lang === 'en' ? 'No other services during session' : 'Tiada perkhidmatan lain semasa sesi',
+                desc: lang === 'en'
+                  ? 'The Meal Companion\'s role is companionship only. No personal errands, no care tasks, no activities outside the restaurant during the booked session.'
+                  : 'Peranan Meal Companion adalah teman makan sahaja. Tiada urusan peribadi, tiada tugas penjagaan, tiada aktiviti luar restoran semasa sesi yang ditempah.',
+              },
+            ].map((rule, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 flex gap-4 shadow-sm">
+                <div className="text-2xl flex-shrink-0">{rule.icon}</div>
+                <div>
+                  <div className="font-semibold text-[#0F0E17] mb-1">{rule.title}</div>
+                  <p className="text-sm text-gray-500 leading-relaxed">{rule.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* FAQ */}
         <section className="space-y-4">
           <h2 className="text-2xl font-bold text-[#0F0E17]">{h.faqTitle}</h2>
