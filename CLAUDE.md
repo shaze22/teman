@@ -291,6 +291,19 @@ Backup: https://teman-sigma.vercel.app
 - Provider bookings page + dashboard: include duo_partner_id bookings, Duo badge
 - Booking detail: duo partner boleh view; row "Duo Companion" tunjuk kedua-dua nama
 
+## Em Dash Removal (2026-06-08, commit 345864e)
+- 134 em dashes (`—`) dibuang dari 33 files: `lib/i18n.ts`, `lib/email.ts`, `app/page.tsx` dll
+- Replace pattern: ` — ` → ` ` (single space via Node.js regex `/\s*—\s*/g`)
+- **Nota**: Beberapa string perlu period/comma selepas removal — semak jika ada awkward phrasing baru
+
+## Live Site Review Fixes (2026-06-08, commit 8c19307)
+- **Companion profile `generateMetadata`** (`/carer/[id]/page.tsx`): `"SenioCare di X"` → `"[Name] | Meal Companion in [City] | SenioCare"` + description tag
+- **Availability text**: `'Flexible schedule. Confirm your preferred time via chat after booking.'`
+- **FavoriteButton** (`/carer/[id]/_favorite-button.tsx`): accept `isLoggedIn?: boolean` prop; skip `/api/favorites` GET bila guest — eliminates 401 console error
+  - Server passes: `const { data: { user } } = await supabase.auth.getUser(); isLoggedIn={!!user}`
+- **i18n `en.register.providerSub`**: `'Open to all Malaysians, 18 and above'`
+- **Landing page CTA copy** (`app/page.tsx`): `'Open to all Malaysians, 18 and above. Turn your love for dining into flexible income.'`
+
 ## Known Issues
 - Tiada isu kritikal ✅
 
