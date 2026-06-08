@@ -147,12 +147,32 @@ Backup: https://teman-sigma.vercel.app
 - `lib/gemini.ts` → `compareFaceWithIC()` returns `SelfieVerifyResult { faceMatch, confidence, icAuthentic, isAdult, issues }`
 - Auto-approve jika: `faceMatch && icAuthentic && isAdult` (semua true)
 
-## Google OAuth (AKTIF — 2026-06-05)
+## Google OAuth (AKTIF — rotated + fixed 2026-06-07)
 - Login + customer register ada butang Google
 - Auth callback (`/auth/callback/route.ts`) auto-create `customer` + `customer_profiles` untuk new Google users
-- Google provider ENABLED dalam Supabase dashboard
+- Google provider ENABLED dalam Supabase dashboard ✅
 - Redirect URI: `https://vhervzbbptbqhmebfspq.supabase.co/auth/v1/callback`
-- **Note:** Credentials perlu di-rotate (terdedah dalam chat) — buat di Google Cloud Console bila ada masa
+- `redirectTo` guna `process.env.NEXT_PUBLIC_APP_URL || window.location.origin` (bukan `window.location.origin` sahaja)
+- **Supabase URL Config (wajib):** Site URL = `https://seniocare.app`, Redirect URLs = `https://seniocare.app/**`
+
+## How It Works Page (2026-06-07)
+- Route: `/how-it-works` — server component, bilingual, linked dari nav + footer
+- 2 tab: Pelanggan (4 steps) + Meal Companion (5 steps)
+- Section "Platform Rules" — 4 peraturan dining
+- FAQ accordion — 5 soalan
+
+## Dining Rules (2026-06-07)
+- Companion WAJIB makan bersama senior di meja yang sama
+- Senior bayar TOTAL bil restoran (companion's meal included) — terus di restoran, bukan dalam booking fee
+- Sesi MESTI di restoran berwaiter (bukan buffet, nasi campur, fast food)
+- Dikuatkuasakan di: (1) booking form notice; (2) companion registration consent checkbox; (3) How It Works Platform Rules
+
+## Copy & Search Fixes (2026-06-08)
+- Hero subtitle + testimonials: buang semua "cooks/masak" — companion teman makan keluar, bukan masak
+- CTA "I Want to Be a Companion" → `/register/companion` (sebelum salah ke `/register?role=provider`)
+- "Join thousands" → "Join families across Malaysia"
+- Search page title: "Find a Meal Companion — SenioCare"
+- Search cards: skill chips lama digantikan `🍽️ Meal Companion` + `✓ IC Verified` badges (`app/search/_client.tsx`)
 
 ## UI/UX Round 6 (2026-06-05)
 - Search: tabs Semua + Teman Makan sahaja; price RM lebih besar; avatar warna pelbagai via name hash
