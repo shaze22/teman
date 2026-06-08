@@ -8,6 +8,8 @@ import { Heart, ArrowLeft, Calendar, Clock, MapPin, User, Users, Phone, CheckCir
 import BookingDetailActions from './_booking-detail-actions'
 import RescheduleSection from './_reschedule-section'
 import PayButton from './_pay-button'
+import CheckinSection from './_checkin-section'
+import ReportButton from './_report-button'
 import { formatWAPhone } from '@/lib/utils'
 import { translations, type Lang } from '@/lib/i18n'
 
@@ -86,6 +88,16 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
     .select('id')
     .eq('booking_id', id)
     .single()
+
+  const { data: existingReport } = await supabaseAdmin
+    .from('reports')
+    .select('id')
+    .eq('booking_id', id)
+    .eq('reporter_id', user.id)
+    .maybeSingle()
+
+  const companionCheckinAt = (b as any).companion_checkin_at as string | null
+  const customerCheckinAt = (b as any).customer_checkin_at as string | null
 
   const { data: providerProfile } = await supabaseAdmin
     .from('single_mother_profiles')
@@ -345,6 +357,27 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
               💬 {bd.viewChat}
             </Link>
           </div>
+        )}
+
+        {/* Check-in section — shown for confirmed/in_progress */}
+        {['confirmed', 'in_progress'].includes(b.status) && (isCustomer || isProvider) && (
+          <CheckinSection
+            bookingId={b.id}
+            isProvider={isProvider}
+            alreadyCheckedIn={isProvider ? !!companionCheckinAt : !!customerCheckinAt}
+            otherCheckedIn={isProvider ? !!customerCheckinAt : !!companionCheckinAt}
+            lang={lang}
+          />
+        )}
+
+        {/* Report button — shown for completed or in_progress */}
+        {['confirmed', 'in_progress', 'completed'].includes(b.status) && (isCustomer || isProvider) && (
+          <ReportButton
+            bookingId={b.id}
+            reportedUserId={isCustomer ? b.provider_id : b.customer_id}
+            lang={lang}
+            alreadyReported={!!existingReport}
+          />
         )}
       </div>
     </div>
