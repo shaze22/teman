@@ -13,6 +13,7 @@ import BookingActions from './_booking-actions'
 import NotificationBell from '../_notification-bell'
 import PushSetup from '../_push-setup'
 import DuoSection from './_duo-section'
+import ReferralSection from './_referral-section'
 import { translations, type Lang } from '@/lib/i18n'
 import MobileBottomNav from '@/app/_mobile-bottom-nav'
 
@@ -205,6 +206,7 @@ export default async function ProviderDashboard() {
           </div>
 
           <div className="space-y-4">
+            <ReferralSection lang={lang} />
             <DuoSection lang={lang} />
 
             <h2 className="text-lg font-bold text-gray-900">{dc.quickActions}</h2>

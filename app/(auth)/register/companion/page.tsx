@@ -76,6 +76,10 @@ export default function RegisterCompanionPage() {
   const [verifyStatus, setVerifyStatus] = useState<'idle' | 'loading' | 'pass' | 'fail'>('idle')
   const [verifyMsg, setVerifyMsg] = useState('')
 
+  // Referral
+  const [referralCode, setReferralCode] = useState('')
+  const [referralValid, setReferralValid] = useState<boolean | null>(null)
+
   // Step 4: Consent
   const [consent1, setConsent1] = useState(false)
   const [consent2, setConsent2] = useState(false)
@@ -83,6 +87,12 @@ export default function RegisterCompanionPage() {
   const [consent4, setConsent4] = useState(false)
   const [consent5, setConsent5] = useState(false)
   const [done, setDone] = useState(false)
+
+  // Read referral code from cookie on mount
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)ref_code=([^;]+)/)
+    if (match) setReferralCode(decodeURIComponent(match[1]))
+  }, [])
 
   // Camera
   const startCamera = useCallback(async () => {
@@ -223,6 +233,7 @@ export default function RegisterCompanionPage() {
     if (icFront) formData.append('icFront', icFront)
     if (icBack)  formData.append('icBack', icBack)
     if (selfieFile) formData.append('selfie', selfieFile)
+    if (referralCode) formData.append('referralCode', referralCode)
 
     const res = await fetch('/api/auth/register/companion', { method: 'POST', body: formData })
 
@@ -311,6 +322,35 @@ export default function RegisterCompanionPage() {
                 </select>
               </div>
               <Input label="Bandar / Kawasan" value={locationCity} onChange={setLocationCity} placeholder="Contoh: Subang Jaya" />
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1">
+                  Kod Referral <span className="text-gray-400 font-normal">(Pilihan)</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={referralCode}
+                    onChange={e => { setReferralCode(e.target.value.toUpperCase()); setReferralValid(null) }}
+                    placeholder="Contoh: AB1CD234"
+                    maxLength={10}
+                    className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]/30 font-mono tracking-widest uppercase"
+                  />
+                  {referralCode && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const res = await fetch(`/api/referral/check?code=${referralCode}`)
+                        setReferralValid(res.ok)
+                      }}
+                      className="px-3 py-2 text-xs bg-[#EEF2FF] text-[#6366F1] rounded-xl font-medium hover:bg-[#E0E7FF] transition-colors"
+                    >
+                      Semak
+                    </button>
+                  )}
+                </div>
+                {referralValid === true && <p className="text-xs text-emerald-600 mt-1">✓ Kod sah — anda dan rakan anda akan dapat RM10 selepas sesi pertama!</p>}
+                {referralValid === false && <p className="text-xs text-red-500 mt-1">Kod tidak sah. Cuba semak semula.</p>}
+              </div>
             </div>
           )}
 

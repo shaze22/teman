@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { compareFaceWithIC } from '@/lib/gemini'
 
+function generateReferralCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+}
+
+async function uniqueReferralCode(): Promise<string> {
+  for (let i = 0; i < 10; i++) {
+    const code = generateReferralCode()
+    const { data } = await supabaseAdmin.from('single_mother_profiles').select('id').eq('referral_code', code).maybeSingle()
+    if (!data) return code
+  }
+  return generateReferralCode() + Date.now().toString(36).slice(-2).toUpperCase()
+}
+
 async function fileToBase64(file: File): Promise<{ base64: string; mimeType: string }> {
   const buf = Buffer.from(await file.arrayBuffer())
   return { base64: buf.toString('base64'), mimeType: file.type || 'image/jpeg' }
@@ -19,6 +33,7 @@ export async function POST(request: NextRequest) {
   const phone     = form.get('phone') as string
   const locationState = form.get('locationState') as string
   const locationCity  = form.get('locationCity') as string
+  const referralCodeFrom = (form.get('referralCode') as string | null)?.trim().toUpperCase() || null
   const icFrontFile   = form.get('icFront') as File | null
   const icBackFile    = form.get('icBack') as File | null
   const selfieFile    = form.get('selfie') as File | null
@@ -63,6 +78,20 @@ export async function POST(request: NextRequest) {
     const icBackUrl   = icBackFile ? await uploadFile(icBackFile, `${userId}/ic-back.jpg`) : null
     const selfieUrl   = await uploadFile(selfieFile,   `${userId}/selfie.jpg`)
 
+    // Validate referral code if provided
+    let referrerId: string | null = null
+    if (referralCodeFrom) {
+      const { data: referrer } = await supabaseAdmin
+        .from('single_mother_profiles')
+        .select('user_id')
+        .eq('referral_code', referralCodeFrom)
+        .maybeSingle()
+      referrerId = referrer?.user_id ?? null
+    }
+
+    // Generate unique referral code for new companion
+    const newReferralCode = await uniqueReferralCode()
+
     // Create user record
     const { error: userError } = await supabaseAdmin.from('users').insert({
       id: userId,
@@ -71,6 +100,7 @@ export async function POST(request: NextRequest) {
       full_name: fullName,
       role: 'companion',
       status: 'active',
+      referred_by: referrerId ? referralCodeFrom : null,
       updated_at: now,
     })
     if (userError) throw new Error(userError.message)
@@ -93,6 +123,7 @@ export async function POST(request: NextRequest) {
       selfie_verified_at: selfieUrl ? now : null,
       companion_consent: true,
       companion_consent_at: now,
+      referral_code: newReferralCode,
       updated_at: now,
     })
     if (profileError) throw new Error(profileError.message)
@@ -103,10 +134,19 @@ export async function POST(request: NextRequest) {
       profile_id: profileId,
       service_type: 'food',
       pricing_type: 'per_hour',
-      price: 25,
+      price: 30,
       is_active: true,
       updated_at: now,
     })
+
+    // Create referral reward record if valid referral
+    if (referrerId) {
+      await supabaseAdmin.from('referral_rewards').insert({
+        referrer_id: referrerId,
+        referee_id: userId,
+        status: 'pending',
+      })
+    }
 
   } catch (err) {
     console.error('[register/companion]', err)

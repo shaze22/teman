@@ -97,6 +97,68 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const { error } = await supabaseAdmin.from('bookings').update(update).eq('id', id)
   if (error) return NextResponse.json({ message: error.message }, { status: 500 })
 
+  // Referral reward — trigger on provider's first completed booking
+  if (status === 'completed') {
+    const { data: reward } = await supabaseAdmin
+      .from('referral_rewards')
+      .select('id, referrer_id, referrer_amount, referee_amount')
+      .eq('referee_id', b.provider_id)
+      .eq('status', 'pending')
+      .maybeSingle()
+
+    if (reward) {
+      const { count } = await supabaseAdmin
+        .from('bookings')
+        .select('id', { count: 'exact', head: true })
+        .eq('provider_id', b.provider_id)
+        .eq('status', 'completed')
+
+      if ((count ?? 0) === 1) {
+        const creditNow = new Date().toISOString()
+        const refereeCredit = parseFloat(String(reward.referee_amount))
+        const referrerCredit = parseFloat(String(reward.referrer_amount))
+
+        // Credit referee (new companion)
+        const { data: refProfile } = await supabaseAdmin
+          .from('single_mother_profiles').select('id, earnings_total').eq('user_id', b.provider_id).single()
+        if (refProfile) {
+          const refBal = parseFloat(String(refProfile.earnings_total ?? 0)) + refereeCredit
+          await Promise.all([
+            supabaseAdmin.from('single_mother_profiles').update({ earnings_total: refBal }).eq('id', refProfile.id),
+            supabaseAdmin.from('wallet_transactions').insert({
+              id: crypto.randomUUID(), user_id: b.provider_id, type: 'credit',
+              amount: refereeCredit, balance_after: refBal,
+              reference_type: 'referral', reference_id: reward.id,
+              description: 'Bonus referral — sesi pertama anda selesai!',
+              created_at: creditNow,
+            }),
+          ])
+        }
+
+        // Credit referrer
+        const { data: rerProfile } = await supabaseAdmin
+          .from('single_mother_profiles').select('id, earnings_total').eq('user_id', reward.referrer_id).single()
+        if (rerProfile) {
+          const rerBal = parseFloat(String(rerProfile.earnings_total ?? 0)) + referrerCredit
+          await Promise.all([
+            supabaseAdmin.from('single_mother_profiles').update({ earnings_total: rerBal }).eq('id', rerProfile.id),
+            supabaseAdmin.from('wallet_transactions').insert({
+              id: crypto.randomUUID(), user_id: reward.referrer_id, type: 'credit',
+              amount: referrerCredit, balance_after: rerBal,
+              reference_type: 'referral', reference_id: reward.id,
+              description: `Komisen referral — rakan anda selesai sesi pertama!`,
+              created_at: creditNow,
+            }),
+          ])
+        }
+
+        await supabaseAdmin.from('referral_rewards')
+          .update({ status: 'credited', booking_id: id, credited_at: creditNow })
+          .eq('id', reward.id)
+      }
+    }
+  }
+
   // Auto-release escrow when booking is completed
   if (status === 'completed' && b.payment_status === 'paid') {
     const providerNet = parseFloat(String(b.provider_price)) * 0.85
