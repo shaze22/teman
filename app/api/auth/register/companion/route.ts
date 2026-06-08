@@ -47,10 +47,15 @@ export async function POST(request: NextRequest) {
 
   // Server-side Gemini verification — never trust client's geminiPassed claim
   let geminiPassed = false
+  let geminiConfidence: string | null = null
+  let geminiFaceMatch: boolean | null = null
+  const geminiVerifiedAt = new Date().toISOString()
   try {
     const [ic, selfie] = await Promise.all([fileToBase64(icFrontFile), fileToBase64(selfieFile)])
     const result = await compareFaceWithIC(ic.base64, ic.mimeType, selfie.base64, selfie.mimeType)
     geminiPassed = !!(result.faceMatch && result.icAuthentic && result.isAdult)
+    geminiConfidence = result.confidence ?? null
+    geminiFaceMatch = result.faceMatch ?? null
     if (!geminiPassed) {
       return NextResponse.json({ message: 'Pengesahan identiti gagal. Sila cuba semula dengan gambar yang lebih jelas.' }, { status: 422 })
     }
@@ -121,6 +126,9 @@ export async function POST(request: NextRequest) {
       ic_verified: true,
       selfie_url: selfieUrl,
       selfie_verified_at: selfieUrl ? now : null,
+      gemini_confidence: geminiConfidence,
+      gemini_face_match: geminiFaceMatch,
+      gemini_verified_at: geminiVerifiedAt,
       companion_consent: true,
       companion_consent_at: now,
       referral_code: newReferralCode,
