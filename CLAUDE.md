@@ -291,6 +291,41 @@ Backup: https://teman-sigma.vercel.app
 - Provider bookings page + dashboard: include duo_partner_id bookings, Duo badge
 - Booking detail: duo partner boleh view; row "Duo Companion" tunjuk kedua-dua nama
 
+## SEO + Metadata + OG Image (2026-06-08, commit 7e790d0)
+
+**robots.txt (`app/robots.ts`):**
+- Allow `/`, disallow `/dashboard/ /api/ /admin/ /booking/ /auth/`
+- Sitemap: `https://seniocare.app/sitemap.xml`
+
+**sitemap.xml (`app/sitemap.ts`):**
+- 8 static pages: `/`, `/search`, `/how-it-works`, `/about`, `/register`, `/login`, `/terms`, `/privacy`
+- Dynamic: semua `/carer/[id]` fetch dari `single_mother_profiles` (is_active=true, limit 500)
+
+**Metadata (`app/layout.tsx`):**
+- Title template: `'%s | SenioCare'` (individual pages pakai `%s`)
+- Description: buang "ibu tunggal", tulis semula untuk Meal Companion
+- `metadataBase: new URL('https://seniocare.app')` — wajib untuk resolve og:image URL
+- OG tags: `og:title`, `og:description`, `og:image`, `og:site_name`, `og:locale: en_MY`
+- Twitter: `twitter:card: summary_large_image`, title, description, image
+
+**OG Image (`app/opengraph-image.tsx`):**
+- Edge runtime, `ImageResponse` 1200×630
+- Dark bg gradient, indigo/rose glow, SenioCare logo, headline, 3 badges (IC Verified, Escrow, PDPA)
+- Auto-served di `/opengraph-image` oleh Next.js
+
+**Per-page metadata:**
+- `app/(auth)/login/layout.tsx` → `'Log In'`
+- `app/(auth)/register/layout.tsx` → `'Create Account'`
+- `app/how-it-works/layout.tsx` → `'How It Works'`
+- `app/about/page.tsx` → `'About Us'`
+- `app/terms/page.tsx` → `'Terms of Service'`
+- `app/privacy/page.tsx` → `'Privacy Policy'`
+- **Nota:** Client component pages guna layout.tsx untuk export metadata (tidak boleh dari 'use client' page)
+
+**404 page (`app/not-found.tsx`):**
+- Bilingual EN+BM via `useLang()` hook
+- "Cari Pengasuh" → "Find a Meal Companion" (EN) / "Cari Meal Companion" (BM)
+
 ## Mobile Review Fixes (2026-06-08, commit dbdf2ee)
 
 **Nav (app/page.tsx):**
