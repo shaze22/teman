@@ -85,8 +85,7 @@ export default function SearchPageClient() {
   const { lang, t } = useLang()
 
   const SERVICE_TYPES = [
-    { id: 'all', label: lang === 'en' ? 'All' : 'Semua' },
-    { id: 'food', label: lang === 'en' ? 'Meal Companion' : 'Teman Makan' },
+    { id: 'food', label: lang === 'en' ? '🍽️ Meal Companion' : '🍽️ Teman Makan' },
   ]
 
   const LANGUAGES = [

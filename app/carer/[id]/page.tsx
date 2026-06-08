@@ -353,7 +353,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
             <div className="sticky top-20 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t.profilePage.pricing}</p>
               <ServiceScopeModal pricing={pricing} pricingLabels={PRICING_LABELS} serviceLabels={SERVICE_LABELS} serviceScope={SERVICE_SCOPE} />
-              <div className="text-xs text-gray-400 bg-gray-50 rounded-lg p-3 mb-4">
+              <div className="text-xs text-gray-500 bg-indigo-50 border border-indigo-100 rounded-lg p-3 mb-4">
                 {t.profilePage.feeNote}
               </div>
               <BookingButton providerId={id} providerName={u.full_name} />

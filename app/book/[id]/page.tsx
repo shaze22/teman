@@ -293,29 +293,37 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
           {step === 0 && (
             <div className="space-y-5">
-              <h2 className="text-xl font-bold text-gray-900">{t.bookingPage.step1}</h2>
-              <div className="space-y-2">
-                {SERVICE_TYPES.filter(opt => {
+              {(() => {
+                const visibleServices = SERVICE_TYPES.filter(opt => {
                   if (opt.hidden) return false
                   if (!opt.active) return false
                   if (opt.id === 'medical_care') return providerIsLocum
                   if (activeServiceTypes.length > 0) return activeServiceTypes.includes(opt.id)
                   return true
-                }).map((opt) => (
-                  <div key={opt.id} className="flex items-center gap-2">
-                    <button type="button" onClick={() => setServiceType(opt.id)}
-                      className={`flex-1 text-left px-4 py-3 rounded-xl border-2 font-medium transition-all ${
-                        serviceType === opt.id ? 'border-[#6366F1] bg-[#EEF2FF] text-[#6366F1]' : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                      }`}>
-                      {lang === 'en' ? opt.labelEn : opt.label}
-                    </button>
-                    <button type="button" onClick={() => setScopeModal(opt.id)}
-                      className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-[#6366F1] hover:border-[#6366F1] transition-colors flex-shrink-0">
-                      <HelpCircle className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+                })
+                if (visibleServices.length <= 1) return null
+                return (
+                  <>
+                    <h2 className="text-xl font-bold text-gray-900">{t.bookingPage.step1}</h2>
+                    <div className="space-y-2">
+                      {visibleServices.map((opt) => (
+                        <div key={opt.id} className="flex items-center gap-2">
+                          <button type="button" onClick={() => setServiceType(opt.id)}
+                            className={`flex-1 text-left px-4 py-3 rounded-xl border-2 font-medium transition-all ${
+                              serviceType === opt.id ? 'border-[#6366F1] bg-[#EEF2FF] text-[#6366F1]' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                            }`}>
+                            {lang === 'en' ? opt.labelEn : opt.label}
+                          </button>
+                          <button type="button" onClick={() => setScopeModal(opt.id)}
+                            className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-[#6366F1] hover:border-[#6366F1] transition-colors flex-shrink-0">
+                            <HelpCircle className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )
+              })()}
 
               {/* Solo / Duo toggle */}
               {duoPartner && (

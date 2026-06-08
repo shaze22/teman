@@ -109,7 +109,7 @@ export const translations = {
       becomeTeman: 'Saya Ingin Jadi Meal Companion',
     },
     search: {
-      placeholder: 'Cari nama, bandar, atau kemahiran...',
+      placeholder: 'Cari nama atau bandar...',
       filters: 'Filter',
       sortRating: 'Rating Tertinggi',
       sortPrice: 'Harga Terendah',
@@ -857,7 +857,7 @@ export const translations = {
       becomeTeman: 'I Want to Be a Companion',
     },
     search: {
-      placeholder: 'Search name, city, or skill...',
+      placeholder: 'Search by name or city...',
       filters: 'Filters',
       sortRating: 'Highest Rated',
       sortPrice: 'Lowest Price',
