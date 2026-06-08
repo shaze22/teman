@@ -167,6 +167,43 @@ Backup: https://teman-sigma.vercel.app
 - Sesi MESTI di restoran berwaiter (bukan buffet, nasi campur, fast food)
 - Dikuatkuasakan di: (1) booking form notice; (2) companion registration consent checkbox; (3) How It Works Platform Rules
 
+## Platform Safety Features (2026-06-08, commits e8fa7a7 + bb2e425)
+
+**Gemini Rate Limiting + Confidence Score:**
+- `gemini_verify_attempts` table — track IP per hour, max 5/IP/jam → 429 jika lebih
+- `single_mother_profiles`: `gemini_confidence TEXT`, `gemini_face_match BOOLEAN`, `gemini_verified_at TIMESTAMPTZ`
+- Register companion API saves semua 3 Gemini result kolum
+
+**Session Check-in:**
+- `POST /api/bookings/[id]/checkin` — companion atau customer mark arrival
+- DB: `companion_checkin_at TIMESTAMPTZ`, `customer_checkin_at TIMESTAMPTZ` pada bookings
+- `app/booking/[id]/_checkin-section.tsx` — butang "Saya Sudah Tiba di Restoran", notify pihak lain via in-app notification
+- Shown untuk booking `confirmed` atau `in_progress`
+
+**User Report / Laporan:**
+- `POST /api/reports` — submit laporan (5 kategori: no_show/misconduct/fraud/harassment/other)
+- DB: `reports` table (reporter_id, reported_user_id, booking_id, category, description, status, admin_note)
+- `app/booking/[id]/_report-button.tsx` — modal dalam booking detail, 1 report/booking/user
+- Admin semak di `/admin/disputes`
+
+**Booking Reminders (Updated):**
+- Cron `/api/cron/booking-reminders` kini hantar **24h DAN 2h** reminders
+- 24h: window 20–28 jam, column `reminder_sent`
+- 2h: window 1.5–2.5 jam, column `reminder_2h_sent`
+- Kedua-dua in-app notification (tiada email untuk 2h — hanya notif)
+
+**DB Tables Created:**
+- `payouts` — withdrawal request (parallel to existing `withdrawal_requests`)
+- `reports` — user-facing report/dispute system
+- `gemini_verify_attempts` — rate limiting log
+
+**Fitur Yang Sudah Ada (bukan gap):**
+- Terms: `/terms` ✅ | Privacy: `/privacy` ✅
+- Admin dashboard: `/admin` penuh — providers, customers, bookings, withdrawals, disputes ✅
+- Cancellation refund: ≥24h penuh, <24h 50%, Stripe API ✅
+- Receipt: `/booking/[id]/receipt` ✅
+- Withdrawal: `withdrawal_requests` + `/admin/withdrawals` ✅
+
 ## Consent & Age Validation (2026-06-08, commits 6ad9c6f + b86c2e1)
 **Umur minimum:**
 - Senior (isForSelf): min **40 tahun** — DOB field wajib, validate client + server
