@@ -219,7 +219,7 @@ export default function ProviderRegisterPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.email}</label>
                 <input type="email" value={form.email} onChange={(e) => update('email', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] transition-all"
-                  placeholder="email@contoh.com" />
+                  placeholder="email@example.com" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">{rp.password}</label>

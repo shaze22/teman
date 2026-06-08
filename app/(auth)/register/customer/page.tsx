@@ -266,7 +266,7 @@ export default function CustomerRegisterPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.email}</label>
                 <input type="email" value={form.email} onChange={(e) => update('email', e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E] transition-all"
-                  placeholder="email@contoh.com" />
+                  placeholder="email@example.com" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.password}</label>

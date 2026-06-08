@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import Image from 'next/image'
-import { Heart, Star, MapPin, Clock, CheckCircle, Phone, ArrowLeft, Building2, Users } from 'lucide-react'
+import { Heart, Star, MapPin, Clock, CheckCircle, MessageCircle, ArrowLeft, Building2, Users } from 'lucide-react'
 import BookingButton from './_booking-button'
 import FavoriteButton from './_favorite-button'
 import ShareButton from './_share-button'
@@ -362,7 +362,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                 <ShareButton providerName={u.full_name} providerId={id} />
               </div>
               <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2 text-sm text-gray-500">
-                <Phone className="w-4 h-4" />
+                <MessageCircle className="w-4 h-4" />
                 <span>{t.profilePage.contactNote}</span>
               </div>
             </div>

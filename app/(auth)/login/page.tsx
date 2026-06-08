@@ -59,7 +59,7 @@ function GoogleButton({ label }: { label: string }) {
 
 function LoginForm() {
   const router = useRouter()
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -118,7 +118,7 @@ function LoginForm() {
             onChange={(e) => setEmail(e.target.value)}
             required
             className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all"
-            placeholder="email@contoh.com"
+            placeholder="email@example.com"
           />
         </div>
 
@@ -164,6 +164,11 @@ function LoginForm() {
         {t.login.noAccount}{' '}
         <Link href="/register" className="text-[#6366F1] font-semibold hover:underline">
           {t.login.registerNow}
+        </Link>
+      </p>
+      <p className="text-center mt-3">
+        <Link href="/" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
+          ← {lang === 'en' ? 'Back to Home' : 'Kembali ke Laman Utama'}
         </Link>
       </p>
     </div>

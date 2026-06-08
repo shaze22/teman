@@ -422,11 +422,6 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                     {t.bookingPage.noSchedule}
                   </p>
                 )}
-                {!hasAvailability && availLoaded && (
-                  <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
-                    className="mt-2 w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
-                )}
               </div>
 
               {/* Time & Duration */}
@@ -473,7 +468,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   {lang === 'en' ? 'Senior\'s Name' : 'Nama Penerima'}
                   <span className="text-gray-400 font-normal text-xs ml-1">
-                    ({lang === 'en' ? 'Optional — for Care Centres' : 'Pilihan — untuk Pusat Penjagaan'})
+                    ({lang === 'en' ? 'Optional' : 'Pilihan'})
                   </span>
                 </label>
                 <input

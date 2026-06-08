@@ -157,7 +157,7 @@ export const translations = {
       loading: 'Memuatkan peta...',
     },
     profilePage: {
-      skills: 'Kemahiran',
+      skills: 'Perkhidmatan',
       availability: 'Masa Tersedia',
       portfolio: 'Portfolio',
       reviews: 'Ulasan',
@@ -905,7 +905,7 @@ export const translations = {
       loading: 'Loading map...',
     },
     profilePage: {
-      skills: 'Skills',
+      skills: 'Service',
       availability: 'Availability',
       portfolio: 'Portfolio',
       reviews: 'Reviews',

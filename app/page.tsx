@@ -202,23 +202,6 @@ export default async function LandingPage() {
             </div>
           </Link>
 
-          {/* Coming soon services */}
-          <p className="text-xs text-gray-400 font-medium uppercase tracking-widest mb-3">
-            {lang === 'en' ? 'Coming Soon' : 'Akan Datang'}
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {SERVICE_TYPES.filter(s => !s.hidden && !s.active).map((s) => (
-              <div key={s.id} className="bg-white rounded-2xl p-4 border border-gray-100 opacity-50 select-none">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3 bg-gray-100 text-gray-400">
-                  <HandHeart className="w-4 h-4" />
-                </div>
-                <h3 className="font-semibold text-gray-400 text-xs mb-1">{lang === 'en' ? s.labelEn : s.label}</h3>
-                <span className="text-xs text-gray-300 flex items-center gap-1">
-                  <Clock className="w-2.5 h-2.5" /> {comingSoonLabel}
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

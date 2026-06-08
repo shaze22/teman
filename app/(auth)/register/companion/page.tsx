@@ -304,7 +304,7 @@ export default function RegisterCompanionPage() {
             <div className="space-y-4">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Maklumat Asas</h2>
               <Input label="Nama Penuh (seperti dalam IC)" value={fullName} onChange={setFullName} placeholder="Contoh: Siti Aminah binti Kassim" />
-              <Input label="Email" type="email" value={email} onChange={setEmail} placeholder="email@contoh.com" />
+              <Input label="Email" type="email" value={email} onChange={setEmail} placeholder="email@example.com" />
               <Input label="Kata Laluan (min. 8 aksara)" type="password" value={password} onChange={setPassword} placeholder="••••••••" />
               <Input label="No. Telefon" type="tel" value={phone} onChange={setPhone} placeholder="0112345678" />
               <div>
