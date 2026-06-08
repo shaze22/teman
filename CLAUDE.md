@@ -167,6 +167,23 @@ Backup: https://teman-sigma.vercel.app
 - Sesi MESTI di restoran berwaiter (bukan buffet, nasi campur, fast food)
 - Dikuatkuasakan di: (1) booking form notice; (2) companion registration consent checkbox; (3) How It Works Platform Rules
 
+## Referral System (2026-06-08, commit aaed2a6)
+- DB: `referral_code VARCHAR(10)` dalam `single_mother_profiles`, `referred_by VARCHAR(10)` dalam `users`, table `referral_rewards`
+- `/join?ref=CODE` → set cookie → redirect ke `/register/companion`
+- Register companion: baca cookie, validate kod, simpan `referred_by`, cipta `referral_rewards(pending)`
+- Booking pertama companion selesai → auto-credit RM10 ke wallet referrer + referee
+- API: `GET /api/referral/check?code=X`, `GET /api/referral/stats`
+- Provider dashboard: `_referral-section.tsx` — copy link, WhatsApp share, stats
+- Payment: `payment_method_types: ['card', 'fpx', 'grabpay']`
+- Default companion pricing: **RM30** (naik dari RM25)
+
+## Review Fixes Round 2 (2026-06-08, commit 782ad56)
+- Booking form: default start time `12:00` (bukan 09:00)
+- Landing + FAQ: "RM25–50/session" → "RM30–80/session"
+- How It Works companion: step 04 "Arrive & Check In" → "Meet at Restaurant" (BM+EN)
+- How It Works customer: step 02 tambah GrabPay; step 03 "Companion Arrives" → "Meet at Restaurant"; escrow notice → auto-release (BM+EN)
+- Profile: "Schedule not set — contact after booking" → "Flexible schedule — confirm via chat after booking"
+
 ## Copy & Search Fixes (2026-06-08)
 - Hero subtitle + testimonials: buang semua "cooks/masak" — companion teman makan keluar, bukan masak
 - CTA "I Want to Be a Companion" → `/register/companion` (sebelum salah ke `/register?role=provider`)
