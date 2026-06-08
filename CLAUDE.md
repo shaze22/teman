@@ -167,6 +167,30 @@ Backup: https://teman-sigma.vercel.app
 - Sesi MESTI di restoran berwaiter (bukan buffet, nasi campur, fast food)
 - Dikuatkuasakan di: (1) booking form notice; (2) companion registration consent checkbox; (3) How It Works Platform Rules
 
+## Consent & Age Validation (2026-06-08, commits 6ad9c6f + b86c2e1)
+**Umur minimum:**
+- Senior (isForSelf): min **40 tahun** — DOB field wajib, validate client + server
+- Waris (isForSelf false): min **25 tahun** — DOB field wajib, validate client + server; nota "tidak boleh book untuk diri sendiri"
+- Senior age field (waris booking for senior): min 40 (dari 50)
+- DB: `registrant_dob DATE` dalam `customer_profiles`
+
+**Customer/Senior/Waris consent (6 checkbox wajib — sebelum tiada):**
+1. Anti-fraud/scam/jenayah — boleh dilaporkan kepada polis
+2. Platform usage — makan bersama sahaja
+3. Meal bill — bayar makan companion terus di restoran
+4. Behaviour — sopan terhadap companion
+5. Terma Perkhidmatan & Dasar Privasi
+6. Kesahihan maklumat
+- DB: `customer_consent BOOLEAN` + `customer_consent_at TIMESTAMPTZ` dalam `customer_profiles`
+- Server: `customerConsent: false` → return 400
+
+**Companion consent (sedia ada sejak Fasa 2 — 5 checkbox):**
+1. Tiada perkhidmatan menyalahi undang-undang
+2. Tiada perkhidmatan tidak senonoh
+3. Dining rules (makan bersama, restoran berwaiter, bil ditanggung pelanggan)
+4. Terma & Privasi
+5. IC adalah milik sendiri
+
 ## UX Audit Fixes (2026-06-08, commits c6727b0 + c3d491f)
 - Landing: buang 7 "Coming Soon" service cards (clutter + broken icons)
 - Booking: buang redundant text date input di bawah calendar
