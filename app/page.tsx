@@ -32,9 +32,9 @@ export default async function LandingPage() {
   }))
 
   const testimonials = lang === 'en' ? [
-    { name: 'Makcik Rohani, 68', role: 'Senior · Damansara', text: 'Used to eat alone every day. Now Kak Siti takes me out for lunch we dine together and chat. I feel so much more valued.', rating: 5 },
+    { name: 'Makcik Rohani, 68', role: 'Senior · Damansara', text: 'Used to eat alone every day. Now Kak Siti takes me out for lunch. We dine together and chat. I feel so much more valued.', rating: 5 },
     { name: 'Cik Amy, 42', role: 'Family · Singapore', text: 'Can work peacefully knowing Dad has someone to dine with. SenioCare is affordable and the companion is so caring.', rating: 5 },
-    { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'RM1,200 income monthly doing something I love dining with and chatting with seniors. Flexible hours too!', rating: 5 },
+    { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'RM1,200 monthly income doing something I love. I dine with and chat with seniors. Flexible hours too!', rating: 5 },
   ] : [
     { name: 'Makcik Rohani, 68', role: 'Warga Emas · Damansara', text: 'Dulu makan sorang-sorang setiap hari. Sekarang ada Kak Siti teman makan tengahari, berbual dan ketawa bersama. Rasa dihargai!', rating: 5 },
     { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Boleh kerja dengan tenang tahu ayah ada teman. SenioCare harga berpatutan dan Meal Companion sangat penyayang.', rating: 5 },
@@ -68,7 +68,7 @@ export default async function LandingPage() {
           </div>
           <div className="flex items-center gap-3">
             <LangToggle />
-            <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-[#6366F1] transition-colors">
+            <Link href="/login" className="hidden sm:block text-sm font-medium text-gray-600 hover:text-[#6366F1] transition-colors whitespace-nowrap">
               {t.nav.login}
             </Link>
             <Link href="/register" className="text-sm font-semibold bg-[#6366F1] text-white px-5 py-2 rounded-full hover:bg-[#4F46E5] transition-colors shadow-sm">

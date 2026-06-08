@@ -27,7 +27,7 @@ export const translations = {
     },
     services: {
       heading: 'Perkhidmatan Kami',
-      subheading: 'Pelbagai jenis teman untuk keperluan harian warga emas anda',
+      subheading: 'Menemani warga emas anda makan bersama di restoran dengan penuh kehangatan',
       job: { title: 'Teman Kerja', desc: 'Bantuan rumah, jaga orang tua, teman ke klinik dan hospital.' },
       food: { title: 'Meal Companion', desc: 'Teman waktu makan pergi makan bersama di restoran, kafe, atau kedai kegemaran.' },
       locum: { title: 'Locum Professional', desc: 'Penjaga bertauliah jururawat, paramedik, atau pengasuh bersijil.' },
@@ -38,9 +38,9 @@ export const translations = {
       heading: 'Cara Ia Berfungsi',
       subheading: 'Proses mudah dalam 3 langkah',
       steps: [
-        { title: 'Cari Meal Companion', desc: 'Tapis mengikut lokasi & ketersediaan. Baca profil dan ulasan sebenar.' },
-        { title: 'Book & Bayar', desc: 'Pilih tarikh, isi keperluan, bayar dengan selamat dalam platform.' },
-        { title: 'Teman Hadir', desc: 'Check-in apabila sampai, hantar laporan harian. Orang tua gembira.' },
+        { title: 'Cari Meal Companion', desc: 'Tapis mengikut lokasi dan harga. Baca profil dan ulasan daripada keluarga lain.' },
+        { title: 'Book & Bayar', desc: 'Pilih tarikh dan masa, isi keperluan khas, bayar dengan selamat via kad, FPX atau GrabPay.' },
+        { title: 'Tiba di Restoran', desc: 'Teman hadir di restoran. Nikmati sesi makan bersama di meja yang sama.' },
       ],
     },
     hiw: {
@@ -85,7 +85,7 @@ export const translations = {
         { title: 'Rating & Ulasan', desc: 'Baca ulasan daripada pelanggan sebenar sebelum book.' },
         { title: 'Butang SOS', desc: 'Kecemasan real-time lokasi dihantar serta-merta.' },
         { title: 'Escrow Payment', desc: 'Bayaran ditahan sehingga sesi selesai dengan jayanya.' },
-        { title: 'Pantau Waris', desc: 'Waris boleh pantau aktiviti, check-in dan laporan harian.' },
+        { title: 'Pantau Waris', desc: 'Waris boleh pantau tempahan dan check-in sesi secara langsung.' },
         { title: 'PDPA Compliant', desc: 'Data dilindungi mengikut Akta Perlindungan Data Malaysia.' },
       ],
     },
@@ -775,7 +775,7 @@ export const translations = {
     },
     services: {
       heading: 'Our Services',
-      subheading: 'Various companion types for your elderly loved one\'s daily needs',
+      subheading: 'Warm, genuine companionship over a shared meal at any restaurant',
       job: { title: 'Daily Companion', desc: 'Home assistance, elderly care, accompany to clinic and hospital.' },
       food: { title: 'Meal Companion', desc: 'A dining companion go eat together at restaurants, cafes, or favourite spots.' },
       locum: { title: 'Locum Professional', desc: 'Certified caregiver nurse, paramedic, or certified carer.' },
@@ -786,9 +786,9 @@ export const translations = {
       heading: 'How It Works',
       subheading: 'Simple 3-step process',
       steps: [
-        { title: 'Find a Companion', desc: 'Filter by location, skills & price. Read real profiles and reviews.' },
-        { title: 'Book & Pay', desc: 'Choose a date, fill in requirements, pay securely within the platform.' },
-        { title: 'Companion Arrives', desc: 'Check-in upon arrival, send daily report. Your parent is happy.' },
+        { title: 'Find a Companion', desc: 'Filter by location and price. Read real profiles and reviews from other families.' },
+        { title: 'Book & Pay', desc: 'Choose a date and time, add any special needs, pay securely via card, FPX or GrabPay.' },
+        { title: 'Meet at Restaurant', desc: 'Your companion arrives at the restaurant. Enjoy the meal together at the same table.' },
       ],
     },
     hiw: {
@@ -833,7 +833,7 @@ export const translations = {
         { title: 'Ratings & Reviews', desc: 'Read reviews from real customers before booking.' },
         { title: 'SOS Button', desc: 'Real-time emergency location sent instantly.' },
         { title: 'Escrow Payment', desc: 'Payment held until session is successfully completed.' },
-        { title: 'Family Monitoring', desc: 'Family can monitor activities, check-ins and daily reports.' },
+        { title: 'Family Monitoring', desc: 'Family can monitor bookings and session check-ins in real time.' },
         { title: 'PDPA Compliant', desc: 'Data protected under Malaysia\'s Personal Data Protection Act.' },
       ],
     },
