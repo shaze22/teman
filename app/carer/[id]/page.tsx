@@ -80,7 +80,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const skills = ((raw as any).provider_skills ?? []) as Array<{ id: string; skill_category: string }>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pricing = ((raw as any).provider_pricing ?? []).filter((p: any) => p.is_active) as Array<{ id: string; service_type: string; pricing_type: string; price: number }>
+  const pricing = ((raw as any).provider_pricing ?? []).filter((p: any) => p.is_active && p.service_type === 'food') as Array<{ id: string; service_type: string; pricing_type: string; price: number }>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const availabilities = ((raw as any).provider_availabilities ?? []) as Array<{ id: string; day_of_week: number; start_time: string; end_time: string; is_available: boolean }>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -165,9 +165,9 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                         <CheckCircle className="w-3 h-3" /> Verified NGO
                       </span>
                     )}
-                    {raw.verified_by_admin && (
+                    {raw.verified_by_admin && !(raw as any).ic_verified && (
                       <span className="flex items-center gap-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-                        <CheckCircle className="w-3 h-3" /> Verified Admin
+                        <CheckCircle className="w-3 h-3" /> {lang === 'en' ? 'Verified' : 'Disahkan'}
                       </span>
                     )}
                     {(raw as any).ic_verified && (
@@ -252,15 +252,18 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
               </div>
             )}
 
-            {/* Skills */}
+            {/* Role Badges */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <h2 className="font-semibold text-gray-900 mb-3">{t.profilePage.skills}</h2>
               <div className="flex flex-wrap gap-2">
-                {skills.map((s) => (
-                  <span key={s.id} className="bg-[#EEF2FF] text-[#6366F1] border border-[#C7D2FE] px-3 py-1.5 rounded-full text-sm font-medium">
-                    {t.skills[s.skill_category as keyof typeof t.skills] ?? s.skill_category}
+                <span className="bg-[#EEF2FF] text-[#6366F1] border border-[#C7D2FE] px-3 py-1.5 rounded-full text-sm font-medium">
+                  🍽️ Meal Companion
+                </span>
+                {(raw as any).ic_verified && (
+                  <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full text-sm font-medium">
+                    ✓ {lang === 'en' ? 'IC Verified' : 'IC Disahkan'}
                   </span>
-                ))}
+                )}
               </div>
             </div>
 

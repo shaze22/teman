@@ -99,21 +99,16 @@ export default async function FeaturedProviders({ lang }: { lang: Lang }) {
                     )}
                   </div>
 
-                  {skills.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {skills.slice(0, 3).map((s) => (
-                        <span
-                          key={s.skill_category}
-                          className="text-xs bg-[#EEF2FF] text-[#6366F1] px-2 py-1 rounded-full"
-                        >
-                          {t.skills[s.skill_category as keyof typeof t.skills] ?? s.skill_category}
-                        </span>
-                      ))}
-                      {skills.length > 3 && (
-                        <span className="text-xs text-gray-400 px-1 py-1">+{skills.length - 3}</span>
-                      )}
-                    </div>
-                  )}
+                  <div className="flex flex-wrap gap-1">
+                    <span className="text-xs bg-[#EEF2FF] text-[#6366F1] px-2 py-1 rounded-full font-medium">
+                      🍽️ Meal Companion
+                    </span>
+                    {p.ic_verified && (
+                      <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full font-medium">
+                        ✓ IC Verified
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="px-5 pb-5">

@@ -31,9 +31,19 @@ export default function HowItWorksPage() {
             </div>
             <span className="font-bold text-[#0F0E17]">SenioCare</span>
           </Link>
-          <Link href="/search" className="text-sm font-semibold bg-[#6366F1] text-white px-4 py-2 rounded-full hover:bg-[#4F46E5] transition-colors">
-            {t.nav.search}
-          </Link>
+          <div className="hidden md:flex items-center gap-5 text-sm font-medium text-gray-500">
+            <Link href="/search" className="hover:text-[#6366F1] transition-colors">{t.nav.search}</Link>
+            <Link href="/how-it-works" className="text-[#6366F1] font-semibold">{t.nav.howItWorks}</Link>
+            <Link href="/about" className="hover:text-[#6366F1] transition-colors">{t.nav.about}</Link>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-[#6366F1] transition-colors">
+              {t.nav.login}
+            </Link>
+            <Link href="/register" className="text-sm font-semibold bg-[#6366F1] text-white px-4 py-2 rounded-full hover:bg-[#4F46E5] transition-colors">
+              {t.nav.register}
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -254,8 +264,22 @@ export default function HowItWorksPage() {
         </section>
       </div>
 
-      <footer className="bg-[#0F0E17] text-gray-500 py-8 px-4 text-center text-sm">
-        <p>© 2026 SenioCare. {lang === 'en' ? 'All rights reserved.' : 'Hak cipta terpelihara.'}</p>
+      <footer className="bg-[#0F0E17] text-gray-500 py-10 px-4">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-[#6366F1] flex items-center justify-center">
+              <Heart className="w-3 h-3 text-white" fill="currentColor" />
+            </div>
+            <span className="font-bold text-white">SenioCare</span>
+          </div>
+          <p className="text-gray-600 text-xs">© 2026 SenioCare · {lang === 'en' ? 'Connecting hearts, nurturing love.' : 'Menghubungkan hati, memelihara kasih.'}</p>
+          <div className="flex gap-4 text-xs">
+            <Link href="/search" className="hover:text-white transition-colors">{t.nav.search}</Link>
+            <Link href="/about" className="hover:text-white transition-colors">{t.nav.about}</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">{lang === 'en' ? 'Privacy' : 'Privasi'}</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">{lang === 'en' ? 'Terms' : 'Terma'}</Link>
+          </div>
+        </div>
       </footer>
     </div>
   )

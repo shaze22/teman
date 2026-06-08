@@ -324,8 +324,8 @@ export default async function LandingPage() {
                 </h3>
                 <p className="text-gray-600 mb-5 text-sm leading-relaxed">
                   {lang === 'en'
-                    ? 'Verified companions who cook, dine with, and bring warmth to your loved one.'
-                    : 'Meal Companion terverifikasi yang teman warga emas semasa makan — mesra, boleh dipercayai, dan membawa semangat.'}
+                    ? 'Verified companions who dine with your loved one and bring warmth to every shared meal.'
+                    : 'Meal Companion terverifikasi yang teman warga emas makan bersama — mesra, boleh dipercayai, dan membawa semangat.'}
                 </p>
                 <div className="space-y-2 mb-7">
                   {ctaCustomerFeatures.map(f => (
@@ -353,8 +353,8 @@ export default async function LandingPage() {
                 </h3>
                 <p className="text-gray-600 mb-5 text-sm leading-relaxed">
                   {lang === 'en'
-                    ? 'Malaysian 18+ — turn your love for cooking & companionship into flexible income.'
-                    : 'Warganegara Malaysia 18+ — jadikan minat masak & menemani warga emas sumber pendapatan fleksibel.'}
+                    ? 'Malaysian 18+ — turn your love for dining & companionship into flexible income.'
+                    : 'Warganegara Malaysia 18+ — jadikan minat menemani warga emas makan bersama sumber pendapatan fleksibel.'}
                 </p>
                 <div className="space-y-2 mb-7">
                   {ctaProviderFeatures.map(f => (

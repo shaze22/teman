@@ -50,7 +50,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
   const MONTHS = lang === 'en' ? MONTHS_EN : MONTHS_BM
 
   const [step, setStep] = useState(0)
-  const [serviceType, setServiceType] = useState('job')
+  const [serviceType, setServiceType] = useState('food')
   const [date, setDate] = useState('')
   const [startTime, setStartTime] = useState('09:00')
   const [duration, setDuration] = useState(2)
@@ -297,6 +297,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
               <div className="space-y-2">
                 {SERVICE_TYPES.filter(opt => {
                   if (opt.hidden) return false
+                  if (!opt.active) return false
                   if (opt.id === 'medical_care') return providerIsLocum
                   if (activeServiceTypes.length > 0) return activeServiceTypes.includes(opt.id)
                   return true
@@ -470,12 +471,15 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Nama Penerima Perkhidmatan <span className="text-gray-400 font-normal text-xs">(Pilihan — untuk Pusat Penjagaan)</span>
+                  {lang === 'en' ? 'Senior\'s Name' : 'Nama Penerima'}
+                  <span className="text-gray-400 font-normal text-xs ml-1">
+                    ({lang === 'en' ? 'Optional — for Care Centres' : 'Pilihan — untuk Pusat Penjagaan'})
+                  </span>
                 </label>
                 <input
                   value={recipientName}
                   onChange={e => setRecipientName(e.target.value)}
-                  placeholder="Cth: Mak Cik Ramlah (Bilik 3)"
+                  placeholder={lang === 'en' ? 'E.g., Mak Cik Ramlah (Room 3)' : 'Cth: Mak Cik Ramlah (Bilik 3)'}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] text-sm"
                 />
               </div>
@@ -502,6 +506,10 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                     {t.bookingPage.cashWarning}
                   </p>
                 )}
+              </div>
+
+              <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-sm text-indigo-800">
+                🍽️ {t.bookingPage.diningRule}
               </div>
 
               <button type="button" onClick={() => setStep(1)}
