@@ -22,6 +22,7 @@ const schema = z.object({
   emergencyPhone: z.string().min(8),
   ngoReferralCode: z.string().optional(),
   referralCode: z.string().optional(),
+  customerConsent: z.boolean(),
 })
 
 function calcAge(dob: string): number {
@@ -48,6 +49,11 @@ export async function POST(request: NextRequest) {
 
   const data = parsed.data
   const now = new Date().toISOString()
+
+  // Consent must be given
+  if (!data.customerConsent) {
+    return NextResponse.json({ message: 'Persetujuan wajib diberikan sebelum mendaftar.' }, { status: 400 })
+  }
 
   // Age validation
   const registrantAge = calcAge(data.registrantDob)
@@ -125,6 +131,8 @@ export async function POST(request: NextRequest) {
         user_id: data.userId,
         is_for_self: data.isForSelf,
         registrant_dob: data.registrantDob,
+        customer_consent: true,
+        customer_consent_at: now,
         senior_full_name: data.seniorFullName ?? null,
         senior_age: data.seniorAge ? parseInt(data.seniorAge) : null,
         senior_phone: data.seniorPhone ?? null,

@@ -104,6 +104,15 @@ export default function CustomerRegisterPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Consent state
+  const [cA, setCA] = useState(false) // anti-fraud
+  const [cB, setCB] = useState(false) // platform usage
+  const [cC, setCC] = useState(false) // meal payment
+  const [cD, setCD] = useState(false) // behaviour
+  const [cE, setCE] = useState(false) // terms & privacy
+  const [cF, setCF] = useState(false) // info accuracy
+  const allConsented = cA && cB && cC && cD && cE && cF
+
   useEffect(() => {
     const ref = searchParams.get('ref')
     if (ref) update('referralCode', ref.toUpperCase())
@@ -162,7 +171,7 @@ export default function CustomerRegisterPage() {
     const res = await fetch('/api/auth/register/customer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, userId: data.user.id }),
+      body: JSON.stringify({ ...form, userId: data.user.id, customerConsent: allConsented }),
     })
 
     if (!res.ok) {
@@ -188,6 +197,7 @@ export default function CustomerRegisterPage() {
     if (step === 0) return !!(form.fullName && form.email && form.phone && form.password.length >= 8 && form.registrantDob && !ageError)
     if (step === 1) return (form.isForSelf || form.seniorFullName) && form.locationState && form.locationCity
     if (step === 2) return form.needs.length > 0 && form.emergencyName && form.emergencyPhone
+    if (step === 3) return allConsented
     return true
   }
 
@@ -427,9 +437,10 @@ export default function CustomerRegisterPage() {
             </div>
           )}
 
-          {/* Step 3: Review */}
+          {/* Step 3: Review & Consent */}
           {step === 3 && (
-            <div className="space-y-4">
+            <div className="space-y-5">
+              {/* Summary */}
               <div className="bg-[#FFF1F2] rounded-xl p-4 space-y-3">
                 <Row label={rc.reviewName} value={form.fullName} />
                 <Row label={rc.reviewEmail} value={form.email} />
@@ -441,6 +452,35 @@ export default function CustomerRegisterPage() {
                 <Row label={rc.reviewService} value={form.needs.map((n) => NEEDS.find((nd) => nd.id === n)?.label ?? n).join(', ')} />
                 <Row label={rc.reviewEmergency} value={`${form.emergencyName} (${form.emergencyPhone})`} />
                 {form.ngoReferralCode && <Row label={rc.reviewNgoCode} value={form.ngoReferralCode} />}
+              </div>
+
+              {/* Consent */}
+              <div>
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
+                  <p className="text-xs text-amber-800 font-semibold">⚠️ Sila baca dan tandakan semua pernyataan di bawah sebelum mendaftar. Pelanggaran terma boleh menyebabkan akaun digantung dan tindakan undang-undang diambil.</p>
+                </div>
+                <div className="space-y-3">
+                  {([
+                    [cA, setCA, 'Saya TIDAK akan menggunakan platform SenioCare untuk menjalankan sebarang aktiviti penipuan, scam, ugutan, atau aktiviti yang menyalahi undang-undang Malaysia. Saya sedar bahawa tindakan sedemikian boleh dilaporkan kepada pihak berkuasa.'],
+                    [cB, setCB, 'Saya faham bahawa SenioCare adalah platform makan bersama warga emas. Saya TIDAK akan menghubungi atau menggunakan Meal Companion untuk sebarang tujuan selain sesi makan yang telah ditempah dan dibayar.'],
+                    [cC, setCC, 'Saya faham dan bersetuju untuk membayar bil makan Meal Companion secara terus di restoran semasa sesi. Booking fee yang dibayar hanya untuk masa companion, dan TIDAK merangkumi kos makanan companion.'],
+                    [cD, setCD, form.isForSelf
+                      ? 'Saya berjanji akan berkelakuan sopan dan menghormati Meal Companion semasa setiap sesi. Sebarang gangguan seksual, ugutan, atau perlakuan tidak senonoh boleh menyebabkan akaun saya digantung serta-merta dan dilaporkan kepada polis.'
+                      : 'Saya berjanji bahawa warga emas yang saya uruskan akan dipastikan berkelakuan sopan semasa sesi. Sebarang aduan terhadap pihak kami boleh menyebabkan akaun ini digantung serta-merta.'],
+                    [cE, setCE, 'Saya bersetuju dengan Terma Perkhidmatan dan Dasar Privasi SenioCare. Saya faham bahawa SenioCare berhak menamatkan akaun saya pada bila-bila masa jika terma dilanggar, tanpa pampasan.'],
+                    [cF, setCF, 'Saya mengesahkan bahawa semua maklumat yang diberikan dalam borang ini adalah benar, tepat dan terkini. Saya bertanggungjawab sepenuhnya atas kesahihan maklumat ini.'],
+                  ] as [boolean, (v: boolean) => void, string][]).map(([state, setter, text], i) => (
+                    <label key={i} className="flex items-start gap-3 cursor-pointer group">
+                      <div
+                        className={`w-5 h-5 rounded flex-shrink-0 mt-0.5 border-2 flex items-center justify-center transition-colors ${state ? 'bg-[#F43F5E] border-[#F43F5E]' : 'border-gray-300 group-hover:border-[#F43F5E]'}`}
+                        onClick={() => setter(!state)}
+                      >
+                        {state && <Check className="w-3 h-3 text-white" />}
+                      </div>
+                      <span className="text-sm text-gray-700 leading-relaxed">{text}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
           )}
