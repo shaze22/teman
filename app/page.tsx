@@ -46,8 +46,8 @@ export default async function LandingPage() {
     : ['Tapis mengikut lokasi & ketersediaan', 'Rating & ulasan sebenar', 'Bayaran selamat escrow']
 
   const ctaProviderFeatures = lang === 'en'
-    ? ['Work schedule on your terms', 'Earn RM25–50 per session', 'Open to all Malaysians 18+']
-    : ['Jadual kerja mengikut keselesaan anda', 'Pendapatan RM25–50 per sesi', 'Terbuka untuk semua warganegara 18+']
+    ? ['Work schedule on your terms', 'Earn RM30–80 per session', 'Open to all Malaysians 18+']
+    : ['Jadual kerja mengikut keselesaan anda', 'Pendapatan RM30–80 per sesi', 'Terbuka untuk semua warganegara 18+']
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F8FAFC] text-[#0F0E17]">

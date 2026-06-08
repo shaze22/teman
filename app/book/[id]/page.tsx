@@ -52,7 +52,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
   const [step, setStep] = useState(0)
   const [serviceType, setServiceType] = useState('food')
   const [date, setDate] = useState('')
-  const [startTime, setStartTime] = useState('09:00')
+  const [startTime, setStartTime] = useState('12:00')
   const [duration, setDuration] = useState(2)
   const [address, setAddress] = useState('')
   const [requirements, setRequirements] = useState('')

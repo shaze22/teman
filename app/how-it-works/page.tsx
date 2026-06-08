@@ -126,8 +126,8 @@ export default function HowItWorksPage() {
               <Shield className="w-5 h-5 text-[#6366F1] flex-shrink-0 mt-0.5" />
               <p className="text-sm text-[#4F46E5] leading-relaxed">
                 {lang === 'en'
-                  ? 'Your payment is protected by escrow. Funds are only released to the companion after you confirm the session is complete.'
-                  : 'Bayaran anda dilindungi oleh escrow. Dana hanya dilepaskan kepada companion selepas anda mengesahkan sesi selesai.'}
+                  ? 'Your payment is protected by escrow. Funds are automatically released to the companion once the session is marked complete — no extra step needed from you.'
+                  : 'Bayaran anda dilindungi oleh escrow. Dana dilepaskan secara automatik kepada companion sebaik sesi ditandakan selesai — tiada langkah tambahan diperlukan daripada anda.'}
               </p>
             </div>
           </section>

@@ -297,7 +297,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-400">{lang === 'en' ? 'Schedule not set — contact after booking to confirm.' : 'Jadual belum ditetapkan — hubungi selepas booking untuk sahkan masa.'}</p>
+                <p className="text-sm text-gray-400">{lang === 'en' ? 'Flexible schedule — confirm your preferred time via chat after booking.' : 'Jadual fleksibel — sahkan masa pilihan anda melalui chat selepas booking.'}</p>
               )}
             </div>
 
