@@ -167,6 +167,19 @@ Backup: https://teman-sigma.vercel.app
 - Sesi MESTI di restoran berwaiter (bukan buffet, nasi campur, fast food)
 - Dikuatkuasakan di: (1) booking form notice; (2) companion registration consent checkbox; (3) How It Works Platform Rules
 
+## UX Audit Fixes (2026-06-08, commits c6727b0 + c3d491f)
+- Landing: buang 7 "Coming Soon" service cards (clutter + broken icons)
+- Booking: buang redundant text date input di bawah calendar
+- Booking: "Choose Service" hidden bila hanya 1 service aktif (locum: tetap tunjuk 2 service)
+- Booking: "Senior's Name (for Care Centres)" → "(Optional)" sahaja
+- Login/Register/ForgotPw: `email@contoh.com` → `email@example.com` (5 files)
+- Login: tambah "← Back to Home" link
+- Profile: `Phone` icon → `MessageCircle` untuk contact/chat note
+- Profile: "Skills"/"Kemahiran" → "Service"/"Perkhidmatan" dalam `lib/i18n.ts`
+- Profile: fee note highlight → indigo bg (lebih visible)
+- Search: tab "All" dibuang → "🍽️ Meal Companion" sahaja
+- Search placeholder: "name, city, or skill" → "name or city" (BM+EN)
+
 ## Referral System (2026-06-08, commit aaed2a6)
 - DB: `referral_code VARCHAR(10)` dalam `single_mother_profiles`, `referred_by VARCHAR(10)` dalam `users`, table `referral_rewards`
 - `/join?ref=CODE` → set cookie → redirect ke `/register/companion`
