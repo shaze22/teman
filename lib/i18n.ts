@@ -993,7 +993,7 @@ export const translations = {
       hasAccount: 'Already have an account?',
       loginLink: 'Log in',
       providerTitle: 'I Want to Be a Meal Companion',
-      providerSub: 'Malaysian 18+ earn income while companioning seniors',
+      providerSub: 'Open to all Malaysians, 18 and above',
       customerTitle: 'I / Family of a Senior',
       customerSub: 'Book a caregiver for my parent or myself',
       ngoTitle: 'I am an NGO / Association Manager',

@@ -4,15 +4,16 @@ import { useState, useEffect } from 'react'
 import { Heart } from 'lucide-react'
 import { useLang } from '@/lib/lang-context'
 
-export default function FavoriteButton({ providerId }: { providerId: string }) {
+export default function FavoriteButton({ providerId, isLoggedIn }: { providerId: string; isLoggedIn?: boolean }) {
   const { t } = useLang()
   const pp = t.profilePage
 
   const [isFav, setIsFav] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!!isLoggedIn)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
+    if (!isLoggedIn) return
     fetch('/api/favorites')
       .then((r) => {
         if (!r.ok) return null
@@ -25,7 +26,7 @@ export default function FavoriteButton({ providerId }: { providerId: string }) {
       })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [providerId])
+  }, [providerId, isLoggedIn])
 
   async function toggle() {
     if (saving) return

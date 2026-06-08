@@ -336,7 +336,7 @@ export default async function LandingPage() {
                 </h3>
                 <p className="text-gray-600 mb-5 text-sm leading-relaxed">
                   {lang === 'en'
-                    ? 'Malaysian 18+ turn your love for dining & companionship into flexible income.'
+                    ? 'Open to all Malaysians, 18 and above. Turn your love for dining into flexible income.'
                     : 'Warganegara Malaysia 18+ jadikan minat menemani warga emas makan bersama sumber pendapatan fleksibel.'}
                 </p>
                 <div className="space-y-2 mb-7">

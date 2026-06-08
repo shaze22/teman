@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import Image from 'next/image'
 import { Heart, Star, MapPin, Clock, CheckCircle, MessageCircle, ArrowLeft, Building2, Users } from 'lucide-react'
@@ -18,15 +19,22 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     .select('location_city, users!inner(full_name)')
     .eq('id', id)
     .single()
-  if (!data) return { title: 'Penjaga tidak dijumpai' }
+  if (!data) return { title: 'Companion not found | SenioCare' }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return { title: `${(data.users as any).full_name} SenioCare di ${data.location_city}` }
+  const name = (data.users as any).full_name as string
+  return {
+    title: `${name} | Meal Companion in ${data.location_city} | SenioCare`,
+    description: `Book ${name.split(' ')[0]}, a verified Meal Companion in ${data.location_city}. Dine together with your elderly loved one.`,
+  }
 }
 
 export default async function TemanProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const cookieStore = await cookies()
   const lang = (cookieStore.get('lang')?.value ?? 'en') as Lang
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isLoggedIn = !!user
   const t = translations[lang]
 
   const bd = t.bookingDetail
@@ -297,7 +305,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-400">{lang === 'en' ? 'Flexible schedule confirm your preferred time via chat after booking.' : 'Jadual fleksibel sahkan masa pilihan anda melalui chat selepas booking.'}</p>
+                <p className="text-sm text-gray-400">{lang === 'en' ? 'Flexible schedule. Confirm your preferred time via chat after booking.' : 'Jadual fleksibel. Sahkan masa pilihan anda melalui chat selepas booking.'}</p>
               )}
             </div>
 
@@ -358,7 +366,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
               </div>
               <BookingButton providerId={id} providerName={u.full_name} />
               <div className="mt-3 grid grid-cols-2 gap-2">
-                <FavoriteButton providerId={id} />
+                <FavoriteButton providerId={id} isLoggedIn={isLoggedIn} />
                 <ShareButton providerName={u.full_name} providerId={id} />
               </div>
               <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2 text-sm text-gray-500">
