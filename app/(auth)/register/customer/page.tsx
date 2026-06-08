@@ -44,6 +44,7 @@ type FormData = {
   email: string
   phone: string
   password: string
+  registrantDob: string
   isForSelf: boolean
   seniorFullName: string
   seniorAge: string
@@ -66,6 +67,7 @@ const initial: FormData = {
   email: '',
   phone: '',
   password: '',
+  registrantDob: '',
   isForSelf: false,
   seniorFullName: '',
   seniorAge: '',
@@ -110,6 +112,15 @@ export default function CustomerRegisterPage() {
   function update(field: keyof FormData, value: unknown) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
+
+  function getAge(dob: string): number {
+    if (!dob) return 0
+    return Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+  }
+
+  const registrantAge = getAge(form.registrantDob)
+  const minAge = form.isForSelf ? 40 : 25
+  const ageError = form.registrantDob && registrantAge < minAge
 
   function toggleNeed(id: string) {
     setForm((prev) => ({
@@ -174,7 +185,7 @@ export default function CustomerRegisterPage() {
   }
 
   const canProceed = () => {
-    if (step === 0) return form.fullName && form.email && form.phone && form.password.length >= 8
+    if (step === 0) return !!(form.fullName && form.email && form.phone && form.password.length >= 8 && form.registrantDob && !ageError)
     if (step === 1) return (form.isForSelf || form.seniorFullName) && form.locationState && form.locationCity
     if (step === 2) return form.needs.length > 0 && form.emergencyName && form.emergencyPhone
     return true
@@ -228,7 +239,7 @@ export default function CustomerRegisterPage() {
             <div className="space-y-4">
               <div className="bg-[#FFF1F2] rounded-xl p-4 mb-4">
                 <p className="text-sm text-orange-800 font-medium mb-3">{rc.registering}</p>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 mb-3">
                   <button
                     type="button"
                     onClick={() => update('isForSelf', true)}
@@ -248,6 +259,34 @@ export default function CustomerRegisterPage() {
                     {rc.asGuardian}
                   </button>
                 </div>
+                <p className="text-xs text-orange-700 leading-relaxed">
+                  {form.isForSelf
+                    ? 'Akaun ini untuk warga emas yang ingin book sendiri. Anda mestilah berumur 40 tahun ke atas.'
+                    : 'Akaun Waris hanya untuk membuat tempahan bagi ahli keluarga warga emas. Anda tidak boleh book untuk diri sendiri menggunakan akaun ini.'}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  {form.isForSelf ? 'Tarikh Lahir Anda' : 'Tarikh Lahir Anda (Waris)'}
+                  <span className="text-gray-400 font-normal text-xs ml-1">
+                    ({form.isForSelf ? 'min. 40 tahun' : 'min. 25 tahun'})
+                  </span>
+                </label>
+                <input
+                  type="date"
+                  value={form.registrantDob}
+                  onChange={(e) => update('registrantDob', e.target.value)}
+                  max={new Date(Date.now() - minAge * 365.25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                  className={`w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#F43F5E] transition-all ${ageError ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                />
+                {ageError && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {form.isForSelf
+                      ? 'Anda mestilah berumur sekurang-kurangnya 40 tahun untuk mendaftar sebagai Senior.'
+                      : 'Waris mestilah berumur sekurang-kurangnya 25 tahun.'}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -308,7 +347,7 @@ export default function CustomerRegisterPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">{rc.seniorAge}</label>
-                    <input type="number" min="50" max="120" value={form.seniorAge} onChange={(e) => update('seniorAge', e.target.value)}
+                    <input type="number" min="40" max="120" value={form.seniorAge} onChange={(e) => update('seniorAge', e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F43F5E]"
                       placeholder={rc.seniorAgePlaceholder} />
                   </div>

@@ -7,6 +7,7 @@ const schema = z.object({
   fullName: z.string().min(2),
   email: z.string().email(),
   phone: z.string().min(8),
+  registrantDob: z.string().min(8),
   isForSelf: z.boolean(),
   seniorFullName: z.string().optional(),
   seniorAge: z.string().optional(),
@@ -22,6 +23,10 @@ const schema = z.object({
   ngoReferralCode: z.string().optional(),
   referralCode: z.string().optional(),
 })
+
+function calcAge(dob: string): number {
+  return Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+}
 
 function generateReferralCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -43,6 +48,15 @@ export async function POST(request: NextRequest) {
 
   const data = parsed.data
   const now = new Date().toISOString()
+
+  // Age validation
+  const registrantAge = calcAge(data.registrantDob)
+  if (data.isForSelf && registrantAge < 40) {
+    return NextResponse.json({ message: 'Senior mestilah berumur sekurang-kurangnya 40 tahun.' }, { status: 400 })
+  }
+  if (!data.isForSelf && registrantAge < 25) {
+    return NextResponse.json({ message: 'Waris mestilah berumur sekurang-kurangnya 25 tahun.' }, { status: 400 })
+  }
 
   try {
     // Resolve NGO from referral code if provided
@@ -110,6 +124,7 @@ export async function POST(request: NextRequest) {
         id: crypto.randomUUID(),
         user_id: data.userId,
         is_for_self: data.isForSelf,
+        registrant_dob: data.registrantDob,
         senior_full_name: data.seniorFullName ?? null,
         senior_age: data.seniorAge ? parseInt(data.seniorAge) : null,
         senior_phone: data.seniorPhone ?? null,
