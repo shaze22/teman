@@ -291,6 +291,21 @@ Backup: https://teman-sigma.vercel.app
 - Provider bookings page + dashboard: include duo_partner_id bookings, Duo badge
 - Booking detail: duo partner boleh view; row "Duo Companion" tunjuk kedua-dua nama
 
+## Mobile Review Fixes (2026-06-08, commit dbdf2ee)
+
+**Nav (app/page.tsx):**
+- "Log In" link: `hidden sm:block` — hidden pada mobile (<640px), hanya Register button visible
+- Mengelak "Log\nIn" wrap pada viewport 390px
+
+**Copywriting (lib/i18n.ts + app/page.tsx) — EN & BM:**
+- Services subheading: "Various companion types..." → "Warm, genuine companionship over a shared meal at any restaurant"
+- 3-step Step 01: "skills & price" → "location and price" (skills removed dari search)
+- 3-step Step 02: "fill in requirements" → "add any special needs, pay via card, FPX or GrabPay"
+- 3-step Step 03: "send daily report. Your parent is happy." → "Meet at Restaurant. Enjoy the meal together at the same table."
+- Safety "Family Monitoring": "daily reports" dibuang → "monitor bookings and session check-ins in real time"
+- Testimonial 1: "for lunch we dine" → "for lunch. We dine" (period selepas em dash removal)
+- Testimonial 3: "doing something I love dining" → cleaner sentence "doing something I love. I dine with..."
+
 ## Em Dash Removal (2026-06-08, commit 345864e)
 - 134 em dashes (`—`) dibuang dari 33 files: `lib/i18n.ts`, `lib/email.ts`, `app/page.tsx` dll
 - Replace pattern: ` — ` → ` ` (single space via Node.js regex `/\s*—\s*/g`)
