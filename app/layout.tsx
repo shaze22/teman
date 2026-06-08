@@ -8,9 +8,29 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'SenioCare Rakan Setia Warga Emas',
+  title: {
+    default: 'SenioCare | Meal Companion for Malaysian Seniors',
+    template: '%s | SenioCare',
+  },
   description:
-    'Platform yang menghubungkan ibu tunggal dengan warga emas. Cari teman, buat booking, dan hidupkan komuniti bersama.',
+    'Connect your elderly loved one with a verified Meal Companion. Dine together at any restaurant — safe, warm, and affordable. Book in minutes.',
+  keywords: ['meal companion', 'senior care', 'elderly companion', 'teman makan', 'warga emas', 'seniocare', 'Malaysia'],
+  metadataBase: new URL('https://seniocare.app'),
+  openGraph: {
+    type: 'website',
+    locale: 'en_MY',
+    url: 'https://seniocare.app',
+    siteName: 'SenioCare',
+    title: 'SenioCare | Meal Companion for Malaysian Seniors',
+    description: 'Connect your elderly loved one with a verified Meal Companion. Dine together at any restaurant — safe, warm, and affordable.',
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'SenioCare — Meal Companion for Malaysian Seniors' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SenioCare | Meal Companion for Malaysian Seniors',
+    description: 'Connect your elderly loved one with a verified Meal Companion. Dine together, feel valued.',
+    images: ['/opengraph-image'],
+  },
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'SenioCare' },
   other: { 'mobile-web-app-capable': 'yes' },

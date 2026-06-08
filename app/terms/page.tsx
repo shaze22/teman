@@ -1,5 +1,11 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Heart } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'Read the SenioCare Terms of Service — platform rules, payment policy, cancellation policy, and governing law (Malaysia).',
+}
 
 export default function TermsPage() {
   return (

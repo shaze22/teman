@@ -1,7 +1,13 @@
+import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { Heart, Shield, Globe, Target, ArrowRight } from 'lucide-react'
 import { translations, type Lang } from '@/lib/i18n'
+
+export const metadata: Metadata = {
+  title: 'About Us',
+  description: 'SenioCare was founded with one goal: ensure no senior in Malaysia has to eat alone. Learn about our mission and values.',
+}
 
 export default async function AboutPage() {
   const cookieStore = await cookies()
