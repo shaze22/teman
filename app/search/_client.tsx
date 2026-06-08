@@ -595,17 +595,17 @@ function ProviderCard({ provider: p }: { provider: Provider }) {
           </div>
         </div>
 
-        {/* Skills */}
-        {p.skills.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-3">
-            {p.skills.slice(0, 2).map((s) => (
-              <span key={s.skillCategory} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                {t.skills[s.skillCategory as keyof typeof t.skills] ?? s.skillCategory}
-              </span>
-            ))}
-            {p.skills.length > 2 && <span className="text-xs text-gray-400 py-0.5">+{p.skills.length - 2}</span>}
-          </div>
-        )}
+        {/* Badges */}
+        <div className="flex flex-wrap gap-1 mt-3">
+          <span className="text-xs bg-[#EEF2FF] text-[#6366F1] px-2 py-0.5 rounded-full font-medium">
+            🍽️ Meal Companion
+          </span>
+          {p.icVerified && (
+            <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
+              ✓ {lang === 'en' ? 'IC Verified' : 'IC Disahkan'}
+            </span>
+          )}
+        </div>
 
         {/* Price + CTA */}
         {price && (
