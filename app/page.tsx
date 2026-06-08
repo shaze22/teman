@@ -32,9 +32,9 @@ export default async function LandingPage() {
   }))
 
   const testimonials = lang === 'en' ? [
-    { name: 'Makcik Rohani, 68', role: 'Senior · Damansara', text: 'Used to eat alone every day. Now Kak Siti comes at noon, cooks, and chats with me. I feel so much more valued.', rating: 5 },
-    { name: 'Cik Amy, 42', role: 'Family · Singapore', text: 'Can work peacefully knowing Dad has someone to eat with. SenioCare is affordable and the companion is so caring.', rating: 5 },
-    { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'RM1,200 income monthly doing something I love — cooking and chatting with the elderly. Flexible hours too!', rating: 5 },
+    { name: 'Makcik Rohani, 68', role: 'Senior · Damansara', text: 'Used to eat alone every day. Now Kak Siti takes me out for lunch — we dine together and chat. I feel so much more valued.', rating: 5 },
+    { name: 'Cik Amy, 42', role: 'Family · Singapore', text: 'Can work peacefully knowing Dad has someone to dine with. SenioCare is affordable and the companion is so caring.', rating: 5 },
+    { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'RM1,200 income monthly doing something I love — dining with and chatting with seniors. Flexible hours too!', rating: 5 },
   ] : [
     { name: 'Makcik Rohani, 68', role: 'Warga Emas · Damansara', text: 'Dulu makan sorang-sorang setiap hari. Sekarang ada Kak Siti teman makan tengahari, berbual dan ketawa bersama. Rasa dihargai!', rating: 5 },
     { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Boleh kerja dengan tenang tahu ayah ada teman. SenioCare harga berpatutan dan Meal Companion sangat penyayang.', rating: 5 },
@@ -364,7 +364,7 @@ export default async function LandingPage() {
                     </div>
                   ))}
                 </div>
-                <Link href="/register?role=provider"
+                <Link href="/register/companion"
                   className="inline-flex items-center gap-2 bg-[#F43F5E] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#E11D48] transition-colors text-sm shadow-md shadow-rose-200">
                   {t.cta.becomeTeman} <ArrowRight className="w-4 h-4" />
                 </Link>
