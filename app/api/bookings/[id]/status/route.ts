@@ -97,7 +97,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const { error } = await supabaseAdmin.from('bookings').update(update).eq('id', id)
   if (error) return NextResponse.json({ message: error.message }, { status: 500 })
 
-  // Referral reward — trigger on provider's first completed booking
+  // Referral reward trigger on provider's first completed booking
   if (status === 'completed') {
     const { data: reward } = await supabaseAdmin
       .from('referral_rewards')
@@ -129,7 +129,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
               id: crypto.randomUUID(), user_id: b.provider_id, type: 'credit',
               amount: refereeCredit, balance_after: refBal,
               reference_type: 'referral', reference_id: reward.id,
-              description: 'Bonus referral — sesi pertama anda selesai!',
+              description: 'Bonus referral sesi pertama anda selesai!',
               created_at: creditNow,
             }),
           ])
@@ -146,7 +146,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
               id: crypto.randomUUID(), user_id: reward.referrer_id, type: 'credit',
               amount: referrerCredit, balance_after: rerBal,
               reference_type: 'referral', reference_id: reward.id,
-              description: `Komisen referral — rakan anda selesai sesi pertama!`,
+              description: `Komisen referral rakan anda selesai sesi pertama!`,
               created_at: creditNow,
             }),
           ])

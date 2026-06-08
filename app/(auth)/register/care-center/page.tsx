@@ -193,7 +193,7 @@ export default function RegisterCareCenterPage() {
                     ))}
                   </select>
                 </Field>
-                <Field label="No. Pendaftaran (SSM/ROS) — Pilihan">
+                <Field label="No. Pendaftaran (SSM/ROS) Pilihan">
                   <Input field="registrationNumber" placeholder="Cth: 202301012345" />
                 </Field>
                 <Field label="Nama Pegawai Bertanggungjawab (PIC)">
@@ -202,7 +202,7 @@ export default function RegisterCareCenterPage() {
                 <Field label="Kapasiti Penghuni (Anggaran)">
                   <Input field="residentCapacity" type="number" placeholder="Cth: 50" />
                 </Field>
-                <Field label="Laman Web — Pilihan">
+                <Field label="Laman Web Pilihan">
                   <Input field="website" type="url" placeholder="https://pusat.com.my" />
                 </Field>
               </div>

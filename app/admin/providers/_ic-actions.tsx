@@ -49,7 +49,7 @@ export default function IcActions({ profileId, icVerified, icFrontUrl, icBackUrl
       {showPhotos && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setShowPhotos(false)}>
           <div className="bg-white rounded-2xl p-5 max-w-lg w-full space-y-4 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <h3 className="font-semibold text-gray-900">Semakan IC — {icNumber}</h3>
+            <h3 className="font-semibold text-gray-900">Semakan IC {icNumber}</h3>
             <div className="grid grid-cols-2 gap-3">
               {icFrontUrl && (
                 <div>

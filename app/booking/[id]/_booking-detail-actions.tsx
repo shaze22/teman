@@ -115,7 +115,7 @@ export default function BookingDetailActions({
         <div className="flex items-start gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-sm text-green-700">
           <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />
           <span>
-            {tx(lang, 'Refund of', 'Bayaran balik')} <strong>RM{refundInfo.amount.toFixed(2)}</strong> ({refundInfo.status === 'full' ? tx(lang, 'full refund', 'bayaran penuh') : tx(lang, '50% — cancelled <24h', '50% — batalkan <24 jam')}) {tx(lang, 'is being processed to your card.', 'sedang diproses ke kad anda.')}
+            {tx(lang, 'Refund of', 'Bayaran balik')} <strong>RM{refundInfo.amount.toFixed(2)}</strong> ({refundInfo.status === 'full' ? tx(lang, 'full refund', 'bayaran penuh') : tx(lang, '50% cancelled <24h', '50% batalkan <24 jam')}) {tx(lang, 'is being processed to your card.', 'sedang diproses ke kad anda.')}
           </span>
         </div>
       )}
@@ -180,7 +180,7 @@ export default function BookingDetailActions({
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-3">
           <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-amber-800 text-sm">{tx(lang, 'Session Complete — Earnings Processing', 'Sesi Selesai — Pendapatan Diproses')}</p>
+            <p className="font-semibold text-amber-800 text-sm">{tx(lang, 'Session Complete Earnings Processing', 'Sesi Selesai Pendapatan Diproses')}</p>
             <p className="text-xs text-amber-700 mt-1">
               {tx(lang, 'Your earnings are being credited to your wallet. Withdrawal requests can be made from the Earnings page.', 'Pendapatan anda sedang dikreditkan ke wallet. Permohonan pengeluaran boleh dibuat dari halaman Pendapatan.')}
             </p>
@@ -222,7 +222,7 @@ export default function BookingDetailActions({
         </div>
       )}
 
-      {/* Customer: review — after session completed */}
+      {/* Customer: review after session completed */}
       {!isProvider && status === 'completed' && !reviewDone && !showReview && (
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <button

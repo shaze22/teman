@@ -51,7 +51,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Receipt #{b.booking_code} — SenioCare</title>
+        <title>Receipt #{b.booking_code} SenioCare</title>
         <style>{`
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111; background: #fff; padding: 40px 20px; max-width: 600px; margin: 0 auto; }

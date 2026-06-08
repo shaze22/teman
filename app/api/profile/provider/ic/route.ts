@@ -39,12 +39,12 @@ export async function POST(request: NextRequest) {
     uploadFile(backFile, 'ic-back'),
   ])
 
-  // Gemini AI pre-screen — detect blur/fake IC before admin review
+  // Gemini AI pre-screen detect blur/fake IC before admin review
   let aiAnalysis = null
   try {
     aiAnalysis = await analyzeICPhoto(frontUrl)
   } catch {
-    // AI failure is non-blocking — proceed with manual review
+    // AI failure is non-blocking proceed with manual review
   }
 
   const now = new Date().toISOString()

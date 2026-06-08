@@ -54,7 +54,7 @@ export default function ReportButton({ bookingId, reportedUserId, lang, alreadyR
   if (done) {
     return (
       <p className="text-xs text-center text-gray-400 mt-2">
-        {en ? '🚩 Report submitted — admin will review within 2 business days.' : '🚩 Laporan dihantar — admin akan semak dalam 2 hari bekerja.'}
+        {en ? '🚩 Report submitted. Admin will review within 2 business days.' : '🚩 Laporan dihantar. Admin akan semak dalam 2 hari bekerja.'}
       </p>
     )
   }

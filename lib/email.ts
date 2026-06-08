@@ -70,7 +70,7 @@ export function sendBookingNewProvider(opts: {
     <p style="color:#6B7280;font-size:13px;margin:16px 0 0">Sila terima atau tolak dalam masa 24 jam.</p>
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Lihat & Sahkan Booking')}
   `)
-  return sendEmail(opts.to, `📋 Booking Baru — ${opts.customerName}`, html)
+  return sendEmail(opts.to, `📋 Booking Baru ${opts.customerName}`, html)
 }
 
 export function sendBookingConfirmedCustomer(opts: {
@@ -109,7 +109,7 @@ export function sendBookingConfirmedCustomer(opts: {
     <p style="color:#6B7280;font-size:13px;margin:16px 0 0">Sila lengkapkan pembayaran untuk mengesahkan tempahan anda.</p>
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Bayar Sekarang', '#6366F1')}
   `)
-  return sendEmail(opts.to, `✅ Booking Disahkan — ${opts.providerName}`, html)
+  return sendEmail(opts.to, `✅ Booking Disahkan ${opts.providerName}`, html)
 }
 
 export function sendBookingCancelledBoth(opts: {
@@ -131,7 +131,7 @@ export function sendBookingCancelledBoth(opts: {
     </table>
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Lihat Butiran')}
   `)
-  return sendEmail(opts.to, `❌ Booking Dibatalkan — #${opts.bookingCode}`, html)
+  return sendEmail(opts.to, `❌ Booking Dibatalkan #${opts.bookingCode}`, html)
 }
 
 export function sendPaymentReceiptCustomer(opts: {
@@ -157,7 +157,7 @@ export function sendPaymentReceiptCustomer(opts: {
     </p>
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Lihat Booking')}
   `)
-  return sendEmail(opts.to, `🧾 Resit Pembayaran — RM${opts.totalAmount.toFixed(2)}`, html)
+  return sendEmail(opts.to, `🧾 Resit Pembayaran RM${opts.totalAmount.toFixed(2)}`, html)
 }
 
 export function sendPaymentNotifyProvider(opts: {
@@ -181,7 +181,7 @@ export function sendPaymentNotifyProvider(opts: {
     <p style="color:#6B7280;font-size:13px;margin:16px 0 0">Sila bersedia dan hadir pada tarikh yang ditetapkan.</p>
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Lihat Booking')}
   `)
-  return sendEmail(opts.to, `💰 Pembayaran Diterima — ${opts.customerName}`, html)
+  return sendEmail(opts.to, `💰 Pembayaran Diterima ${opts.customerName}`, html)
 }
 
 export function sendBookingCompletedCustomer(opts: {
@@ -197,7 +197,7 @@ export function sendBookingCompletedCustomer(opts: {
     <p style="color:#6B7280;margin:0 0 16px">Kami harap anda berpuas hati. Kongsikan pengalaman anda dengan memberikan ulasan!</p>
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Beri Ulasan ⭐', '#F59E0B')}
   `)
-  return sendEmail(opts.to, `🎉 Sesi Selesai — ${opts.providerName}`, html)
+  return sendEmail(opts.to, `🎉 Sesi Selesai ${opts.providerName}`, html)
 }
 
 export function sendIcApproved(opts: { to: string; providerName: string }) {
@@ -205,11 +205,11 @@ export function sendIcApproved(opts: { to: string; providerName: string }) {
     <h2 style="color:#111827;margin:0 0 8px">IC Anda Telah Disahkan! ✅</h2>
     <p style="color:#6B7280;margin:0 0 16px">Tahniah ${opts.providerName}! Kad pengenalan anda telah berjaya disahkan oleh admin SenioCare.</p>
     <p style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px;color:#166534;font-size:13px;margin:0 0 20px">
-      🛡️ Badge "IC Verified" kini akan muncul pada profil awam anda — meningkatkan kepercayaan pelanggan.
+      🛡️ Badge "IC Verified" kini akan muncul pada profil awam anda meningkatkan kepercayaan pelanggan.
     </p>
     ${btn(`${APP_URL}/dashboard/provider/profile`, 'Lihat Profil Saya')}
   `)
-  return sendEmail(opts.to, '✅ IC Anda Telah Disahkan — SenioCare', html)
+  return sendEmail(opts.to, '✅ IC Anda Telah Disahkan SenioCare', html)
 }
 
 export function sendIcRejected(opts: { to: string; providerName: string; reason: string }) {
@@ -222,7 +222,7 @@ export function sendIcRejected(opts: { to: string; providerName: string; reason:
     <p style="color:#6B7280;font-size:13px;">Sila hantar semula dokumen yang lebih jelas melalui halaman profil anda.</p>
     ${btn(`${APP_URL}/dashboard/provider/profile`, 'Kemaskini Profil')}
   `)
-  return sendEmail(opts.to, '❌ IC Tidak Dapat Disahkan — SenioCare', html)
+  return sendEmail(opts.to, '❌ IC Tidak Dapat Disahkan SenioCare', html)
 }
 
 export function sendBookingReminder(opts: {
@@ -243,7 +243,7 @@ export function sendBookingReminder(opts: {
     </p>
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Lihat Booking')}
   `)
-  return sendEmail(opts.to, `⏰ Peringatan — Sesi Esok #${opts.bookingCode}`, html)
+  return sendEmail(opts.to, `⏰ Peringatan Sesi Esok #${opts.bookingCode}`, html)
 }
 
 export function sendRescheduleRequest(opts: {
@@ -261,7 +261,7 @@ export function sendRescheduleRequest(opts: {
     <p style="color:#6B7280;font-size:13px;">Sila semak dan terima atau tolak permintaan ini dalam apl.</p>
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Semak Permintaan')}
   `)
-  return sendEmail(opts.to, `📅 Permintaan Tukar Jadual — #${opts.bookingCode}`, html)
+  return sendEmail(opts.to, `📅 Permintaan Tukar Jadual #${opts.bookingCode}`, html)
 }
 
 export function sendRescheduleResponse(opts: {
@@ -282,5 +282,5 @@ export function sendRescheduleResponse(opts: {
     </div>` : ''}
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Lihat Booking')}
   `)
-  return sendEmail(opts.to, `${opts.accepted ? '✅' : '❌'} Tukar Jadual — #${opts.bookingCode}`, html)
+  return sendEmail(opts.to, `${opts.accepted ? '✅' : '❌'} Tukar Jadual #${opts.bookingCode}`, html)
 }

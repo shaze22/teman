@@ -90,7 +90,7 @@ export async function notifyBookingStatusChange({
       notifs.push({
         userId: customerId,
         type: 'booking_completed',
-        title: 'Sesi Selesai — Sila Sahkan ✅',
+        title: 'Sesi Selesai Sila Sahkan ✅',
         message: `Sesi dengan ${providerName} telah tamat. Sila sahkan untuk lepaskan bayaran.`,
         actionUrl: url,
         data: { bookingId, bookingCode },
@@ -98,7 +98,7 @@ export async function notifyBookingStatusChange({
       notifs.push({
         userId: providerId,
         type: 'booking_completed',
-        title: 'Sesi Selesai — Menunggu Pengesahan 🕐',
+        title: 'Sesi Selesai Menunggu Pengesahan 🕐',
         message: `Sesi dengan ${customerName} selesai. Menunggu pelanggan sahkan untuk lepaskan bayaran.`,
         actionUrl: url,
         data: { bookingId, bookingCode },

@@ -63,7 +63,7 @@ export default async function NgoDashboard() {
   const pendingCount = providers.filter(m => !m.verifiedByNgo).length
   const avgRating = providers.length > 0
     ? (providers.reduce((s, m) => s + m.ratingAvg, 0) / providers.length).toFixed(1)
-    : '—'
+    : ' '
 
   const mobilityLabel = (status: string) => {
     const map: Record<string, string> = {

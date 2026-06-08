@@ -8,7 +8,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'SenioCare — Rakan Setia Warga Emas',
+  title: 'SenioCare Rakan Setia Warga Emas',
   description:
     'Platform yang menghubungkan ibu tunggal dengan warga emas. Cari teman, buat booking, dan hidupkan komuniti bersama.',
   manifest: '/manifest.json',

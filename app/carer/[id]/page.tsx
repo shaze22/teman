@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     .single()
   if (!data) return { title: 'Penjaga tidak dijumpai' }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return { title: `${(data.users as any).full_name} — SenioCare di ${data.location_city}` }
+  return { title: `${(data.users as any).full_name} SenioCare di ${data.location_city}` }
 }
 
 export default async function TemanProfilePage({ params }: { params: Promise<{ id: string }> }) {
@@ -220,7 +220,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                 <div className="flex items-center gap-2 mb-4">
                   <Users className="w-4 h-4 text-purple-600" />
                   <h2 className="font-semibold text-gray-900">
-                    {lang === 'en' ? 'Duo Companion Available — Dine as a Trio!' : 'Duo Companion Tersedia — Makan Bertiga!'}
+                    {lang === 'en' ? 'Duo Companion Available Dine as a Trio!' : 'Duo Companion Tersedia Makan Bertiga!'}
                   </h2>
                 </div>
                 <p className="text-sm text-gray-600 mb-4">
@@ -297,7 +297,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-400">{lang === 'en' ? 'Flexible schedule — confirm your preferred time via chat after booking.' : 'Jadual fleksibel — sahkan masa pilihan anda melalui chat selepas booking.'}</p>
+                <p className="text-sm text-gray-400">{lang === 'en' ? 'Flexible schedule confirm your preferred time via chat after booking.' : 'Jadual fleksibel sahkan masa pilihan anda melalui chat selepas booking.'}</p>
               )}
             </div>
 

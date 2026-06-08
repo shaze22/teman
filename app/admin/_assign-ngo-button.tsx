@@ -59,7 +59,7 @@ export default function AssignNgoButton({ type, profileId, currentNgoId }: Props
             onChange={e => setSelected(e.target.value)}
             className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#6366F1] bg-white mb-3"
           >
-            <option value="">— Tiada NGO —</option>
+            <option value=""> Tiada NGO </option>
             {ngos.map(n => (
               <option key={n.id} value={n.id}>{n.name}</option>
             ))}

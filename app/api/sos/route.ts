@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Log notification for emergency contacts (in-app — they may not have accounts)
+  // Log notification for emergency contacts (in-app they may not have accounts)
   // The contacts list is available for display in admin SOS panel
   // Future: send SMS via Twilio/Nexmo
 

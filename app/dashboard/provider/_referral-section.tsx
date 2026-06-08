@@ -111,8 +111,8 @@ export default function ReferralSection({ lang }: { lang: string }) {
       {stats.total === 0 && (
         <p className="text-xs text-center text-gray-400 mt-3">
           {lang === 'en'
-            ? 'No referrals yet — share your link on WhatsApp or TikTok!'
-            : 'Belum ada referral — kongsi link anda di WhatsApp atau TikTok!'}
+            ? 'No referrals yet share your link on WhatsApp or TikTok!'
+            : 'Belum ada referral kongsi link anda di WhatsApp atau TikTok!'}
         </p>
       )}
     </div>

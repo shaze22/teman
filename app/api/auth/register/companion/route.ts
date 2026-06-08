@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'IC dan selfie diperlukan' }, { status: 400 })
   }
 
-  // Server-side Gemini verification — never trust client's geminiPassed claim
+  // Server-side Gemini verification never trust client's geminiPassed claim
   let geminiPassed = false
   let geminiConfidence: string | null = null
   let geminiFaceMatch: boolean | null = null

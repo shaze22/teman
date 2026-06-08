@@ -340,7 +340,7 @@ export default function SearchPageClient() {
                     placeholder="Min"
                     className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[#6366F1]"
                   />
-                  <span className="text-gray-400 text-sm">—</span>
+                  <span className="text-gray-400 text-sm"> </span>
                   <input
                     type="number"
                     value={pendingFilters.maxPrice}
@@ -493,7 +493,7 @@ export default function SearchPageClient() {
                       <span className={`block font-medium ${pendingFilters.duo ? 'text-purple-700' : 'text-gray-700'}`}>
                         {lang === 'en' ? 'Duo available only' : 'Ada pasangan duo sahaja'}
                       </span>
-                      <span className="text-xs text-gray-400">{lang === 'en' ? 'Dine as a trio — more fun!' : 'Makan bertiga — lebih meriah!'}</span>
+                      <span className="text-xs text-gray-400">{lang === 'en' ? 'Dine as a trio more fun!' : 'Makan bertiga lebih meriah!'}</span>
                     </div>
                   </div>
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${pendingFilters.duo ? 'bg-purple-500 border-purple-500' : 'border-gray-300'}`}>

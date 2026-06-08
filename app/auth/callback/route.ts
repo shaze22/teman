@@ -40,7 +40,7 @@ export async function GET(request: Request) {
         .single()
 
       if (!existing) {
-        // New Google OAuth user — create customer account automatically
+        // New Google OAuth user create customer account automatically
         const now = new Date().toISOString()
         const fullName = data.user.user_metadata?.full_name ?? data.user.email?.split('@')[0] ?? 'User'
         const email = data.user.email ?? ''
@@ -65,7 +65,7 @@ export async function GET(request: Request) {
           updated_at: now,
         })
 
-        // New user — redirect to complete profile
+        // New user redirect to complete profile
         return NextResponse.redirect(`${origin}/dashboard/customer?welcome=true&setup=1`)
       }
 

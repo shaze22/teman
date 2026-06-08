@@ -217,7 +217,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
                   {provider.full_name} + {duoPartnerName}
                 </div>
                 <div className="text-xs text-purple-600 mt-0.5">
-                  {lang === 'en' ? 'Dine as a trio — more fun!' : 'Makan bertiga — lebih meriah!'}
+                  {lang === 'en' ? 'Dine as a trio more fun!' : 'Makan bertiga lebih meriah!'}
                 </div>
               </div>
             </div>
@@ -260,7 +260,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
 
-        {/* Pay Now — shown to customer when booking confirmed/in_progress and not yet paid */}
+        {/* Pay Now shown to customer when booking confirmed/in_progress and not yet paid */}
         {isCustomer && b.payment_status === 'pending' && ['confirmed', 'in_progress'].includes(b.status) && (
           <PayButton bookingId={b.id} totalAmount={parseFloat(String(b.total_amount))} />
         )}
@@ -359,7 +359,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
           </div>
         )}
 
-        {/* Check-in section — shown for confirmed/in_progress */}
+        {/* Check-in section shown for confirmed/in_progress */}
         {['confirmed', 'in_progress'].includes(b.status) && (isCustomer || isProvider) && (
           <CheckinSection
             bookingId={b.id}
@@ -370,7 +370,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
           />
         )}
 
-        {/* Report button — shown for completed or in_progress */}
+        {/* Report button shown for completed or in_progress */}
         {['confirmed', 'in_progress', 'completed'].includes(b.status) && (isCustomer || isProvider) && (
           <ReportButton
             bookingId={b.id}

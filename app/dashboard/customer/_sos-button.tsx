@@ -26,7 +26,7 @@ export default function SosButton() {
       lat = pos.coords.latitude
       lng = pos.coords.longitude
     } catch {
-      // Location unavailable — proceed without coordinates
+      // Location unavailable proceed without coordinates
     }
 
     setState('sending')

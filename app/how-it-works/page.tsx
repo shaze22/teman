@@ -126,8 +126,8 @@ export default function HowItWorksPage() {
               <Shield className="w-5 h-5 text-[#6366F1] flex-shrink-0 mt-0.5" />
               <p className="text-sm text-[#4F46E5] leading-relaxed">
                 {lang === 'en'
-                  ? 'Your payment is protected by escrow. Funds are automatically released to the companion once the session is marked complete — no extra step needed from you.'
-                  : 'Bayaran anda dilindungi oleh escrow. Dana dilepaskan secara automatik kepada companion sebaik sesi ditandakan selesai — tiada langkah tambahan diperlukan daripada anda.'}
+                  ? 'Your payment is protected by escrow. Funds are automatically released to the companion once the session is marked complete no extra step needed from you.'
+                  : 'Bayaran anda dilindungi oleh escrow. Dana dilepaskan secara automatik kepada companion sebaik sesi ditandakan selesai tiada langkah tambahan diperlukan daripada anda.'}
               </p>
             </div>
           </section>
@@ -168,8 +168,8 @@ export default function HowItWorksPage() {
               <Zap className="w-5 h-5 text-[#F43F5E] flex-shrink-0 mt-0.5" />
               <p className="text-sm text-[#F43F5E] leading-relaxed">
                 {lang === 'en'
-                  ? 'Verification takes under 5 minutes. Gemini AI checks your IC and selfie instantly — no waiting for manual approval.'
-                  : 'Pengesahan mengambil masa kurang dari 5 minit. Gemini AI semak IC dan selfie anda serta-merta — tiada perlu tunggu kelulusan manual.'}
+                  ? 'Verification takes under 5 minutes. Gemini AI checks your IC and selfie instantly no waiting for manual approval.'
+                  : 'Pengesahan mengambil masa kurang dari 5 minit. Gemini AI semak IC dan selfie anda serta-merta tiada perlu tunggu kelulusan manual.'}
               </p>
             </div>
           </section>
@@ -191,15 +191,15 @@ export default function HowItWorksPage() {
                 icon: '🍽️',
                 title: lang === 'en' ? 'Companion must dine together' : 'Companion wajib makan bersama',
                 desc: lang === 'en'
-                  ? 'The Meal Companion must eat at the same table during the session — not watch, not assist feeding. This is genuine companionship over a shared meal.'
-                  : 'Meal Companion WAJIB makan di meja yang sama semasa sesi — bukan sekadar teman melihat atau suapkan pelanggan makan. Ini adalah teman makan yang sebenar.',
+                  ? 'The Meal Companion must eat at the same table during the session not watch, not assist feeding. This is genuine companionship over a shared meal.'
+                  : 'Meal Companion WAJIB makan di meja yang sama semasa sesi bukan sekadar teman melihat atau suapkan pelanggan makan. Ini adalah teman makan yang sebenar.',
               },
               {
                 icon: '💳',
                 title: lang === 'en' ? 'Customer covers companion\'s meal' : 'Pelanggan tanggung makan companion',
                 desc: lang === 'en'
-                  ? 'The companion\'s meal cost is paid directly by the customer at the restaurant. It is not included in the booking fee — the booking fee covers the companion\'s time only.'
-                  : 'Kos makan Companion dibayar terus oleh pelanggan di restoran. Ia tidak termasuk dalam booking fee — booking fee hanya untuk masa companion.',
+                  ? 'The companion\'s meal cost is paid directly by the customer at the restaurant. It is not included in the booking fee the booking fee covers the companion\'s time only.'
+                  : 'Kos makan Companion dibayar terus oleh pelanggan di restoran. Ia tidak termasuk dalam booking fee booking fee hanya untuk masa companion.',
               },
               {
                 icon: '🏪',

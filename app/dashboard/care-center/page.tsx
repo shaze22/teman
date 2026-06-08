@@ -89,7 +89,7 @@ export default async function CareCenterDashboard() {
           {[
             { label: 'Aktif', value: activeCount, icon: Clock, color: 'text-indigo-600 bg-indigo-50' },
             { label: 'Selesai', value: completedCount, icon: CheckCircle2, color: 'text-emerald-600 bg-emerald-50' },
-            { label: 'Kapasiti', value: profile.resident_capacity ?? '—', icon: Building2, color: 'text-amber-600 bg-amber-50' },
+            { label: 'Kapasiti', value: profile.resident_capacity ?? ' ', icon: Building2, color: 'text-amber-600 bg-amber-50' },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-4 text-center">
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center mx-auto mb-2 ${s.color}`}>
@@ -134,7 +134,7 @@ export default async function CareCenterDashboard() {
           <div className="space-y-3">
             {bookings.map((b) => {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const providerName = (b.single_mother_profiles as any)?.users?.full_name ?? '—'
+              const providerName = (b.single_mother_profiles as any)?.users?.full_name ?? ' '
               const statusMap: Record<string, { label: string; cls: string }> = {
                 pending: { label: 'Menunggu', cls: 'bg-amber-100 text-amber-700' },
                 confirmed: { label: 'Disahkan', cls: 'bg-blue-100 text-blue-700' },

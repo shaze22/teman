@@ -16,7 +16,7 @@ export default async function AdminWithdrawalsPage() {
 
   const withdrawals = await Promise.all((raw ?? []).map(async (w: any) => {
     const { data: u } = await supabaseAdmin.from('users').select('full_name').eq('id', w.provider_id).single()
-    return { ...w, providerName: u?.full_name ?? '—' }
+    return { ...w, providerName: u?.full_name ?? ' ' }
   }))
 
   const pending = withdrawals.filter(w => w.status === 'pending')
@@ -26,7 +26,7 @@ export default async function AdminWithdrawalsPage() {
     <div className="p-6 max-w-4xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Permohonan Pengeluaran</h1>
-        <p className="text-sm text-gray-500 mt-1">{pending.length} menunggu — transfer melalui DuitNow/FPX dalam 7 hari bekerja</p>
+        <p className="text-sm text-gray-500 mt-1">{pending.length} menunggu transfer melalui DuitNow/FPX dalam 7 hari bekerja</p>
       </div>
 
       {pending.length > 0 && (
@@ -67,7 +67,7 @@ export default async function AdminWithdrawalsPage() {
             {processed.map((w: any) => (
               <div key={w.id} className="bg-white rounded-xl border border-gray-100 p-4 flex items-center justify-between">
                 <div>
-                  <div className="font-semibold text-gray-900">RM{parseFloat(String(w.amount)).toFixed(2)} — {w.providerName}</div>
+                  <div className="font-semibold text-gray-900">RM{parseFloat(String(w.amount)).toFixed(2)} {w.providerName}</div>
                   <div className="text-xs text-gray-400 mt-0.5">{w.bank_name} · {w.account_number}</div>
                   {w.notes && <div className="text-xs text-gray-500 mt-1 italic">{w.notes}</div>}
                 </div>

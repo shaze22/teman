@@ -141,7 +141,7 @@ export default function DuoSection({ lang }: { lang: string }) {
               {bm ? 'Duo Companion' : 'Duo Companion'}
             </h3>
             <p className="text-xs text-gray-400">
-              {bm ? 'Makan bertiga — lebih meriah!' : 'Dine as a trio — more fun!'}
+              {bm ? 'Makan bertiga lebih meriah!' : 'Dine as a trio more fun!'}
             </p>
           </div>
         </div>
@@ -197,7 +197,7 @@ export default function DuoSection({ lang }: { lang: string }) {
           </div>
         )}
 
-        {/* PENDING — current user is requester */}
+        {/* PENDING current user is requester */}
         {pair?.status === 'pending' && pair.isRequester && (
           <div>
             <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-xl mb-3">
@@ -222,7 +222,7 @@ export default function DuoSection({ lang }: { lang: string }) {
           </div>
         )}
 
-        {/* PENDING — current user is the invited partner */}
+        {/* PENDING current user is the invited partner */}
         {pair?.status === 'pending' && !pair.isRequester && (
           <div>
             <div className="flex items-center gap-3 p-3 bg-indigo-50 rounded-xl mb-3">
@@ -250,7 +250,7 @@ export default function DuoSection({ lang }: { lang: string }) {
           </div>
         )}
 
-        {/* NO pair — show search */}
+        {/* NO pair show search */}
         {pair === null && (
           <div>
             <p className="text-xs text-gray-500 mb-3">

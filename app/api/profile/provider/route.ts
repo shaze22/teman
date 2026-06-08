@@ -69,7 +69,7 @@ export async function PATCH(request: NextRequest) {
     )
   }
 
-  // Upsert pricing for all service types — same base price per hour
+  // Upsert pricing for all service types same base price per hour
   const ALL_TYPES = ['job', 'food', 'learning', 'business', 'ibadah', 'repair', 'riadah', 'kombo']
   const { data: existingPricing } = await supabaseAdmin
     .from('provider_pricing')

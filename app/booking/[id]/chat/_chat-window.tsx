@@ -217,7 +217,7 @@ export default function ChatWindow({ bookingId, userId, initialMessages, canSend
         </div>
       ) : (
         <div className="border-t border-gray-100 bg-gray-50 px-4 py-3 text-center text-sm text-gray-400">
-          Booking telah ditamatkan — chat tidak lagi aktif
+          Booking telah ditamatkan chat tidak lagi aktif
         </div>
       )}
     </div>

@@ -346,7 +346,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                       className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${isDuo ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-gray-300'}`}>
                       <Users className={`w-6 h-6 ${isDuo ? 'text-purple-600' : 'text-gray-400'}`} />
                       <span className={`text-sm font-semibold ${isDuo ? 'text-purple-600' : 'text-gray-600'}`}>
-                        {lang === 'en' ? 'Duo — Dine as Trio' : 'Duo — Makan Bertiga'}
+                        {lang === 'en' ? 'Duo Dine as Trio' : 'Duo Makan Bertiga'}
                       </span>
                       <span className="text-xs text-gray-400">
                         RM{pricePerHour + duoPartner.price}/{lang === 'en' ? 'hr' : 'jam'}

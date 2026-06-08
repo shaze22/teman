@@ -34,7 +34,7 @@ export default async function AdminPromoPage() {
               {p.min_amount > 0 && <span className="text-xs text-gray-400 ml-1">(min RM{parseFloat(String(p.min_amount)).toFixed(0)})</span>}
             </span>
             <span className="text-sm text-gray-500 px-4">{p.uses_count}{p.max_uses ? `/${p.max_uses}` : ''}</span>
-            <span className="text-sm text-gray-500 px-4">{p.valid_until ? new Date(p.valid_until).toLocaleDateString('ms-MY') : '—'}</span>
+            <span className="text-sm text-gray-500 px-4">{p.valid_until ? new Date(p.valid_until).toLocaleDateString('ms-MY') : ' '}</span>
             <span className="px-4">
               <PromoToggle id={p.id} isActive={p.is_active} />
             </span>

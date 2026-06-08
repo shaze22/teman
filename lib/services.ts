@@ -23,8 +23,8 @@ export const ALL_SERVICE_IDS = SERVICE_TYPES.map(s => s.id)
 
 export const SERVICE_SCOPE: Record<string, { desc: string; descEn: string; items: string[]; itemsEn: string[] }> = {
   food: {
-    desc: 'Teman waktu makan — makan bersama di restoran, kafe, atau gerai.',
-    descEn: 'A dining companion — eat together at restaurants, cafes, or food stalls.',
+    desc: 'Teman waktu makan makan bersama di restoran, kafe, atau gerai.',
+    descEn: 'A dining companion eat together at restaurants, cafes, or food stalls.',
     items: [
       'Menemani waktu makan tengahari atau malam',
       'Teman ke restoran, kafe, atau gerai pilihan',
@@ -135,8 +135,8 @@ export const SERVICE_SCOPE: Record<string, { desc: string; descEn: string; items
     ],
   },
   locum: {
-    desc: 'Penjaga bertauliah — jururawat, paramedik, atau pengasuh bersijil.',
-    descEn: 'Certified caregiver — nurse, paramedic, or certified carer.',
+    desc: 'Penjaga bertauliah jururawat, paramedik, atau pengasuh bersijil.',
+    descEn: 'Certified caregiver nurse, paramedic, or certified carer.',
     items: [
       'Pemantauan kesihatan & tekanan darah',
       'Pengurusan ubat dan dos harian',

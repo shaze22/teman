@@ -144,7 +144,7 @@ export default function RegisterCompanionPage() {
     startCamera()
   }
 
-  // Gemini verify — auto-run when entering step 3
+  // Gemini verify auto-run when entering step 3
   useEffect(() => {
     if (step !== 3 || verifyStatus !== 'idle') return
     runVerify()
@@ -348,7 +348,7 @@ export default function RegisterCompanionPage() {
                     </button>
                   )}
                 </div>
-                {referralValid === true && <p className="text-xs text-emerald-600 mt-1">✓ Kod sah — anda dan rakan anda akan dapat RM10 selepas sesi pertama!</p>}
+                {referralValid === true && <p className="text-xs text-emerald-600 mt-1">✓ Kod sah anda dan rakan anda akan dapat RM10 selepas sesi pertama!</p>}
                 {referralValid === false && <p className="text-xs text-red-500 mt-1">Kod tidak sah. Cuba semak semula.</p>}
               </div>
             </div>

@@ -32,13 +32,13 @@ export default async function LandingPage() {
   }))
 
   const testimonials = lang === 'en' ? [
-    { name: 'Makcik Rohani, 68', role: 'Senior · Damansara', text: 'Used to eat alone every day. Now Kak Siti takes me out for lunch — we dine together and chat. I feel so much more valued.', rating: 5 },
+    { name: 'Makcik Rohani, 68', role: 'Senior · Damansara', text: 'Used to eat alone every day. Now Kak Siti takes me out for lunch we dine together and chat. I feel so much more valued.', rating: 5 },
     { name: 'Cik Amy, 42', role: 'Family · Singapore', text: 'Can work peacefully knowing Dad has someone to dine with. SenioCare is affordable and the companion is so caring.', rating: 5 },
-    { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'RM1,200 income monthly doing something I love — dining with and chatting with seniors. Flexible hours too!', rating: 5 },
+    { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'RM1,200 income monthly doing something I love dining with and chatting with seniors. Flexible hours too!', rating: 5 },
   ] : [
     { name: 'Makcik Rohani, 68', role: 'Warga Emas · Damansara', text: 'Dulu makan sorang-sorang setiap hari. Sekarang ada Kak Siti teman makan tengahari, berbual dan ketawa bersama. Rasa dihargai!', rating: 5 },
     { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Boleh kerja dengan tenang tahu ayah ada teman. SenioCare harga berpatutan dan Meal Companion sangat penyayang.', rating: 5 },
-    { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'Pendapatan RM1,200 sebulan buat benda yang saya suka — teman warga emas makan dan berbual. Masa pun fleksibel!', rating: 5 },
+    { name: 'Kak Siti, 35', role: 'Meal Companion · Puchong', text: 'Pendapatan RM1,200 sebulan buat benda yang saya suka teman warga emas makan dan berbual. Masa pun fleksibel!', rating: 5 },
   ]
 
   const ctaCustomerFeatures = lang === 'en'
@@ -78,7 +78,7 @@ export default async function LandingPage() {
         </div>
       </nav>
 
-      {/* HERO — dark */}
+      {/* HERO dark */}
       <section className="relative bg-[#0F0E17] overflow-hidden">
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#6366F1]/25 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-[#F43F5E]/15 rounded-full blur-3xl pointer-events-none" />
@@ -174,7 +174,7 @@ export default async function LandingPage() {
             </h2>
             <p className="text-gray-500 max-w-lg mx-auto">{t.services.subheading}</p>
           </div>
-          {/* Featured active service — Meal Companion */}
+          {/* Featured active service Meal Companion */}
           <Link href="/search?type=food"
             className="group block bg-gradient-to-br from-[#EEF2FF] to-[#E0E7FF] rounded-3xl p-5 md:p-7 border-2 border-[#6366F1]/40 hover:border-[#6366F1] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -191,8 +191,8 @@ export default async function LandingPage() {
                   </div>
                   <p className="text-gray-600 text-sm leading-relaxed max-w-lg">
                     {lang === 'en'
-                      ? 'A friendly companion who dines with your senior — at restaurants, cafes, or any favourite spot. No more eating alone.'
-                      : 'Teman yang menemani warga emas semasa makan — di restoran, kafe, atau tempat kegemaran mereka. Tak makan sorang lagi.'}
+                      ? 'A friendly companion who dines with your senior at restaurants, cafes, or any favourite spot. No more eating alone.'
+                      : 'Teman yang menemani warga emas semasa makan di restoran, kafe, atau tempat kegemaran mereka. Tak makan sorang lagi.'}
                   </p>
                 </div>
               </div>
@@ -308,7 +308,7 @@ export default async function LandingPage() {
                 <p className="text-gray-600 mb-5 text-sm leading-relaxed">
                   {lang === 'en'
                     ? 'Verified companions who dine with your loved one and bring warmth to every shared meal.'
-                    : 'Meal Companion terverifikasi yang teman warga emas makan bersama — mesra, boleh dipercayai, dan membawa semangat.'}
+                    : 'Meal Companion terverifikasi yang teman warga emas makan bersama mesra, boleh dipercayai, dan membawa semangat.'}
                 </p>
                 <div className="space-y-2 mb-7">
                   {ctaCustomerFeatures.map(f => (
@@ -336,8 +336,8 @@ export default async function LandingPage() {
                 </h3>
                 <p className="text-gray-600 mb-5 text-sm leading-relaxed">
                   {lang === 'en'
-                    ? 'Malaysian 18+ — turn your love for dining & companionship into flexible income.'
-                    : 'Warganegara Malaysia 18+ — jadikan minat menemani warga emas makan bersama sumber pendapatan fleksibel.'}
+                    ? 'Malaysian 18+ turn your love for dining & companionship into flexible income.'
+                    : 'Warganegara Malaysia 18+ jadikan minat menemani warga emas makan bersama sumber pendapatan fleksibel.'}
                 </p>
                 <div className="space-y-2 mb-7">
                   {ctaProviderFeatures.map(f => (
