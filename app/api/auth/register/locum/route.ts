@@ -242,13 +242,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Send verification email
-    await supabaseAdmin.auth.admin.generateLink({
-      type: 'signup',
-      email,
-      options: { redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?type=signup` },
-    })
-
     // Notify admin of new professional registration (for license review)
     if (requiresLicense) {
       await supabaseAdmin.from('notifications').insert({

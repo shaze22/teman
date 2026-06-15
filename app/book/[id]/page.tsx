@@ -271,10 +271,10 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <p className="text-sm text-gray-500 mb-4">{SERVICE_SCOPE[scopeModal]?.desc}</p>
+            <p className="text-sm text-gray-500 mb-4">{SERVICE_SCOPE[scopeModal as keyof typeof SERVICE_SCOPE]?.desc}</p>
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t.bookingPage.scopeIncluded}</p>
             <ul className="space-y-2 mb-5">
-              {SERVICE_SCOPE[scopeModal]?.items.map((item, i) => (
+              {SERVICE_SCOPE[scopeModal as keyof typeof SERVICE_SCOPE]?.items.map((item, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
                   <span className="text-[#6366F1] font-bold mt-0.5 flex-shrink-0">✓</span>
                   {item}
@@ -295,9 +295,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
             <div className="space-y-5">
               {(() => {
                 const visibleServices = SERVICE_TYPES.filter(opt => {
-                  if (opt.hidden) return false
                   if (!opt.active) return false
-                  if (opt.id === 'medical_care') return providerIsLocum
                   if (activeServiceTypes.length > 0) return activeServiceTypes.includes(opt.id)
                   return true
                 })

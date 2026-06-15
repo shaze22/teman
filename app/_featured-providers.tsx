@@ -11,7 +11,7 @@ const ROLE_BADGE: Record<string, { label: string; color: string }> = {
   companion:      { label: 'Companion', color: 'bg-teal-50 text-teal-700' },
 }
 
-export default async function FeaturedProviders({ lang: _ }: { lang: string }) {
+export default async function FeaturedProviders({ lang: _ }: { lang?: string }) {
   // Fetch top-rated providers from provider_profiles
   const { data: profiles } = await supabaseAdmin
     .from('provider_profiles')
