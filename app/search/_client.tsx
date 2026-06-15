@@ -263,21 +263,34 @@ export default function SearchPageClient() {
             ))}
           </div>
         ) : providers.length === 0 ? (
-          <div className="text-center py-20">
+          <div className="text-center py-16 px-4">
             <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-teal-400" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               {lang === 'en' ? 'No Providers Found' : 'Tiada Provider Dijumpai'}
             </h3>
-            <p className="text-gray-500 mb-4 text-sm">
-              {lang === 'en' ? 'Try changing your filters or search area.' : 'Cuba tukar penapis atau kawasan carian anda.'}
+            <p className="text-gray-500 mb-6 text-sm max-w-xs mx-auto">
+              {lang === 'en'
+                ? 'No providers in your area yet. Try broadening your search or check back soon.'
+                : 'Belum ada provider di kawasan anda. Cuba perluas carian atau semak semula tidak lama lagi.'}
             </p>
-            {activeFilterCount > 0 && (
-              <button onClick={resetFilters} className="px-5 py-2.5 bg-teal-600 text-white rounded-xl text-sm font-semibold hover:bg-teal-700 transition-colors">
-                {lang === 'en' ? 'Reset Filters' : 'Reset Penapis'}
-              </button>
-            )}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              {activeFilterCount > 0 && (
+                <button onClick={resetFilters} className="px-5 py-2.5 bg-teal-600 text-white rounded-xl text-sm font-semibold hover:bg-teal-700 transition-colors">
+                  {lang === 'en' ? 'Reset Filters' : 'Reset Penapis'}
+                </button>
+              )}
+              <a href="/register" className="px-5 py-2.5 border border-teal-200 text-teal-700 rounded-xl text-sm font-semibold hover:bg-teal-50 transition-colors inline-block">
+                {lang === 'en' ? 'Join as a Provider' : 'Daftar sebagai Provider'}
+              </a>
+            </div>
+            <p className="text-xs text-gray-400 mt-6">
+              {lang === 'en' ? 'Are you a nurse, physio, or care aide? ' : 'Anda jururawat, fisioterapi, atau pembantu penjagaan? '}
+              <a href="/register/locum" className="text-teal-600 font-medium hover:underline">
+                {lang === 'en' ? 'Register as a Locum Professional →' : 'Daftar sebagai Locum Profesional →'}
+              </a>
+            </p>
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

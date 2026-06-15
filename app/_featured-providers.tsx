@@ -21,7 +21,37 @@ export default async function FeaturedProviders({ lang: _ }: { lang?: string }) 
     .order('rating_avg', { ascending: false })
     .limit(6)
 
-  if (!profiles || profiles.length === 0) return null
+  if (!profiles || profiles.length === 0) {
+    return (
+      <section className="py-16 md:py-24 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <span className="text-xs font-semibold tracking-widest text-teal-600 uppercase">Provider Pilihan</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-3">Profesional Berdedikasi</h2>
+            <p className="text-gray-500 max-w-lg mx-auto">
+              Dipilih berdasarkan penilaian pelanggan, kelayakan profesional, dan rekod perkhidmatan.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-gray-50 rounded-2xl border border-dashed border-gray-200 p-6 flex flex-col items-center justify-center text-center min-h-[180px]">
+                <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center mb-3">
+                  <Stethoscope className="w-6 h-6 text-teal-500" />
+                </div>
+                <p className="text-sm text-gray-400 font-medium">Provider sedang didaftarkan</p>
+                <p className="text-xs text-gray-300 mt-1">Segera hadir</p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Link href="/register" className="inline-flex items-center gap-2 text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors border border-teal-200 px-5 py-2.5 rounded-full hover:bg-teal-50">
+              Daftar sebagai Provider →
+            </Link>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   // Fetch pricing for displayed profiles
   const profileIds = profiles.map((p) => p.id)

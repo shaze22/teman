@@ -70,9 +70,9 @@ const content = {
       proCta: 'Join as a Professional',
     },
     testimonials: [
-      { name: 'Cik Amy, 42', role: 'Family Member · Singapore', text: 'Dad had a stroke last year. The nurse from SenioCare is professional, gentle, and keeps us updated. Worth every sen.', rating: 5 },
-      { name: 'Puan Zaiton, 71', role: 'Senior · Petaling Jaya', text: 'The physiotherapist comes every week. My knee is much better now and I can walk without pain. Very grateful.', rating: 5 },
-      { name: 'Nurse Faridah', role: 'Licensed Nurse (SRN) · Selangor', text: 'SenioCare lets me take locum cases near my home. My schedule is flexible and payments are always on time.', rating: 5 },
+      { name: 'Cik Amy, 42', role: 'Family Member · Singapore', text: 'Dad had a stroke last year. The nurse from SenioCare is professional, gentle, and keeps us updated. Worth every sen.', rating: 5, initials: 'CA' },
+      { name: 'Puan Zaiton, 71', role: 'Senior · Petaling Jaya', text: 'The physiotherapist comes every week. My knee is much better now and I can walk without pain. Very grateful.', rating: 5, initials: 'PZ' },
+      { name: 'Nurse Faridah', role: 'Licensed Nurse (SRN) · Selangor', text: 'SenioCare lets me take locum cases near my home. My schedule is flexible and payments are always on time.', rating: 5, initials: 'NF' },
     ],
     footer: {
       tagline: 'Professional home care for Malaysian seniors.',
@@ -139,9 +139,9 @@ const content = {
       proCta: 'Sertai sebagai Profesional',
     },
     testimonials: [
-      { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Ayah kena strok tahun lepas. Jururawat dari SenioCare sangat profesional, lembut dan sentiasa bagi kemas kini. Berbaloi.', rating: 5 },
-      { name: 'Puan Zaiton, 71', role: 'Warga Emas · Petaling Jaya', text: 'Ahli fisioterapi datang setiap minggu. Lutut saya jauh lebih baik sekarang dan boleh berjalan tanpa sakit. Sangat bersyukur.', rating: 5 },
-      { name: 'Nurse Faridah', role: 'Jururawat Berlesen (SRN) · Selangor', text: 'SenioCare bagi saya ambil kes locum berdekatan rumah. Jadual fleksibel dan bayaran sentiasa tepat masa.', rating: 5 },
+      { name: 'Cik Amy, 42', role: 'Waris · Singapura', text: 'Ayah kena strok tahun lepas. Jururawat dari SenioCare sangat profesional, lembut dan sentiasa bagi kemas kini. Berbaloi.', rating: 5, initials: 'CA' },
+      { name: 'Puan Zaiton, 71', role: 'Warga Emas · Petaling Jaya', text: 'Ahli fisioterapi datang setiap minggu. Lutut saya jauh lebih baik sekarang dan boleh berjalan tanpa sakit. Sangat bersyukur.', rating: 5, initials: 'PZ' },
+      { name: 'Nurse Faridah', role: 'Jururawat Berlesen (SRN) · Selangor', text: 'SenioCare bagi saya ambil kes locum berdekatan rumah. Jadual fleksibel dan bayaran sentiasa tepat masa.', rating: 5, initials: 'NF' },
     ],
     footer: {
       tagline: 'Penjagaan profesional di rumah untuk warga emas Malaysia.',
@@ -366,19 +366,7 @@ export default async function LandingPage() {
         </section>
 
         {/* FEATURED PROVIDERS */}
-        <section className="py-16 md:py-24 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-900">
-                {isEn ? 'Featured Professionals' : 'Profesional Pilihan'}
-              </h2>
-              <Link href="/search" className="text-sm text-teal-600 font-medium hover:underline flex items-center gap-1">
-                {isEn ? 'View All' : 'Lihat Semua'} <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
-            <FeaturedProviders />
-          </div>
-        </section>
+        <FeaturedProviders />
 
         {/* TESTIMONIALS */}
         <section className="py-16 md:py-24 bg-slate-50">
@@ -394,10 +382,15 @@ export default async function LandingPage() {
                       <Star key={j} className="w-4 h-4 text-amber-400 fill-amber-400" />
                     ))}
                   </div>
-                  <p className="text-slate-700 mb-4 text-sm leading-relaxed">&ldquo;{t.text}&rdquo;</p>
-                  <div>
-                    <div className="font-semibold text-slate-900 text-sm">{t.name}</div>
-                    <div className="text-xs text-slate-500">{t.role}</div>
+                  <p className="text-slate-700 mb-5 text-sm leading-relaxed">&ldquo;{t.text}&rdquo;</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                      {t.initials}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-slate-900 text-sm">{t.name}</div>
+                      <div className="text-xs text-slate-500">{t.role}</div>
+                    </div>
                   </div>
                 </div>
               ))}

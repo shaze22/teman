@@ -43,7 +43,8 @@ function RegisterContent() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-emerald-50 flex flex-col items-center justify-center px-4 py-12 relative">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 via-emerald-400 to-teal-600" />
       <div className="absolute top-4 right-4">
         <LangToggle />
       </div>

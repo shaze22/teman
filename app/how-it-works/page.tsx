@@ -6,6 +6,7 @@ import {
   Heart, Search, Calendar, Star,
   UserCheck, Settings, Bell, Wallet,
   ChevronDown, ArrowRight, Shield, Zap,
+  Stethoscope, CheckCircle, CreditCard, AlertCircle,
 } from 'lucide-react'
 import { useLang } from '@/lib/lang-context'
 
@@ -22,43 +23,51 @@ export default function HowItWorksPage() {
 
   const platformRules = lang === 'en' ? [
     {
-      icon: '🩺',
+      Icon: Stethoscope,
+      color: 'bg-blue-50 text-blue-600',
       title: 'Professional credentials verified',
       desc: 'Locum providers (nurses, physiotherapists, care aides) must submit their professional registration number and certificate. Admin manually verifies before they can accept bookings.',
     },
     {
-      icon: '✅',
+      Icon: CheckCircle,
+      color: 'bg-teal-50 text-teal-600',
       title: 'IC verification for all providers',
       desc: 'Every provider — locum or companion — must pass Gemini AI IC + selfie face-match verification before going live on the platform.',
     },
     {
-      icon: '💳',
+      Icon: CreditCard,
+      color: 'bg-emerald-50 text-emerald-600',
       title: 'Escrow payment protection',
       desc: 'Your payment is held in escrow. Funds are only released to the provider after the session is marked complete. If anything goes wrong, contact support within 24 hours.',
     },
     {
-      icon: '🚫',
+      Icon: AlertCircle,
+      color: 'bg-amber-50 text-amber-600',
       title: 'No medical advice from platform',
       desc: 'SenioCare connects families with professional providers. Providers are independent contractors. The platform does not prescribe treatment or give medical advice. In an emergency, call 999.',
     },
   ] : [
     {
-      icon: '🩺',
+      Icon: Stethoscope,
+      color: 'bg-blue-50 text-blue-600',
       title: 'Sijil profesional disahkan',
       desc: 'Provider locum (jururawat, fisioterapi, pembantu penjagaan) mesti hantar nombor pendaftaran profesional dan sijil. Admin sahkan secara manual sebelum mereka boleh terima booking.',
     },
     {
-      icon: '✅',
+      Icon: CheckCircle,
+      color: 'bg-teal-50 text-teal-600',
       title: 'Pengesahan IC untuk semua provider',
       desc: 'Setiap provider — locum atau companion — mesti lulus pengesahan IC + selfie Gemini AI sebelum profil mereka aktif di platform.',
     },
     {
-      icon: '💳',
+      Icon: CreditCard,
+      color: 'bg-emerald-50 text-emerald-600',
       title: 'Perlindungan bayaran escrow',
       desc: 'Bayaran anda disimpan dalam escrow. Dana hanya dilepaskan kepada provider selepas sesi ditandakan selesai. Jika ada masalah, hubungi sokongan dalam 24 jam.',
     },
     {
-      icon: '🚫',
+      Icon: AlertCircle,
+      color: 'bg-amber-50 text-amber-600',
       title: 'Platform tidak memberi nasihat perubatan',
       desc: 'SenioCare menghubungkan keluarga dengan provider profesional. Provider adalah kontraktor bebas. Platform tidak menetapkan rawatan atau memberi nasihat perubatan. Dalam kecemasan, hubungi 999.',
     },
@@ -246,7 +255,9 @@ export default function HowItWorksPage() {
           <div className="space-y-3">
             {platformRules.map((rule, i) => (
               <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 flex gap-4 shadow-sm">
-                <div className="text-2xl flex-shrink-0">{rule.icon}</div>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${rule.color}`}>
+                  <rule.Icon className="w-5 h-5" />
+                </div>
                 <div>
                   <div className="font-semibold text-gray-900 mb-1">{rule.title}</div>
                   <p className="text-sm text-gray-500 leading-relaxed">{rule.desc}</p>

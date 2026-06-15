@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { Heart, Shield, Globe, Target, ArrowRight, Stethoscope } from 'lucide-react'
+import { Heart, Shield, Globe, Target, ArrowRight, Stethoscope, Activity, Home, Car, PersonStanding } from 'lucide-react'
 import type { Lang } from '@/lib/i18n'
 
 export const metadata: Metadata = {
@@ -113,15 +113,17 @@ export default async function AboutPage() {
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { icon: '🩺', title: en ? 'Locum Nurse' : 'Jururawat Berlesen', desc: en ? 'Home nursing care by LJM-registered nurses' : 'Penjagaan jururawat di rumah oleh jururawat berdaftar LJM' },
-              { icon: '🦾', title: en ? 'Physiotherapy' : 'Fisioterapi', desc: en ? 'Home physio sessions by LFM-registered therapists' : 'Sesi fisio di rumah oleh terapis berdaftar LFM' },
-              { icon: '🏠', title: en ? 'Home Care Aide' : 'Pembantu Penjagaan', desc: en ? 'Certified daily care and assistance' : 'Penjagaan harian bersijil dan bantuan' },
-              { icon: '🚗', title: en ? 'Medical Escort' : 'Pendamping Perubatan', desc: en ? 'Safe accompaniment to hospital and clinic visits' : 'Pendampingan selamat ke hospital dan klinik' },
-              { icon: '🏃', title: en ? 'Riadah Companion' : 'Companion Riadah', desc: en ? 'Wellness walks and light exercise for seniors' : 'Berjalan dan senaman ringan untuk warga emas' },
-              { icon: '🍽️', title: en ? 'Dining Companion' : 'Companion Makan', desc: en ? 'Warm company over meals at restaurants or home' : 'Teman yang mesra semasa makan di restoran atau rumah' },
+              { icon: Stethoscope, color: 'bg-teal-50 text-teal-600', title: en ? 'Locum Nurse' : 'Jururawat Berlesen', desc: en ? 'Home nursing care by LJM-registered nurses' : 'Penjagaan jururawat di rumah oleh jururawat berdaftar LJM' },
+              { icon: Activity, color: 'bg-emerald-50 text-emerald-600', title: en ? 'Physiotherapy' : 'Fisioterapi', desc: en ? 'Home physio sessions by LFM-registered therapists' : 'Sesi fisio di rumah oleh terapis berdaftar LFM' },
+              { icon: Home, color: 'bg-blue-50 text-blue-600', title: en ? 'Home Care Aide' : 'Pembantu Penjagaan', desc: en ? 'Certified daily care and assistance' : 'Penjagaan harian bersijil dan bantuan' },
+              { icon: Car, color: 'bg-purple-50 text-purple-600', title: en ? 'Medical Escort' : 'Pendamping Perubatan', desc: en ? 'Safe accompaniment to hospital and clinic visits' : 'Pendampingan selamat ke hospital dan klinik' },
+              { icon: PersonStanding, color: 'bg-amber-50 text-amber-600', title: en ? 'Riadah Companion' : 'Companion Riadah', desc: en ? 'Wellness walks and light exercise for seniors' : 'Berjalan dan senaman ringan untuk warga emas' },
+              { icon: Heart, color: 'bg-rose-50 text-rose-600', title: en ? 'Dining Companion' : 'Companion Makan', desc: en ? 'Warm company over meals at restaurants or home' : 'Teman yang mesra semasa makan di restoran atau rumah' },
             ].map((s, i) => (
               <div key={i} className="bg-white rounded-2xl border border-gray-100 p-4 flex gap-3">
-                <span className="text-2xl flex-shrink-0">{s.icon}</span>
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}>
+                  <s.icon className="w-4 h-4" />
+                </div>
                 <div>
                   <div className="font-semibold text-gray-900 text-sm mb-0.5">{s.title}</div>
                   <div className="text-xs text-gray-500">{s.desc}</div>
