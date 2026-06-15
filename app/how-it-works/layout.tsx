@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'How It Works',
-  description: 'Learn how SenioCare connects seniors with verified Meal Companions. Simple 3-step booking — search, pay, dine together.',
+  description: 'Learn how SenioCare connects Malaysian families with licensed nurses, physiotherapists, and trained companions for their elderly loved ones.',
 }
 
 export default function HowItWorksLayout({ children }: { children: React.ReactNode }) {
