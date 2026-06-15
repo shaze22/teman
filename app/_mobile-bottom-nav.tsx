@@ -32,7 +32,7 @@ export default function MobileBottomNav({ role }: { role: 'customer' | 'provider
           const active = tab.match ? pathname.startsWith(tab.match) : pathname === tab.href || pathname.startsWith(tab.href)
           return (
             <Link key={tab.href + tab.label} href={tab.href}
-              className={`flex flex-col items-center justify-center gap-1 transition-colors ${active ? 'text-[#6366F1]' : 'text-gray-400 hover:text-gray-600'}`}>
+              className={`flex flex-col items-center justify-center gap-1 transition-colors ${active ? 'text-teal-600' : 'text-gray-400 hover:text-gray-600'}`}>
               <tab.icon className="w-5 h-5" strokeWidth={active ? 2.5 : 1.8} />
               <span className="text-[10px] font-medium">{tab.label}</span>
             </Link>
