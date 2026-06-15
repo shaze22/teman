@@ -22,7 +22,7 @@ function StepDot({ n, current, done }: { n: number; current: number; done: boole
   const past = done || n < current
   return (
     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-      active ? 'bg-[#6366F1] text-white' : past ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-400'
+      active ? 'bg-[#0D9488] text-white' : past ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-400'
     }`}>
       {past && !active ? <Check className="w-4 h-4" /> : n + 1}
     </div>
@@ -258,13 +258,13 @@ export default function RegisterCompanionPage() {
 
   if (done) return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center px-4 text-center">
-      <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mb-6">
-        <ShieldCheck className="w-10 h-10 text-emerald-600" />
+      <div className="w-20 h-20 rounded-full bg-teal-100 flex items-center justify-center mb-6">
+        <ShieldCheck className="w-10 h-10 text-teal-600" />
       </div>
       <h1 className="text-2xl font-bold text-gray-900 mb-2">Selamat Datang, Rakan Teman!</h1>
-      <p className="text-gray-500 max-w-sm mb-8">Akaun anda telah didaftarkan dan IC telah disahkan. Mulakan perjalanan anda sebagai Rakan Teman SenioCare.</p>
+      <p className="text-gray-500 max-w-sm mb-8">Akaun anda telah didaftarkan dan IC telah disahkan. Mulakan perjalanan anda sebagai Companion SenioCare.</p>
       <Link href="/dashboard/provider"
-        className="inline-flex items-center gap-2 bg-[#6366F1] text-white font-semibold px-8 py-3 rounded-full hover:bg-[#4F46E5] transition-colors">
+        className="inline-flex items-center gap-2 bg-[#0D9488] text-white font-semibold px-8 py-3 rounded-full hover:bg-[#0F766E] transition-colors">
         Pergi ke Dashboard <ChevronRight className="w-4 h-4" />
       </Link>
     </div>
@@ -277,8 +277,8 @@ export default function RegisterCompanionPage() {
         {/* Header */}
         <div className="flex items-center justify-center gap-2 mb-8">
           <Link href="/" className="flex items-center gap-2">
-            <Heart className="w-7 h-7 text-[#6366F1]" fill="currentColor" />
-            <span className="text-xl font-bold text-[#6366F1]">SenioCare</span>
+            <Heart className="w-7 h-7 text-[#0D9488]" fill="currentColor" />
+            <span className="text-xl font-bold text-[#0D9488]">SenioCare</span>
           </Link>
         </div>
 
@@ -310,13 +310,13 @@ export default function RegisterCompanionPage() {
               <div>
                 <label className="text-sm font-medium text-gray-700 block mb-1">Tarikh Lahir <span className="text-gray-400">(mestilah 18 tahun ke atas)</span></label>
                 <input type="date" value={dob} onChange={e => setDob(e.target.value)} max={new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]/30" />
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]/30" />
                 {dob && !isAdult() && <p className="text-xs text-red-500 mt-1">Anda mesti berumur 18 tahun ke atas.</p>}
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700 block mb-1">Negeri</label>
                 <select value={locationState} onChange={e => setLocationState(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]/30">
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]/30">
                   <option value="">Pilih negeri...</option>
                   {STATES.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -333,7 +333,7 @@ export default function RegisterCompanionPage() {
                     onChange={e => { setReferralCode(e.target.value.toUpperCase()); setReferralValid(null) }}
                     placeholder="Contoh: AB1CD234"
                     maxLength={10}
-                    className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]/30 font-mono tracking-widest uppercase"
+                    className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]/30 font-mono tracking-widest uppercase"
                   />
                   {referralCode && (
                     <button
@@ -342,7 +342,7 @@ export default function RegisterCompanionPage() {
                         const res = await fetch(`/api/referral/check?code=${referralCode}`)
                         setReferralValid(res.ok)
                       }}
-                      className="px-3 py-2 text-xs bg-[#EEF2FF] text-[#6366F1] rounded-xl font-medium hover:bg-[#E0E7FF] transition-colors"
+                      className="px-3 py-2 text-xs bg-teal-50 text-[#0D9488] rounded-xl font-medium hover:bg-teal-100 transition-colors"
                     >
                       Semak
                     </button>
@@ -377,7 +377,7 @@ export default function RegisterCompanionPage() {
                     <div className="bg-red-50 border border-red-100 rounded-xl p-4 text-center">
                       <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
                       <p className="text-sm text-red-600 mb-3">{cameraError}</p>
-                      <button onClick={startCamera} className="text-sm text-[#6366F1] underline">Cuba semula</button>
+                      <button onClick={startCamera} className="text-sm text-[#0D9488] underline">Cuba semula</button>
                     </div>
                   ) : (
                     <>
@@ -385,7 +385,7 @@ export default function RegisterCompanionPage() {
                         className="w-full rounded-xl bg-black aspect-[4/3] object-cover" />
                       <canvas ref={canvasRef} className="hidden" />
                       <button onClick={capturePhoto} disabled={!cameraReady}
-                        className="mt-3 w-full flex items-center justify-center gap-2 bg-[#6366F1] text-white font-semibold py-3 rounded-xl hover:bg-[#4F46E5] disabled:opacity-50 transition-colors">
+                        className="mt-3 w-full flex items-center justify-center gap-2 bg-[#0D9488] text-white font-semibold py-3 rounded-xl hover:bg-[#0F766E] disabled:opacity-50 transition-colors">
                         <Camera className="w-5 h-5" /> Ambil Gambar
                       </button>
                     </>
@@ -410,7 +410,7 @@ export default function RegisterCompanionPage() {
 
               {verifyStatus === 'loading' && (
                 <div>
-                  <Loader2 className="w-12 h-12 text-[#6366F1] animate-spin mx-auto mb-3" />
+                  <Loader2 className="w-12 h-12 text-[#0D9488] animate-spin mx-auto mb-3" />
                   <p className="text-gray-600 font-medium">Sedang mengesahkan identiti anda...</p>
                   <p className="text-xs text-gray-400 mt-1">AI sedang membandingkan muka dalam IC dengan selfie anda</p>
                 </div>
@@ -445,7 +445,7 @@ export default function RegisterCompanionPage() {
                     </button>
                   </div>
                   <button onClick={() => { setVerifyStatus('idle'); runVerify() }}
-                    className="mt-2 text-xs text-[#6366F1] underline">
+                    className="mt-2 text-xs text-[#0D9488] underline">
                     Cuba semula dengan gambar yang sama
                   </button>
                 </div>
@@ -464,14 +464,14 @@ export default function RegisterCompanionPage() {
               </div>
 
               {[
-                { state: consent1, set: setConsent1, text: 'Saya faham bahawa SenioCare adalah platform teman makan dan penjagaan warga emas. Saya TIDAK akan menawarkan sebarang perkhidmatan yang menyalahi undang-undang Malaysia.' },
+                { state: consent1, set: setConsent1, text: 'Saya faham bahawa SenioCare adalah platform companion untuk warga emas Malaysia. Saya TIDAK akan menawarkan sebarang perkhidmatan yang menyalahi undang-undang Malaysia.' },
                 { state: consent2, set: setConsent2, text: 'Saya TIDAK akan menawarkan perkhidmatan yang tidak senonoh, tidak bermoral, atau bertentangan dengan nilai dan budaya Malaysia.' },
-                { state: consent3, set: setConsent3, text: 'Saya faham bahawa sebagai Meal Companion, saya WAJIB makan bersama pelanggan semasa sesi di restoran. Kos makan saya ditanggung oleh pelanggan terus di restoran. Sesi MESTI diadakan di restoran yang ada perkhidmatan waiter (bukan buffet, nasi campur atau fast food).' },
+                { state: consent3, set: setConsent3, text: 'Saya faham bahawa SenioCare adalah platform penghubung sahaja dan tidak memberi nasihat perubatan. Saya berperanan sebagai teman kepada warga emas, bukan penjaga kesihatan berlesen.' },
                 { state: consent4, set: setConsent4, text: 'Saya bersetuju dengan Terma Perkhidmatan dan Dasar Privasi SenioCare.' },
                 { state: consent5, set: setConsent5, text: 'Saya mengesahkan bahawa semua maklumat yang diberikan adalah benar dan IC yang dimuat naik adalah milik saya sendiri.' },
               ].map((c, i) => (
                 <label key={i} className="flex items-start gap-3 cursor-pointer group">
-                  <div className={`w-5 h-5 rounded flex-shrink-0 mt-0.5 border-2 flex items-center justify-center transition-colors ${c.state ? 'bg-[#6366F1] border-[#6366F1]' : 'border-gray-300 group-hover:border-[#6366F1]'}`}
+                  <div className={`w-5 h-5 rounded flex-shrink-0 mt-0.5 border-2 flex items-center justify-center transition-colors ${c.state ? 'bg-[#0D9488] border-[#0D9488]' : 'border-gray-300 group-hover:border-teal-500'}`}
                     onClick={() => c.set(!c.state)}>
                     {c.state && <Check className="w-3 h-3 text-white" />}
                   </div>
@@ -498,7 +498,7 @@ export default function RegisterCompanionPage() {
 
             {step !== 3 && (
               <button onClick={next} disabled={!canNext() || loading}
-                className="flex items-center gap-2 bg-[#6366F1] text-white font-semibold px-6 py-2.5 rounded-xl hover:bg-[#4F46E5] disabled:opacity-50 transition-colors text-sm">
+                className="flex items-center gap-2 bg-[#0D9488] text-white font-semibold px-6 py-2.5 rounded-xl hover:bg-[#0F766E] disabled:opacity-50 transition-colors text-sm">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                 {step === 4 ? 'Daftar Sekarang' : 'Seterusnya'}
                 {!loading && step !== 4 && <ChevronRight className="w-4 h-4" />}
@@ -516,7 +516,7 @@ export default function RegisterCompanionPage() {
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Sudah ada akaun?{' '}
-          <Link href="/login" className="text-[#6366F1] font-semibold hover:underline">Log Masuk</Link>
+          <Link href="/login" className="text-[#0D9488] font-semibold hover:underline">Log Masuk</Link>
         </p>
       </div>
     </div>
@@ -531,7 +531,7 @@ function Input({ label, value, onChange, placeholder, type = 'text' }: {
     <div>
       <label className="text-sm font-medium text-gray-700 block mb-1">{label}</label>
       <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]/30" />
+        className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]/30" />
     </div>
   )
 }
@@ -560,9 +560,9 @@ function FileUpload({ label, preview, onFile }: {
         </div>
       ) : (
         <button onClick={() => inputRef.current?.click()}
-          className="w-full border-2 border-dashed border-gray-200 rounded-xl py-8 flex flex-col items-center gap-2 hover:border-[#6366F1] hover:bg-[#EEF2FF]/30 transition-colors group">
-          <Upload className="w-6 h-6 text-gray-400 group-hover:text-[#6366F1]" />
-          <span className="text-sm text-gray-500 group-hover:text-[#6366F1]">Klik untuk muat naik gambar IC</span>
+          className="w-full border-2 border-dashed border-gray-200 rounded-xl py-8 flex flex-col items-center gap-2 hover:border-teal-500 hover:bg-teal-50/30 transition-colors group">
+          <Upload className="w-6 h-6 text-gray-400 group-hover:text-[#0D9488]" />
+          <span className="text-sm text-gray-500 group-hover:text-[#0D9488]">Klik untuk muat naik gambar IC</span>
           <span className="text-xs text-gray-400">JPG, PNG · Maks 5MB</span>
         </button>
       )}

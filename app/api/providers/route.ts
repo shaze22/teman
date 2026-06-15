@@ -3,34 +3,32 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
-  const q = searchParams.get('q')
-  const type = searchParams.get('type')
-  const state = searchParams.get('state')
-  const minPrice = searchParams.get('minPrice')
-  const maxPrice = searchParams.get('maxPrice')
-  const language = searchParams.get('language')
-  const transport = searchParams.get('transport')
-  const skill = searchParams.get('skill')
-  const bangsa = searchParams.get('bangsa')
-  const ageRange = searchParams.get('ageRange')
-  const verified = searchParams.get('verified') === '1'
-  const locumOnly = searchParams.get('locum') === '1'
-  const duoOnly = searchParams.get('duo') === '1'
-  const sort = searchParams.get('sort') ?? 'rating'
+  const q          = searchParams.get('q')
+  const type       = searchParams.get('type')       // service type filter
+  const state      = searchParams.get('state')
+  const minPrice   = searchParams.get('minPrice')
+  const maxPrice   = searchParams.get('maxPrice')
+  const language   = searchParams.get('language')
+  const transport  = searchParams.get('transport')
+  const tier       = searchParams.get('tier')       // 'locum' | 'companion'
+  const sort       = searchParams.get('sort') ?? 'rating'
 
-  const orderCol = sort === 'most_booked' ? 'total_bookings' : sort === 'newest' ? 'created_at' : 'rating_avg'
+  const orderCol = sort === 'most_booked' ? 'total_bookings'
+    : sort === 'newest' ? 'created_at'
+    : 'rating_avg'
 
+  // 1. Query provider_profiles joined with users (FK: provider_profiles.user_id → users.id)
   let query = supabaseAdmin
-    .from('single_mother_profiles')
+    .from('provider_profiles')
     .select(`
-      id, location_city, location_state, rating_avg, total_reviews, bio,
-      verified_by_ngo, ic_verified, languages, has_transport, bangsa, age_range,
-      is_locum, locum_verified, locum_cert_type,
-      users!inner(id, full_name, avatar_url),
-      provider_skills(skill_category),
-      provider_pricing(price, pricing_type, service_type, is_active)
+      id, user_id, full_name, location_city, location_state,
+      rating_avg, total_reviews, total_bookings, bio,
+      ic_verified, license_verified, is_available,
+      languages, has_transport,
+      users!user_id(id, full_name, avatar_url, role)
     `)
-    .eq('verified_by_admin', true)
+    .eq('is_active', true)
+    .eq('is_available', true)
     .order(orderCol, { ascending: false })
     .limit(100)
 
@@ -46,151 +44,107 @@ export async function GET(request: NextRequest) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let providers: any[] = raw ?? []
 
+  // 2. Query pricing for all returned profile IDs
+  const profileIds = providers.map((p) => p.id)
+  const { data: allPricing } = profileIds.length
+    ? await supabaseAdmin
+        .from('provider_pricing')
+        .select('profile_id, service_type, price, pricing_type, is_active')
+        .in('profile_id', profileIds)
+        .eq('is_active', true)
+    : { data: [] }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pricingByProfile: Record<string, any[]> = {}
+  for (const pr of allPricing ?? []) {
+    if (!pricingByProfile[pr.profile_id]) pricingByProfile[pr.profile_id] = []
+    pricingByProfile[pr.profile_id].push(pr)
+  }
+
+  // 3. Attach pricing
+  providers = providers.map((p) => ({ ...p, _pricing: pricingByProfile[p.id] ?? [] }))
+
+  // 4. Apply filters
   if (q) {
     const qLow = q.toLowerCase()
     providers = providers.filter((p) =>
-      p.users.full_name.toLowerCase().includes(qLow) ||
+      (p.full_name ?? p.users?.full_name ?? '').toLowerCase().includes(qLow) ||
       p.location_city?.toLowerCase().includes(qLow) ||
       p.location_state?.toLowerCase().includes(qLow)
     )
   }
 
   if (type && type !== 'all') {
-    providers = providers.filter((p) =>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (p.provider_pricing as any[]).some((pr) => pr.service_type === type && pr.is_active)
-    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    providers = providers.filter((p) => (p._pricing as any[]).some((pr) => pr.service_type === type))
   }
 
   if (minPrice) {
     const min = parseFloat(minPrice)
-    providers = providers.filter((p) =>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (p.provider_pricing as any[]).some((pr) => pr.is_active && parseFloat(pr.price) >= min)
-    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    providers = providers.filter((p) => (p._pricing as any[]).some((pr) => parseFloat(pr.price) >= min))
   }
 
   if (maxPrice) {
     const max = parseFloat(maxPrice)
-    providers = providers.filter((p) =>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (p.provider_pricing as any[]).some((pr) => pr.is_active && parseFloat(pr.price) <= max)
-    )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    providers = providers.filter((p) => (p._pricing as any[]).some((pr) => parseFloat(pr.price) <= max))
   }
 
   if (language) {
-    providers = providers.filter((p) =>
-      Array.isArray(p.languages) && p.languages.includes(language)
-    )
+    providers = providers.filter((p) => Array.isArray(p.languages) && p.languages.includes(language))
   }
 
   if (transport && transport !== 'all') {
     providers = providers.filter((p) => p.has_transport === transport)
   }
 
-  if (skill) {
-    providers = providers.filter((p) =>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (p.provider_skills as any[]).some((s) => s.skill_category === skill)
-    )
+  // Tier filter: locum = license_verified required; companion = ic_verified only
+  if (tier === 'locum') {
+    providers = providers.filter((p) => {
+      const role = p.users?.role ?? ''
+      return ['locum_nurse', 'locum_physio', 'locum_care_aide', 'medical_escort'].includes(role)
+    })
+  } else if (tier === 'companion') {
+    providers = providers.filter((p) => p.users?.role === 'companion')
   }
-
-  if (bangsa) {
-    providers = providers.filter((p) => p.bangsa === bangsa)
-  }
-
-  if (ageRange) {
-    providers = providers.filter((p) => p.age_range === ageRange)
-  }
-
-  if (verified) {
-    providers = providers.filter((p) => p.verified_by_ngo || p.ic_verified)
-  }
-
-  if (locumOnly) {
-    providers = providers.filter((p) => p.is_locum && p.locum_verified)
-  }
-
-  // Duo filter applied after duo pair lookup below
 
   if (sort === 'price_asc') {
     providers.sort((a, b) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const minA = Math.min(...(a.provider_pricing as any[]).filter((p: any) => p.is_active).map((p: any) => parseFloat(p.price)))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const minB = Math.min(...(b.provider_pricing as any[]).filter((p: any) => p.is_active).map((p: any) => parseFloat(p.price)))
+      const minA = Math.min(...a._pricing.map((pr: { price: string }) => parseFloat(pr.price)), Infinity)
+      const minB = Math.min(...b._pricing.map((pr: { price: string }) => parseFloat(pr.price)), Infinity)
       return minA - minB
     })
   }
 
-  // Fetch duo pairs for all provider user IDs in one batch
-  const allUserIds = providers.map((p) => p.users.id as string)
-  const { data: allDuoPairs } = allUserIds.length
-    ? await supabaseAdmin
-        .from('companion_pairs')
-        .select('requester_id, partner_id')
-        .or(allUserIds.map((id) => `requester_id.eq.${id},partner_id.eq.${id}`).join(','))
-        .eq('status', 'active')
-    : { data: [] }
-
-  const hasDuoSet = new Set<string>()
-  for (const pair of allDuoPairs ?? []) {
-    hasDuoSet.add(pair.requester_id)
-    hasDuoSet.add(pair.partner_id)
-  }
-
-  if (duoOnly) {
-    providers = providers.filter((p) => hasDuoSet.has(p.users.id as string))
-  }
-
   const sliced = providers.slice(0, 50)
 
-  // Build duo partner ID map from the already-fetched pairs
-  const duoPartnerIdMap: Record<string, string> = {}
-  for (const pair of allDuoPairs ?? []) {
-    duoPartnerIdMap[pair.requester_id] = pair.partner_id
-    duoPartnerIdMap[pair.partner_id] = pair.requester_id
-  }
-
-  const partnerUserIds = [...new Set(Object.values(duoPartnerIdMap))]
-  const { data: partnerUsers } = partnerUserIds.length
-    ? await supabaseAdmin.from('users').select('id, full_name, avatar_url').in('id', partnerUserIds)
-    : { data: [] }
-  const partnerUserMap = Object.fromEntries((partnerUsers ?? []).map((u) => [u.id, u]))
-
   const formatted = sliced.map((p) => {
-    const userId = p.users.id as string
-    const duoPartnerId = duoPartnerIdMap[userId] ?? null
-    const duoPartnerUser = duoPartnerId ? partnerUserMap[duoPartnerId] : null
+    const user = p.users ?? {}
+    const pricing = p._pricing ?? []
+    const lowestPrice = pricing.length
+      ? Math.min(...pricing.map((pr: { price: string }) => parseFloat(pr.price)))
+      : null
+
     return {
       id: p.id,
-      userId,
-      fullName: p.users.full_name as string,
-      avatarUrl: p.users.avatar_url as string | null,
-      locationCity: p.location_city as string,
-      locationState: p.location_state as string,
-      ratingAvg: String(p.rating_avg),
-      totalReviews: p.total_reviews as number,
-      bio: p.bio as string | null,
-      verifiedByNgo: p.verified_by_ngo as boolean,
-      icVerified: p.ic_verified as boolean,
-      isLocum: p.is_locum as boolean ?? false,
-      locumVerified: p.locum_verified as boolean ?? false,
-      locumCertType: p.locum_cert_type as string | null,
-      bangsa: p.bangsa as string | null,
-      ageRange: p.age_range as string | null,
-      hasDuo: !!duoPartnerId,
-      duoPartner: duoPartnerUser ? {
-        id: duoPartnerId,
-        fullName: duoPartnerUser.full_name,
-        avatarUrl: duoPartnerUser.avatar_url,
-      } : null,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      skills: (p.provider_skills as any[]).map((s) => ({ skillCategory: s.skill_category })),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      pricing: (p.provider_pricing as any[])
-        .filter((pr) => pr.is_active)
-        .map((pr) => ({ price: String(pr.price), pricingType: pr.pricing_type, serviceType: pr.service_type })),
+      userId: user.id ?? p.user_id,
+      fullName: p.full_name ?? user.full_name ?? '',
+      avatarUrl: user.avatar_url ?? null,
+      locationCity: p.location_city ?? '',
+      locationState: p.location_state ?? '',
+      ratingAvg: String(p.rating_avg ?? '0'),
+      totalReviews: p.total_reviews ?? 0,
+      bio: p.bio ?? null,
+      icVerified: p.ic_verified ?? false,
+      licenseVerified: p.license_verified ?? false,
+      role: user.role ?? null,
+      lowestPrice,
+      pricing: pricing.map((pr: { price: string; pricing_type: string; service_type: string }) => ({
+        price: String(pr.price),
+        pricingType: pr.pricing_type,
+        serviceType: pr.service_type,
+      })),
     }
   })
 

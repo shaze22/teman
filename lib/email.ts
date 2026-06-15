@@ -284,3 +284,29 @@ export function sendRescheduleResponse(opts: {
   `)
   return sendEmail(opts.to, `${opts.accepted ? '✅' : '❌'} Tukar Jadual #${opts.bookingCode}`, html)
 }
+
+export function sendLicenseApproved(opts: { to: string; providerName: string; licenseNumber: string }) {
+  const html = base(`
+    <h2 style="color:#111827;margin:0 0 8px">Sijil Anda Telah Diluluskan! ✅</h2>
+    <p style="color:#6B7280;margin:0 0 16px">Tahniah ${opts.providerName}! Sijil profesional anda telah disahkan oleh admin SenioCare.</p>
+    <p style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px;color:#166534;font-size:13px;margin:0 0 20px">
+      Nombor Pendaftaran: <strong>${opts.licenseNumber}</strong><br/>
+      Anda kini boleh menerima tempahan daripada keluarga warga emas.
+    </p>
+    ${btn(`${APP_URL}/dashboard/provider`, 'Pergi ke Dashboard', '#0d9488')}
+  `)
+  return sendEmail(opts.to, '✅ Sijil Profesional Anda Diluluskan — SenioCare', html)
+}
+
+export function sendLicenseRejected(opts: { to: string; providerName: string; reason: string }) {
+  const html = base(`
+    <h2 style="color:#111827;margin:0 0 8px">Semakan Sijil Memerlukan Tindakan</h2>
+    <p style="color:#6B7280;margin:0 0 16px">Hai ${opts.providerName}, sijil anda memerlukan semakan lanjut.</p>
+    <p style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px;color:#991B1B;font-size:13px;margin:0 0 20px">
+      <strong>Sebab:</strong> ${opts.reason}
+    </p>
+    <p style="color:#6B7280;font-size:13px">Sila kemaskini maklumat sijil anda dan hantar semula. Jika ada soalan, hubungi support@seniocare.app</p>
+    ${btn(`${APP_URL}/dashboard/provider/profile`, 'Kemaskini Profil', '#0d9488')}
+  `)
+  return sendEmail(opts.to, 'Tindakan Diperlukan — Semakan Sijil SenioCare', html)
+}
