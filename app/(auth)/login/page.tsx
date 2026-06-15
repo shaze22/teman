@@ -117,7 +117,7 @@ function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
             placeholder="email@example.com"
           />
         </div>
@@ -127,7 +127,7 @@ function LoginForm() {
             <label className="block text-sm font-medium text-gray-700">
               {t.login.password}
             </label>
-            <Link href="/forgot-password" className="text-xs text-[#6366F1] hover:underline">
+            <Link href="/forgot-password" className="text-xs text-teal-600 hover:underline">
               {t.login.forgotPw}
             </Link>
           </div>
@@ -137,7 +137,7 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all"
+              className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
               placeholder="••••••••"
             />
             <button
@@ -153,7 +153,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#6366F1] text-white font-semibold py-3 rounded-xl hover:bg-[#4F46E5] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full bg-teal-600 text-white font-semibold py-3 rounded-xl hover:bg-teal-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
           {t.login.submit}
@@ -162,7 +162,7 @@ function LoginForm() {
 
       <p className="text-center text-sm text-gray-500 mt-6">
         {t.login.noAccount}{' '}
-        <Link href="/register" className="text-[#6366F1] font-semibold hover:underline">
+        <Link href="/register" className="text-teal-600 font-semibold hover:underline">
           {t.login.registerNow}
         </Link>
       </p>
@@ -184,8 +184,8 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="flex items-center justify-center mb-8">
           <Link href="/" className="flex items-center gap-2">
-            <Heart className="w-8 h-8 text-[#6366F1]" fill="currentColor" />
-            <span className="text-2xl font-bold text-[#6366F1]">SenioCare</span>
+            <Heart className="w-8 h-8 text-teal-600" fill="currentColor" />
+            <span className="text-2xl font-bold text-teal-600">SenioCare</span>
           </Link>
         </div>
         <LoginForm />

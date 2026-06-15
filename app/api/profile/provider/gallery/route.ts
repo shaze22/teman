@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ message: 'Perlu log masuk' }, { status: 401 })
 
   const { data: profile } = await supabaseAdmin
-    .from('single_mother_profiles').select('id').eq('user_id', user.id).single()
+    .from('provider_profiles').select('id').eq('user_id', user.id).maybeSingle()
   if (!profile) return NextResponse.json({ message: 'Profil tidak dijumpai' }, { status: 404 })
 
   const formData = await request.formData()
@@ -46,14 +46,13 @@ export async function DELETE(request: NextRequest) {
   const { id } = await request.json()
 
   const { data: profile } = await supabaseAdmin
-    .from('single_mother_profiles').select('id').eq('user_id', user.id).single()
+    .from('provider_profiles').select('id').eq('user_id', user.id).maybeSingle()
   if (!profile) return NextResponse.json({ message: 'Profil tidak dijumpai' }, { status: 404 })
 
   const { data: photo } = await supabaseAdmin
     .from('provider_portfolios').select('id, image_url').eq('id', id).eq('profile_id', profile.id).single()
   if (!photo) return NextResponse.json({ message: 'Foto tidak dijumpai' }, { status: 404 })
 
-  // Delete from storage
   const path = photo.image_url.split('/portfolio/')[1]
   if (path) await supabaseAdmin.storage.from('portfolio').remove([path])
 

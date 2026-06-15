@@ -1,142 +1,121 @@
 import { notFound } from 'next/navigation'
-import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import Image from 'next/image'
-import { Heart, Star, MapPin, Clock, CheckCircle, MessageCircle, ArrowLeft, Building2, Users } from 'lucide-react'
+import { Heart, Star, MapPin, Clock, CheckCircle, MessageCircle, ArrowLeft, ShieldCheck, Stethoscope, AlertTriangle } from 'lucide-react'
 import BookingButton from './_booking-button'
 import FavoriteButton from './_favorite-button'
 import ShareButton from './_share-button'
 import { SERVICE_SCOPE } from '@/lib/services'
 import ServiceScopeModal from './_service-scope-modal'
-import { translations, type Lang } from '@/lib/i18n'
+
+const ROLE_BADGE: Record<string, { label: string; color: string }> = {
+  locum_nurse:     { label: 'Jururawat Berlesen', color: 'bg-blue-100 text-blue-700' },
+  locum_physio:    { label: 'Fisioterapi Berdaftar', color: 'bg-purple-100 text-purple-700' },
+  locum_care_aide: { label: 'Pembantu Penjagaan', color: 'bg-orange-100 text-orange-700' },
+  medical_escort:  { label: 'Pendamping Perubatan', color: 'bg-red-100 text-red-700' },
+  companion:       { label: 'Companion', color: 'bg-teal-100 text-teal-700' },
+}
+
+const LOCUM_ROLES = ['locum_nurse', 'locum_physio', 'locum_care_aide']
+
+const DAY_NAMES = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu']
+
+const PRICING_LABELS: Record<string, string> = {
+  per_hour: 'jam',
+  per_session: 'sesi',
+  per_day: 'hari',
+  per_task: 'tugas',
+  per_meal: 'hidangan',
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const { data } = await supabaseAdmin
-    .from('single_mother_profiles')
-    .select('location_city, users!inner(full_name)')
+    .from('provider_profiles')
+    .select('full_name, location_city, users!user_id(role)')
     .eq('id', id)
-    .single()
-  if (!data) return { title: 'Companion not found | SenioCare' }
+    .maybeSingle()
+  if (!data) return { title: 'Provider tidak dijumpai | SenioCare' }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const name = (data.users as any).full_name as string
+  const role = (data.users as any)?.role as string ?? 'companion'
+  const badge = ROLE_BADGE[role]
+  const name = data.full_name ?? 'Provider'
   return {
-    title: `${name} | Meal Companion in ${data.location_city} | SenioCare`,
-    description: `Book ${name.split(' ')[0]}, a verified Meal Companion in ${data.location_city}. Dine together with your elderly loved one.`,
+    title: `${name} | ${badge?.label ?? 'Provider'} in ${data.location_city} | SenioCare`,
+    description: `Tempah ${name.split(' ')[0]}, ${badge?.label ?? 'provider'} disahkan di ${data.location_city}. Perkhidmatan penjagaan warga emas profesional.`,
   }
 }
 
-export default async function TemanProfilePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CarerProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const cookieStore = await cookies()
-  const lang = (cookieStore.get('lang')?.value ?? 'en') as Lang
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const isLoggedIn = !!user
-  const t = translations[lang]
-
-  const bd = t.bookingDetail
-  const SERVICE_LABELS: Record<string, string> = {
-    job: bd.serviceJob, food: bd.serviceFood, learning: bd.serviceLearning,
-    business: bd.serviceBusiness, ibadah: bd.serviceIbadah, repair: bd.serviceRepair,
-    riadah: bd.serviceRiadah, kombo: bd.serviceKombo,
-    medical_care: lang === 'en' ? 'Medical Care' : 'Penjagaan Perubatan',
-  }
-
-  const PRICING_LABELS: Record<string, string> = lang === 'en'
-    ? { per_hour: 'hr', per_session: 'session', per_day: 'day', per_task: 'task', per_meal: 'meal' }
-    : { per_hour: 'jam', per_session: 'sesi', per_day: 'hari', per_task: 'tugas', per_meal: 'hidangan' }
-
-  const dayNames = lang === 'en'
-    ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    : ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu']
 
   const { data: raw } = await supabaseAdmin
-    .from('single_mother_profiles')
+    .from('provider_profiles')
     .select(`
-      id, user_id, bio, location_city, location_state, rating_avg, total_reviews, total_bookings,
-      verified_by_ngo, verified_by_admin, ic_verified, ngo_id,
-      is_locum, locum_verified, locum_cert_type,
-      users!inner(full_name, avatar_url, created_at),
-      provider_skills(*),
-      provider_pricing(*),
-      provider_availabilities(*),
-      provider_portfolios(*)
+      id, user_id, full_name, bio, location_city, location_state, languages, has_transport,
+      rating_avg, total_reviews, total_bookings,
+      ic_verified, license_verified,
+      is_available, is_active,
+      users!user_id(full_name, avatar_url, role, created_at)
     `)
     .eq('id', id)
-    .single()
-
-  if (!raw) notFound()
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ngoId = (raw as any).ngo_id as string | null
-  let ngoName: string | null = null
-  if (ngoId) {
-    const { data: ngoData } = await supabaseAdmin
-      .from('ngos')
-      .select('name')
-      .eq('id', ngoId)
-      .eq('status', 'active')
-      .single()
-    ngoName = ngoData?.name ?? null
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const u = (raw as any).users as { full_name: string; avatar_url: string | null; created_at: string }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const skills = ((raw as any).provider_skills ?? []) as Array<{ id: string; skill_category: string }>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pricing = ((raw as any).provider_pricing ?? []).filter((p: any) => p.is_active && p.service_type === 'food') as Array<{ id: string; service_type: string; pricing_type: string; price: number }>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const availabilities = ((raw as any).provider_availabilities ?? []) as Array<{ id: string; day_of_week: number; start_time: string; end_time: string; is_available: boolean }>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const portfolio = ((raw as any).provider_portfolios ?? []) as Array<{ id: string; image_url: string; title: string | null }>
-
-  // Duo pair info
-  const { data: duoPair } = await supabaseAdmin
-    .from('companion_pairs')
-    .select('requester_id, partner_id')
-    .or(`requester_id.eq.${raw.user_id},partner_id.eq.${raw.user_id}`)
-    .eq('status', 'active')
     .maybeSingle()
 
-  let duoPartner: { fullName: string; avatarUrl: string | null; locationCity: string; price: number | null } | null = null
-  if (duoPair) {
-    const partnerId = duoPair.requester_id === raw.user_id ? duoPair.partner_id : duoPair.requester_id
-    const [pu, pp] = await Promise.all([
-      supabaseAdmin.from('users').select('full_name, avatar_url').eq('id', partnerId).single(),
-      supabaseAdmin.from('single_mother_profiles').select('location_city, provider_pricing(price, is_active, service_type)').eq('user_id', partnerId).single(),
-    ])
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const partnerFoodPrice = (pp.data?.provider_pricing as any[])?.find((pr) => pr.service_type === 'food' && pr.is_active)
-    duoPartner = {
-      fullName: pu.data?.full_name ?? '',
-      avatarUrl: pu.data?.avatar_url ?? null,
-      locationCity: pp.data?.location_city ?? '',
-      price: partnerFoodPrice ? parseFloat(partnerFoodPrice.price) : null,
-    }
-  }
-
-  const { data: rawReviews } = await supabaseAdmin
-    .from('reviews')
-    .select('id, rating, comment, created_at, reviewer:users!reviews_reviewer_id_fkey(full_name, avatar_url)')
-    .eq('reviewee_id', raw.user_id)
-    .eq('is_public', true)
-    .order('created_at', { ascending: false })
-    .limit(10)
+  if (!raw || !raw.is_active) notFound()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const u = (raw as any).users as { full_name: string; avatar_url: string | null; role: string; created_at: string }
+  const providerRole = u?.role ?? 'companion'
+  const badge = ROLE_BADGE[providerRole]
+  const isLocumPro = LOCUM_ROLES.includes(providerRole)
+  const displayName = raw.full_name ?? u?.full_name ?? ''
+
+  // Fetch ancillary data in parallel
+  const [{ data: rawPricing }, { data: rawAvail }, { data: rawPortfolio }, { data: rawReviews }] = await Promise.all([
+    supabaseAdmin.from('provider_pricing').select('id, service_type, pricing_type, price').eq('profile_id', id).eq('is_active', true),
+    supabaseAdmin.from('provider_availabilities').select('id, day_of_week, start_time, end_time, is_available').eq('profile_id', id),
+    supabaseAdmin.from('provider_portfolios').select('id, image_url, title').eq('profile_id', id),
+    supabaseAdmin.from('reviews')
+      .select('id, rating, comment, created_at, reviewer:users!reviews_reviewer_id_fkey(full_name, avatar_url)')
+      .eq('reviewee_id', raw.user_id)
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .limit(10),
+  ])
+
+  const pricing = (rawPricing ?? []) as Array<{ id: string; service_type: string; pricing_type: string; price: number }>
+  const availabilities = (rawAvail ?? []) as Array<{ id: string; day_of_week: number; start_time: string; end_time: string; is_available: boolean }>
+  const portfolio = (rawPortfolio ?? []) as Array<{ id: string; image_url: string; title: string | null }>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const reviews = (rawReviews ?? []).map((r: any) => ({
-    id: r.id,
+    id: r.id as string,
     rating: r.rating as number,
     comment: r.comment as string | null,
     createdAt: r.created_at as string,
     reviewer: { fullName: r.reviewer?.full_name ?? '', avatarUrl: r.reviewer?.avatar_url ?? null },
   }))
 
-  const initials = u.full_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+  const SERVICE_LABELS: Record<string, string> = {
+    nursing: 'Jururawat Berlesen',
+    physiotherapy: 'Fisioterapi',
+    home_care: 'Pembantu Penjagaan',
+    medical_escort: 'Pendamping Perubatan',
+    riadah: 'Riadah Bersama',
+    ibadah: 'Ibadah Bersama',
+    makan: 'Makan Bersama',
+  }
+
+  const scopeForModal = Object.fromEntries(
+    Object.entries(SERVICE_SCOPE).map(([k, v]) => [k, { desc: v.desc, items: v.items }])
+  )
+
+  const initials = displayName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+  const ratingVal = parseFloat(String(raw.rating_avg ?? 0))
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -146,173 +125,145 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </Link>
           <Link href="/" className="flex items-center gap-1.5">
-            <Heart className="w-5 h-5 text-[#6366F1]" fill="currentColor" />
-            <span className="font-bold text-[#6366F1]">SenioCare</span>
+            <Heart className="w-5 h-5 text-teal-600" fill="currentColor" />
+            <span className="font-bold text-teal-600">SenioCare</span>
           </Link>
         </div>
       </nav>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Medical disclaimer for locum professionals */}
+        {isLocumPro && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 flex items-start gap-3 mb-6">
+            <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <span>SenioCare adalah platform penghubung sahaja dan tidak memberi nasihat perubatan. Semua provider adalah kontraktor bebas bertauliah. Dalam kecemasan, hubungi <strong>999</strong>.</span>
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             {/* Header card */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <div className="flex gap-4">
-                {u.avatar_url ? (
-                  <Image src={u.avatar_url} alt={u.full_name} width={80} height={80} className="w-20 h-20 rounded-full object-cover flex-shrink-0" />
+                {u?.avatar_url ? (
+                  <Image src={u.avatar_url} alt={displayName} width={80} height={80} className="w-20 h-20 rounded-full object-cover flex-shrink-0" />
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-2xl font-bold flex-shrink-0">
+                  <div className="w-20 h-20 rounded-full bg-teal-600 text-white flex items-center justify-center text-2xl font-bold flex-shrink-0">
                     {initials}
                   </div>
                 )}
-                <div>
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h1 className="text-xl font-bold text-gray-900">{u.full_name}</h1>
-                    {raw.verified_by_ngo && (
-                      <span className="flex items-center gap-1 text-xs bg-[#E0E7FF] text-[#6366F1] px-2 py-1 rounded-full font-medium">
-                        <CheckCircle className="w-3 h-3" /> Verified NGO
-                      </span>
-                    )}
-                    {raw.verified_by_admin && !(raw as any).ic_verified && (
+                    <h1 className="text-xl font-bold text-gray-900">{displayName}</h1>
+                    {raw.license_verified && (
                       <span className="flex items-center gap-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-                        <CheckCircle className="w-3 h-3" /> {lang === 'en' ? 'Verified' : 'Disahkan'}
+                        <ShieldCheck className="w-3 h-3" /> Sijil Disahkan
                       </span>
                     )}
-                    {(raw as any).ic_verified && (
-                      <span className="flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
-                        <CheckCircle className="w-3 h-3" /> IC Verified
-                      </span>
-                    )}
-                    {(raw as any).is_locum && (raw as any).locum_verified && (
+                    {raw.ic_verified && !raw.license_verified && (
                       <span className="flex items-center gap-1 text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded-full font-medium">
-                        🩺 Locum Profesional
-                      </span>
-                    )}
-                    {duoPartner && (
-                      <span className="flex items-center gap-1 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
-                        <Users className="w-3 h-3" /> {lang === 'en' ? 'Duo Available' : 'Duo Tersedia'}
-                      </span>
-                    )}
-                    {ngoName && (
-                      <span className="flex items-center gap-1 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
-                        <Building2 className="w-3 h-3" /> {ngoName}
+                        <CheckCircle className="w-3 h-3" /> IC Disahkan
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-1 text-gray-500 mt-1">
-                    <MapPin className="w-4 h-4" />
+                  <div className="flex items-center gap-1 text-gray-500 mt-1 text-sm">
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
                     <span>{raw.location_city}, {raw.location_state}</span>
                   </div>
                   <div className="flex items-center gap-3 mt-2">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-400" fill="currentColor" />
-                      <span className="font-semibold text-gray-900">
-                        {parseFloat(String(raw.rating_avg)) > 0 ? parseFloat(String(raw.rating_avg)).toFixed(1) : t.profilePage.newLabel}
+                      <span className="font-semibold text-gray-900 text-sm">
+                        {ratingVal > 0 ? ratingVal.toFixed(1) : 'Baru'}
                       </span>
                     </div>
-                    <span className="text-gray-400 text-sm">{raw.total_reviews} {t.search.reviews}</span>
-                    <span className="text-gray-400 text-sm">{raw.total_bookings} {t.profilePage.bookings}</span>
+                    {(raw.total_reviews ?? 0) > 0 && (
+                      <span className="text-gray-400 text-sm">{raw.total_reviews} ulasan</span>
+                    )}
+                    {(raw.total_bookings ?? 0) > 0 && (
+                      <span className="text-gray-400 text-sm">{raw.total_bookings} booking</span>
+                    )}
                   </div>
                 </div>
               </div>
               {raw.bio && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
-                  <p className="text-gray-700 leading-relaxed">{raw.bio}</p>
+                  <p className="text-gray-700 leading-relaxed text-sm">{raw.bio}</p>
                 </div>
               )}
             </div>
 
-            {/* Duo Companion section */}
-            {duoPartner && (
-              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-100">
-                <div className="flex items-center gap-2 mb-4">
-                  <Users className="w-4 h-4 text-purple-600" />
-                  <h2 className="font-semibold text-gray-900">
-                    {lang === 'en' ? 'Duo Companion Available Dine as a Trio!' : 'Duo Companion Tersedia Makan Bertiga!'}
-                  </h2>
-                </div>
-                <p className="text-sm text-gray-600 mb-4">
-                  {lang === 'en'
-                    ? 'Book this companion with their duo partner for a more lively and social dining experience for your senior.'
-                    : 'Tempah companion ini bersama pasangan duo mereka untuk pengalaman makan yang lebih meriah dan sosial untuk warga emas anda.'}
-                </p>
-                <div className="flex items-center gap-3 bg-white rounded-xl p-3 border border-purple-100">
-                  {duoPartner.avatarUrl ? (
-                    <Image src={duoPartner.avatarUrl} alt={duoPartner.fullName} width={40} height={40} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
-                      {duoPartner.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm">{duoPartner.fullName}</p>
-                    <p className="text-xs text-gray-500">{duoPartner.locationCity}</p>
-                  </div>
-                  {duoPartner.price && (
-                    <span className="text-sm font-bold text-purple-700">RM{duoPartner.price}/jam</span>
-                  )}
-                </div>
-                <p className="text-xs text-purple-600 mt-3 font-medium">
-                  {lang === 'en'
-                    ? '✓ Pilih "Duo" semasa booking untuk book mereka berdua.'
-                    : '✓ Select "Duo" during booking to book both of them.'}
-                </p>
-              </div>
-            )}
-
-            {/* Role Badges */}
+            {/* Role & Verification */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h2 className="font-semibold text-gray-900 mb-3">{t.profilePage.skills}</h2>
+              <h2 className="font-semibold text-gray-900 mb-3">Perkhidmatan & Kelayakan</h2>
               <div className="flex flex-wrap gap-2">
-                <span className="bg-[#EEF2FF] text-[#6366F1] border border-[#C7D2FE] px-3 py-1.5 rounded-full text-sm font-medium">
-                  🍽️ Meal Companion
-                </span>
-                {(raw as any).ic_verified && (
-                  <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full text-sm font-medium">
-                    ✓ {lang === 'en' ? 'IC Verified' : 'IC Disahkan'}
+                {badge && (
+                  <span className={`flex items-center gap-1.5 text-sm ${badge.color} px-3 py-1.5 rounded-full font-medium`}>
+                    <Stethoscope className="w-3.5 h-3.5" />
+                    {badge.label}
+                  </span>
+                )}
+                {raw.license_verified && (
+                  <span className="text-sm bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5" /> Sijil Profesional Disahkan
+                  </span>
+                )}
+                {raw.ic_verified && !raw.license_verified && (
+                  <span className="text-sm bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5" /> IC Disahkan
+                  </span>
+                )}
+                {(raw.languages as string[] ?? []).map((lang: string) => (
+                  <span key={lang} className="text-sm bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">
+                    {lang === 'bm' ? 'BM' : lang === 'en' ? 'English' : lang === 'zh' ? 'Mandarin' : lang === 'ta' ? 'Tamil' : lang}
+                  </span>
+                ))}
+                {raw.has_transport && raw.has_transport !== 'none' && (
+                  <span className="text-sm bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">
+                    🚗 {raw.has_transport === 'car' ? 'Ada Kereta' : 'Ada Motorsikal'}
                   </span>
                 )}
               </div>
             </div>
 
             {/* Availability */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="w-4 h-4 text-[#6366F1]" />
-                <h2 className="font-semibold text-gray-900">{t.profilePage.availability}</h2>
-              </div>
-              {availabilities.filter((a) => a.is_available).length > 0 ? (
-                <div className="space-y-3">
-                  {/* Day chips */}
-                  <div className="flex flex-wrap gap-2">
-                    {[0,1,2,3,4,5,6].map(day => {
-                      const avail = availabilities.find(a => a.day_of_week === day && a.is_available)
-                      return (
-                        <span key={day} className={`text-xs px-3 py-1.5 rounded-full font-medium ${avail ? 'bg-[#EEF2FF] text-[#6366F1]' : 'bg-gray-100 text-gray-300'}`}>
-                          {dayNames[day]}
-                        </span>
-                      )
-                    })}
-                  </div>
-                  {/* Time details */}
-                  <div className="space-y-1.5">
-                    {availabilities.filter((a) => a.is_available).map((a) => (
-                      <div key={a.id} className="flex items-center gap-3 text-sm">
-                        <span className="font-medium text-gray-700 w-20">{dayNames[a.day_of_week]}</span>
-                        <span className="text-gray-400">{a.start_time.slice(0,5)} – {a.end_time.slice(0,5)}</span>
-                      </div>
-                    ))}
-                  </div>
+            {availabilities.length > 0 && (
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-2 mb-4">
+                  <Clock className="w-4 h-4 text-teal-600" />
+                  <h2 className="font-semibold text-gray-900">Waktu Tersedia</h2>
                 </div>
-              ) : (
-                <p className="text-sm text-gray-400">{lang === 'en' ? 'Flexible schedule. Confirm your preferred time via chat after booking.' : 'Jadual fleksibel. Sahkan masa pilihan anda melalui chat selepas booking.'}</p>
-              )}
-            </div>
+                {availabilities.filter((a) => a.is_available).length > 0 ? (
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {[0,1,2,3,4,5,6].map(day => {
+                        const avail = availabilities.find(a => a.day_of_week === day && a.is_available)
+                        return (
+                          <span key={day} className={`text-xs px-3 py-1.5 rounded-full font-medium ${avail ? 'bg-teal-50 text-teal-700' : 'bg-gray-100 text-gray-300'}`}>
+                            {DAY_NAMES[day]}
+                          </span>
+                        )
+                      })}
+                    </div>
+                    <div className="space-y-1.5">
+                      {availabilities.filter((a) => a.is_available).map((a) => (
+                        <div key={a.id} className="flex items-center gap-3 text-sm">
+                          <span className="font-medium text-gray-700 w-20">{DAY_NAMES[a.day_of_week]}</span>
+                          <span className="text-gray-400">{a.start_time.slice(0,5)} – {a.end_time.slice(0,5)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400">Jadual fleksibel. Sahkan masa pilihan anda melalui chat selepas booking.</p>
+                )}
+              </div>
+            )}
 
             {/* Portfolio */}
             {portfolio.length > 0 && (
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <h2 className="font-semibold text-gray-900 mb-3">{t.profilePage.portfolio}</h2>
+                <h2 className="font-semibold text-gray-900 mb-3">Galeri</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {portfolio.map((item) => (
                     <div key={item.id} className="aspect-square rounded-xl overflow-hidden bg-gray-100">
@@ -325,9 +276,9 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
 
             {/* Reviews */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h2 className="font-semibold text-gray-900 mb-4">{t.profilePage.reviews} ({raw.total_reviews})</h2>
+              <h2 className="font-semibold text-gray-900 mb-4">Ulasan ({raw.total_reviews ?? 0})</h2>
               {reviews.length === 0 ? (
-                <p className="text-gray-400 text-sm">{t.profilePage.noReviews}</p>
+                <p className="text-gray-400 text-sm">Belum ada ulasan. Jadilah yang pertama booking!</p>
               ) : (
                 <div className="space-y-4">
                   {reviews.map((r) => (
@@ -346,7 +297,7 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
                         </div>
                         {r.comment && <p className="text-sm text-gray-600 mt-0.5">{r.comment}</p>}
                         <p className="text-xs text-gray-400 mt-1">
-                          {new Date(r.createdAt).toLocaleDateString(lang === 'en' ? 'en-MY' : 'ms-MY')}
+                          {new Date(r.createdAt).toLocaleDateString('ms-MY')}
                         </p>
                       </div>
                     </div>
@@ -359,19 +310,28 @@ export default async function TemanProfilePage({ params }: { params: Promise<{ i
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-20 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t.profilePage.pricing}</p>
-              <ServiceScopeModal pricing={pricing} pricingLabels={PRICING_LABELS} serviceLabels={SERVICE_LABELS} serviceScope={SERVICE_SCOPE} />
-              <div className="text-xs text-gray-500 bg-indigo-50 border border-indigo-100 rounded-lg p-3 mb-4">
-                {t.profilePage.feeNote}
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Harga Perkhidmatan</p>
+              {pricing.length > 0 ? (
+                <ServiceScopeModal
+                  pricing={pricing}
+                  pricingLabels={PRICING_LABELS}
+                  serviceLabels={SERVICE_LABELS}
+                  serviceScope={scopeForModal}
+                />
+              ) : (
+                <p className="text-sm text-gray-400 mb-4">Hubungi untuk harga.</p>
+              )}
+              <div className="text-xs text-gray-500 bg-teal-50 border border-teal-100 rounded-lg p-3 mb-4">
+                Harga platform inklusif. Provider terima 80–85% daripada jumlah booking.
               </div>
-              <BookingButton providerId={id} providerName={u.full_name} />
+              <BookingButton providerId={id} providerName={displayName} />
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <FavoriteButton providerId={id} isLoggedIn={isLoggedIn} />
-                <ShareButton providerName={u.full_name} providerId={id} />
+                <ShareButton providerName={displayName} providerId={id} />
               </div>
               <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2 text-sm text-gray-500">
-                <MessageCircle className="w-4 h-4" />
-                <span>{t.profilePage.contactNote}</span>
+                <MessageCircle className="w-4 h-4 flex-shrink-0" />
+                <span>Boleh hubungi provider melalui chat selepas booking.</span>
               </div>
             </div>
           </div>

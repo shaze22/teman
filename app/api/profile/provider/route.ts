@@ -9,17 +9,12 @@ const schema = z.object({
   bio: z.string().optional(),
   locationState: z.string().min(2),
   locationCity: z.string().min(2),
-  locationPostcode: z.string().optional(),
   languages: z.array(z.string()).min(1),
   hasTransport: z.enum(['none', 'motorcycle', 'car']),
-  childrenCount: z.number().int().min(0),
-  canBringChildren: z.boolean(),
-  skills: z.array(z.string()),
-  pricePerHour: z.number().min(0),
-  lat: z.number().optional().nullable(),
-  lng: z.number().optional().nullable(),
-  bangsa: z.string().optional().nullable(),
-  ageRange: z.string().optional().nullable(),
+  pricingUpdates: z.array(z.object({
+    id: z.string(),
+    price: z.number().min(5),
+  })).optional(),
 })
 
 export async function PATCH(request: NextRequest) {
@@ -35,60 +30,32 @@ export async function PATCH(request: NextRequest) {
   const now = new Date().toISOString()
 
   const { data: profile } = await supabaseAdmin
-    .from('single_mother_profiles')
+    .from('provider_profiles')
     .select('id')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
+
   if (!profile) return NextResponse.json({ message: 'Profil tidak dijumpai' }, { status: 404 })
 
   const [userErr, profileErr] = await Promise.all([
     supabaseAdmin.from('users').update({ full_name: data.fullName, phone: data.phone, updated_at: now }).eq('id', user.id).then(r => r.error),
-    supabaseAdmin.from('single_mother_profiles').update({
+    supabaseAdmin.from('provider_profiles').update({
+      full_name: data.fullName,
       bio: data.bio ?? null,
       location_state: data.locationState,
       location_city: data.locationCity,
-      location_postcode: data.locationPostcode ?? null,
       languages: data.languages,
       has_transport: data.hasTransport,
-      children_count: data.childrenCount,
-      can_bring_children: data.canBringChildren,
-      ...(data.lat != null ? { lat: data.lat, lng: data.lng } : {}),
-      bangsa: data.bangsa ?? null,
-      age_range: data.ageRange ?? null,
       updated_at: now,
     }).eq('id', profile.id).then(r => r.error),
   ])
   if (userErr) return NextResponse.json({ message: userErr.message }, { status: 500 })
   if (profileErr) return NextResponse.json({ message: profileErr.message }, { status: 500 })
 
-  // Replace skills
-  await supabaseAdmin.from('provider_skills').delete().eq('profile_id', profile.id)
-  if (data.skills.length > 0) {
-    await supabaseAdmin.from('provider_skills').insert(
-      data.skills.map(s => ({ id: crypto.randomUUID(), profile_id: profile.id, skill_name: s, skill_category: s }))
-    )
-  }
-
-  // Upsert pricing for all service types same base price per hour
-  const ALL_TYPES = ['job', 'food', 'learning', 'business', 'ibadah', 'repair', 'riadah', 'kombo']
-  const { data: existingPricing } = await supabaseAdmin
-    .from('provider_pricing')
-    .select('id, service_type')
-    .eq('profile_id', profile.id)
-
-  const existingMap = Object.fromEntries((existingPricing ?? []).map(p => [p.service_type, p.id]))
-
-  for (const type of ALL_TYPES) {
-    if (existingMap[type]) {
-      await supabaseAdmin.from('provider_pricing')
-        .update({ price: data.pricePerHour, updated_at: now })
-        .eq('id', existingMap[type])
-    } else {
-      await supabaseAdmin.from('provider_pricing').insert({
-        id: crypto.randomUUID(), profile_id: profile.id,
-        service_type: type, pricing_type: 'per_hour',
-        price: data.pricePerHour, is_active: true, updated_at: now,
-      })
+  // Update pricing per service if provided
+  if (data.pricingUpdates?.length) {
+    for (const { id, price } of data.pricingUpdates) {
+      await supabaseAdmin.from('provider_pricing').update({ price, updated_at: now }).eq('id', id).eq('profile_id', profile.id)
     }
   }
 

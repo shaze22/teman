@@ -9,26 +9,26 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
   title: {
-    default: 'SenioCare | Meal Companion for Malaysian Seniors',
+    default: 'SenioCare | Locum & Companion untuk Warga Emas Malaysia',
     template: '%s | SenioCare',
   },
   description:
-    'Connect your elderly loved one with a verified Meal Companion. Dine together at any restaurant — safe, warm, and affordable. Book in minutes.',
-  keywords: ['meal companion', 'senior care', 'elderly companion', 'teman makan', 'warga emas', 'seniocare', 'Malaysia'],
+    'Platform penjagaan warga emas profesional Malaysia. Jururawat berlesen, fisioterapi, pembantu penjagaan & companion terlatih. Tempah dalam minit.',
+  keywords: ['locum jururawat', 'fisioterapi rumah', 'companion warga emas', 'penjagaan warga emas', 'seniocare', 'Malaysia', 'home care'],
   metadataBase: new URL('https://seniocare.app'),
   openGraph: {
     type: 'website',
     locale: 'en_MY',
     url: 'https://seniocare.app',
     siteName: 'SenioCare',
-    title: 'SenioCare | Meal Companion for Malaysian Seniors',
-    description: 'Connect your elderly loved one with a verified Meal Companion. Dine together at any restaurant — safe, warm, and affordable.',
-    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'SenioCare — Meal Companion for Malaysian Seniors' }],
+    title: 'SenioCare | Locum & Companion untuk Warga Emas Malaysia',
+    description: 'Hubungkan keluarga dengan jururawat berlesen, fisioterapi & companion terlatih untuk warga emas. Disahkan. Dipercayai.',
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'SenioCare — Locum & Companion untuk Warga Emas' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SenioCare | Meal Companion for Malaysian Seniors',
-    description: 'Connect your elderly loved one with a verified Meal Companion. Dine together, feel valued.',
+    title: 'SenioCare | Locum & Companion untuk Warga Emas',
+    description: 'Jururawat berlesen, fisioterapi & companion terlatih untuk warga emas Malaysia.',
     images: ['/opengraph-image'],
   },
   manifest: '/manifest.json',
@@ -44,7 +44,7 @@ export default async function RootLayout({
   return (
     <html lang={lang === 'en' ? 'en' : 'ms'} className={`${inter.variable} h-full`}>
       <head>
-        <meta name="theme-color" content="#6366F1" />
+        <meta name="theme-color" content="#0D9488" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body className="min-h-full bg-[#F8FAFC] font-sans antialiased">

@@ -31,12 +31,12 @@ export default function ServiceScopeModal({ pricing, pricingLabels, serviceLabel
                 <button
                   onClick={() => setOpen(p.service_type)}
                   title="Lihat skop perkhidmatan"
-                  className="text-gray-300 hover:text-[#6366F1] transition-colors flex-shrink-0">
+                  className="text-gray-300 hover:text-teal-600 transition-colors flex-shrink-0">
                   <HelpCircle className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
-            <span className="font-bold text-[#6366F1] whitespace-nowrap flex-shrink-0">
+            <span className="font-bold text-teal-600 whitespace-nowrap flex-shrink-0">
               RM{parseFloat(String(p.price)).toFixed(0)}
               <span className="text-xs text-gray-400 font-normal">/{pricingLabels[p.pricing_type] ?? p.pricing_type}</span>
             </span>
@@ -58,13 +58,13 @@ export default function ServiceScopeModal({ pricing, pricingLabels, serviceLabel
             <ul className="space-y-2 mb-5">
               {scope.items.map((item, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                  <span className="text-[#6366F1] font-bold mt-0.5 flex-shrink-0">✓</span>
+                  <span className="text-teal-600 font-bold mt-0.5 flex-shrink-0">✓</span>
                   {item}
                 </li>
               ))}
             </ul>
             <button onClick={() => setOpen(null)}
-              className="w-full py-2.5 bg-[#6366F1] text-white rounded-xl font-medium text-sm hover:bg-[#4F46E5] transition-colors">
+              className="w-full py-2.5 bg-teal-600 text-white rounded-xl font-medium text-sm hover:bg-teal-700 transition-colors">
               {t.bookingPage.scopeClose}
             </button>
           </div>
