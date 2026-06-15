@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { Copy, Check, Users, Gift, Clock } from 'lucide-react'
@@ -69,7 +69,7 @@ export default function ReferralSection({ lang }: { lang: string }) {
       <div className="flex gap-2 mb-4">
         <button
           onClick={copyLink}
-          className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold bg-[#EEF2FF] text-[#6366F1] py-2 rounded-xl hover:bg-[#E0E7FF] transition-colors"
+          className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold bg-[#F0FDFA] text-[#0D9488] py-2 rounded-xl hover:bg-[#CCFBF1] transition-colors"
         >
           {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
           {copied ? (lang === 'en' ? 'Copied!' : 'Disalin!') : (lang === 'en' ? 'Copy Link' : 'Salin Link')}
@@ -87,7 +87,7 @@ export default function ReferralSection({ lang }: { lang: string }) {
       <div className="grid grid-cols-3 gap-2 text-center">
         <div className="bg-[#F8FAFC] rounded-xl py-2.5 px-1">
           <div className="flex items-center justify-center mb-1">
-            <Users className="w-3.5 h-3.5 text-[#6366F1]" />
+            <Users className="w-3.5 h-3.5 text-[#0D9488]" />
           </div>
           <div className="text-lg font-bold text-gray-900">{stats.total}</div>
           <div className="text-xs text-gray-400">{lang === 'en' ? 'Invited' : 'Dijemput'}</div>

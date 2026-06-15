@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { MapPin, Loader2, CheckCircle } from 'lucide-react'
@@ -44,7 +44,7 @@ export default function CheckinSection({ bookingId, isProvider, alreadyCheckedIn
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5">
       <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-        <MapPin className="w-4 h-4 text-[#6366F1]" />
+        <MapPin className="w-4 h-4 text-[#0D9488]" />
         {en ? 'Session Check-In' : 'Check-In Sesi'}
       </h2>
 
@@ -63,7 +63,7 @@ export default function CheckinSection({ bookingId, isProvider, alreadyCheckedIn
           <button
             onClick={handleCheckin}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-[#6366F1] text-white font-semibold py-3 rounded-xl hover:bg-[#4F46E5] transition-colors disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 bg-[#0D9488] text-white font-semibold py-3 rounded-xl hover:bg-[#0F766E] transition-colors disabled:opacity-60"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
             {myLabel}

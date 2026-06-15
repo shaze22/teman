@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -35,7 +35,7 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(diff / 86400)} hari lalu`
 }
 
-export default function NotificationBell({ userId, accentColor = '#6366F1' }: { userId: string; accentColor?: string }) {
+export default function NotificationBell({ userId, accentColor = '#0D9488' }: { userId: string; accentColor?: string }) {
   const router = useRouter()
   const [notifs, setNotifs] = useState<Notif[]>([])
   const [open, setOpen] = useState(false)

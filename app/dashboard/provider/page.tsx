@@ -20,7 +20,7 @@ const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-700',
   confirmed: 'bg-blue-100 text-blue-700',
   in_progress: 'bg-[#FFE4E6] text-[#BE123C]',
-  completed: 'bg-[#E0E7FF] text-[#3730A3]',
+  completed: 'bg-teal-100 text-teal-800',
   cancelled: 'bg-red-100 text-red-700',
 }
 

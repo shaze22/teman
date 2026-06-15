@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation'
+﻿import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
@@ -23,7 +23,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
     pending:     { label: bd.statusPending,     color: 'text-yellow-700 bg-yellow-50 border-yellow-200', icon: AlertCircle },
     confirmed:   { label: bd.statusConfirmed,   color: 'text-blue-700 bg-blue-50 border-blue-200',       icon: CheckCircle },
     in_progress: { label: bd.statusInProgress,  color: 'text-[#BE123C] bg-[#FFF1F2] border-orange-200', icon: Clock },
-    completed:   { label: bd.statusCompleted,   color: 'text-[#3730A3] bg-[#EEF2FF] border-[#C7D2FE]',  icon: CheckCircle },
+    completed:   { label: bd.statusCompleted,   color: 'text-[#134E4A] bg-[#F0FDFA] border-[#99F6E4]',  icon: CheckCircle },
     cancelled:   { label: bd.statusCancelled,   color: 'text-red-700 bg-red-50 border-red-200',          icon: XCircle },
   }
 
@@ -131,8 +131,8 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </Link>
           <Link href="/" className="flex items-center gap-1.5">
-            <Heart className="w-5 h-5 text-[#6366F1]" fill="currentColor" />
-            <span className="font-bold text-[#6366F1]">SenioCare</span>
+            <Heart className="w-5 h-5 text-[#0D9488]" fill="currentColor" />
+            <span className="font-bold text-[#0D9488]">SenioCare</span>
           </Link>
           <span className="text-gray-400 text-sm ml-auto font-mono">{b.booking_code}</span>
         </div>
@@ -154,7 +154,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
             {isCustomer ? bd.yourTeman : bd.customer}
           </h2>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-bold text-lg">
+            <div className="w-12 h-12 rounded-full bg-[#0D9488] text-white flex items-center justify-center font-bold text-lg">
               {isCustomer ? provider.full_name.charAt(0) : customer.full_name.charAt(0)}
             </div>
             <div>
@@ -175,14 +175,14 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
 
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-start gap-2">
-              <Calendar className="w-4 h-4 text-[#6366F1] mt-0.5 flex-shrink-0" />
+              <Calendar className="w-4 h-4 text-[#0D9488] mt-0.5 flex-shrink-0" />
               <div>
                 <div className="text-xs text-gray-500">{bd.dateLabel}</div>
                 <div className="font-medium text-gray-900">{new Date(b.scheduled_date).toLocaleDateString(dateLocale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
               </div>
             </div>
             <div className="flex items-start gap-2">
-              <Clock className="w-4 h-4 text-[#6366F1] mt-0.5 flex-shrink-0" />
+              <Clock className="w-4 h-4 text-[#0D9488] mt-0.5 flex-shrink-0" />
               <div>
                 <div className="text-xs text-gray-500">{bd.timeLabel}</div>
                 <div className="font-medium text-gray-900">{b.start_time}{b.duration_hours ? ` · ${b.duration_hours} ${bd.jam}` : ''}</div>
@@ -191,7 +191,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
           </div>
 
           <div className="flex items-start gap-2">
-            <User className="w-4 h-4 text-[#6366F1] mt-0.5 flex-shrink-0" />
+            <User className="w-4 h-4 text-[#0D9488] mt-0.5 flex-shrink-0" />
             <div>
               <div className="text-xs text-gray-500">{bd.serviceType}</div>
               <div className="font-medium text-gray-900">{SERVICE_LABELS[b.service_type] ?? b.service_type}</div>
@@ -200,7 +200,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
 
           {b.location_address && (
             <div className="flex items-start gap-2">
-              <MapPin className="w-4 h-4 text-[#6366F1] mt-0.5 flex-shrink-0" />
+              <MapPin className="w-4 h-4 text-[#0D9488] mt-0.5 flex-shrink-0" />
               <div>
                 <div className="text-xs text-gray-500">{bd.location}</div>
                 <div className="font-medium text-gray-900">{b.location_address}</div>
@@ -245,11 +245,11 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
             </div>
             <div className="flex justify-between font-bold text-gray-900 pt-2 border-t border-gray-100">
               <span>{bd.total}</span>
-              <span className="text-[#6366F1]">RM{parseFloat(String(b.total_amount)).toFixed(2)}</span>
+              <span className="text-[#0D9488]">RM{parseFloat(String(b.total_amount)).toFixed(2)}</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-3">
-            <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${b.payment_status === 'paid' ? 'bg-[#E0E7FF] text-[#3730A3]' : 'bg-yellow-100 text-yellow-700'}`}>
+            <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${b.payment_status === 'paid' ? 'bg-[#CCFBF1] text-[#134E4A]' : 'bg-yellow-100 text-yellow-700'}`}>
               {b.payment_status === 'paid' ? bd.paid : bd.unpaid}
             </span>
             {b.payment_status === 'paid' && b.status === 'completed' && (
@@ -301,12 +301,12 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
         {isCustomer && (b.status === 'completed' || b.payment_status === 'paid') && (
           <div className="flex gap-3 flex-wrap">
             <a href={`/booking/${b.id}/receipt`} target="_blank" rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-600 py-2.5 rounded-xl text-sm font-medium hover:border-[#6366F1] hover:text-[#6366F1] transition-colors">
+              className="flex-1 flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-600 py-2.5 rounded-xl text-sm font-medium hover:border-[#0D9488] hover:text-[#0D9488] transition-colors">
               🧾 {bd.downloadReceipt}
             </a>
             {providerProfile && (
               <a href={`/book/${providerProfile.id}`}
-                className="flex-1 flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-600 py-2.5 rounded-xl text-sm font-medium hover:border-[#6366F1] hover:text-[#6366F1] transition-colors">
+                className="flex-1 flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-600 py-2.5 rounded-xl text-sm font-medium hover:border-[#0D9488] hover:text-[#0D9488] transition-colors">
                 🔁 {bd.rebookg}
               </a>
             )}
@@ -322,14 +322,14 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
             `Hai ${contactName.split(' ')[0]}! Saya menghubungi berkenaan booking SenioCare #${b.booking_code} pada ${new Date(b.scheduled_date).toLocaleDateString(dateLocale)}. 😊`
           )
           return (
-            <div className="bg-[#6366F1]/10 border border-[#6366F1]/30 rounded-2xl p-5">
-              <h2 className="text-sm font-semibold text-[#6366F1] mb-2 flex items-center gap-2">
+            <div className="bg-[#0D9488]/10 border border-[#0D9488]/30 rounded-2xl p-5">
+              <h2 className="text-sm font-semibold text-[#0D9488] mb-2 flex items-center gap-2">
                 <Phone className="w-4 h-4" /> {isCustomer ? bd.contactTeman : bd.contactCustomer}
               </h2>
               <p className="text-sm text-gray-600 mb-3">{bd.contactDesc}</p>
               <div className="flex flex-wrap gap-2">
                 <a href={`tel:${contactPhone}`}
-                  className="inline-flex items-center gap-2 bg-[#6366F1] text-white px-4 py-2 rounded-xl font-medium text-sm hover:bg-[#4F46E5] transition-colors">
+                  className="inline-flex items-center gap-2 bg-[#0D9488] text-white px-4 py-2 rounded-xl font-medium text-sm hover:bg-[#0F766E] transition-colors">
                   <Phone className="w-4 h-4" />
                   {contactPhone}
                 </a>
@@ -341,7 +341,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
                   WhatsApp
                 </a>
                 <Link href={`/booking/${b.id}/chat`}
-                  className="inline-flex items-center gap-2 border border-[#6366F1] text-[#6366F1] px-4 py-2 rounded-xl font-medium text-sm hover:bg-[#6366F1]/5 transition-colors">
+                  className="inline-flex items-center gap-2 border border-[#0D9488] text-[#0D9488] px-4 py-2 rounded-xl font-medium text-sm hover:bg-[#0D9488]/5 transition-colors">
                   💬 {bd.inAppMsg}
                 </Link>
               </div>
@@ -353,7 +353,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
         {(b.status === 'pending' || b.status === 'completed') && (
           <div className="text-center">
             <Link href={`/booking/${b.id}/chat`}
-              className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#6366F1] transition-colors">
+              className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#0D9488] transition-colors">
               💬 {bd.viewChat}
             </Link>
           </div>

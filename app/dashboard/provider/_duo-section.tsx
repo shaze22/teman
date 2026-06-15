@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
@@ -25,7 +25,7 @@ type Pair = {
 function Avatar({ c, size = 'md' }: { c: Companion; size?: 'sm' | 'md' | 'lg' }) {
   const sz = size === 'lg' ? 'w-16 h-16 text-xl' : size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm'
   const initials = c.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-  const colors = ['bg-[#6366F1]', 'bg-[#F43F5E]', 'bg-emerald-500', 'bg-amber-500', 'bg-purple-500']
+  const colors = ['bg-[#0D9488]', 'bg-[#F43F5E]', 'bg-emerald-500', 'bg-amber-500', 'bg-purple-500']
   const bg = colors[c.fullName.charCodeAt(0) % colors.length]
   return c.avatarUrl
     ? <Image src={c.avatarUrl} alt={c.fullName} width={40} height={40} className={`${sz} rounded-full object-cover flex-shrink-0`} />
@@ -133,8 +133,8 @@ export default function DuoSection({ lang }: { lang: string }) {
       {/* Header */}
       <div className="px-5 pt-5 pb-4 border-b border-gray-50">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[#EEF2FF] flex items-center justify-center">
-            <Users className="w-4 h-4 text-[#6366F1]" />
+          <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] flex items-center justify-center">
+            <Users className="w-4 h-4 text-[#0D9488]" />
           </div>
           <div>
             <h3 className="font-semibold text-gray-900 text-sm">
@@ -225,19 +225,19 @@ export default function DuoSection({ lang }: { lang: string }) {
         {/* PENDING current user is the invited partner */}
         {pair?.status === 'pending' && !pair.isRequester && (
           <div>
-            <div className="flex items-center gap-3 p-3 bg-indigo-50 rounded-xl mb-3">
+            <div className="flex items-center gap-3 p-3 bg-teal-50 rounded-xl mb-3">
               <Avatar c={pair.partner} size="md" />
               <div className="flex-1 min-w-0">
                 <span className="font-semibold text-gray-900 text-sm block truncate">{pair.partner.fullName}</span>
                 <span className="text-xs text-gray-500">{pair.partner.locationCity}, {pair.partner.locationState}</span>
               </div>
             </div>
-            <p className="text-xs font-medium text-indigo-700 mb-3">
+            <p className="text-xs font-medium text-teal-700 mb-3">
               {bm ? 'Anda dijemput untuk jadi pasangan duo!' : 'You have been invited to be a duo companion!'}
             </p>
             <div className="flex gap-2">
               <button onClick={() => respond('accept')} disabled={loading}
-                className="flex-1 flex items-center justify-center gap-1.5 bg-[#6366F1] text-white text-sm font-semibold py-2 rounded-xl hover:bg-[#4F46E5] transition-colors disabled:opacity-50">
+                className="flex-1 flex items-center justify-center gap-1.5 bg-[#0D9488] text-white text-sm font-semibold py-2 rounded-xl hover:bg-[#0F766E] transition-colors disabled:opacity-50">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 {bm ? 'Terima' : 'Accept'}
               </button>
@@ -265,7 +265,7 @@ export default function DuoSection({ lang }: { lang: string }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={bm ? 'Cari nama companion...' : 'Search companion name...'}
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]/30 focus:bg-white transition-all"
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]/30 focus:bg-white transition-all"
               />
               {searching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 animate-spin" />}
             </div>
@@ -285,7 +285,7 @@ export default function DuoSection({ lang }: { lang: string }) {
                     <button
                       onClick={() => sendRequest(c.id)}
                       disabled={loading}
-                      className="flex-shrink-0 text-xs bg-[#6366F1] text-white font-semibold px-3 py-1.5 rounded-lg hover:bg-[#4F46E5] transition-colors disabled:opacity-50">
+                      className="flex-shrink-0 text-xs bg-[#0D9488] text-white font-semibold px-3 py-1.5 rounded-lg hover:bg-[#0F766E] transition-colors disabled:opacity-50">
                       {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (bm ? 'Jemput' : 'Invite')}
                     </button>
                   </div>

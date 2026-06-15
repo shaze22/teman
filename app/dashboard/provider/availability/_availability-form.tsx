@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { Loader2, Save, Plus, Trash2 } from 'lucide-react'
@@ -60,7 +60,7 @@ export default function AvailabilityForm({ profileId, initial }: Props) {
   return (
     <div className="space-y-4">
       {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">{error}</div>}
-      {saved && <div className="bg-[#EEF2FF] border border-[#C7D2FE] text-[#3730A3] text-sm rounded-xl px-4 py-3">Jadual berjaya disimpan!</div>}
+      {saved && <div className="bg-[#F0FDFA] border border-[#99F6E4] text-[#134E4A] text-sm rounded-xl px-4 py-3">Jadual berjaya disimpan!</div>}
 
       <div className="space-y-3">
         {DAYS.map((day, i) => {
@@ -70,7 +70,7 @@ export default function AvailabilityForm({ profileId, initial }: Props) {
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium text-gray-900 text-sm">{day}</span>
                 <button type="button" onClick={() => addSlot(i)}
-                  className="flex items-center gap-1 text-xs text-[#6366F1] font-medium hover:underline">
+                  className="flex items-center gap-1 text-xs text-[#0D9488] font-medium hover:underline">
                   <Plus className="w-3.5 h-3.5" /> Tambah masa
                 </button>
               </div>
@@ -82,11 +82,11 @@ export default function AvailabilityForm({ profileId, initial }: Props) {
                     <div key={slot.id} className="flex items-center gap-2">
                       <input type="time" value={slot.startTime}
                         onChange={e => updateSlot(slot.id, 'startTime', e.target.value)}
-                        className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                        className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]" />
                       <span className="text-gray-400 text-sm">hingga</span>
                       <input type="time" value={slot.endTime}
                         onChange={e => updateSlot(slot.id, 'endTime', e.target.value)}
-                        className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                        className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]" />
                       <button type="button" onClick={() => removeSlot(slot.id)}
                         className="text-red-400 hover:text-red-600 transition-colors">
                         <Trash2 className="w-4 h-4" />
@@ -101,7 +101,7 @@ export default function AvailabilityForm({ profileId, initial }: Props) {
       </div>
 
       <button onClick={save} disabled={loading}
-        className="w-full flex items-center justify-center gap-2 bg-[#6366F1] text-white py-3 rounded-xl font-semibold hover:bg-[#4F46E5] disabled:opacity-50 transition-colors">
+        className="w-full flex items-center justify-center gap-2 bg-[#0D9488] text-white py-3 rounded-xl font-semibold hover:bg-[#0F766E] disabled:opacity-50 transition-colors">
         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
         Simpan Jadual
       </button>

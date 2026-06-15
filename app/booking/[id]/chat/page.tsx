@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation'
+﻿import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { Heart, ArrowLeft } from 'lucide-react'
@@ -58,7 +58,7 @@ export default async function BookingChatPage({ params }: { params: Promise<{ id
           <Link href={`/booking/${id}`} className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <div className="w-9 h-9 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[#0D9488] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
             {otherInitial}
           </div>
           <div>
@@ -67,7 +67,7 @@ export default async function BookingChatPage({ params }: { params: Promise<{ id
           </div>
           <div className="ml-auto flex items-center gap-2">
             <Link href="/" className="flex items-center gap-1.5">
-              <div className="w-6 h-6 rounded-lg bg-[#6366F1] flex items-center justify-center">
+              <div className="w-6 h-6 rounded-lg bg-[#0D9488] flex items-center justify-center">
                 <Heart className="w-3 h-3 text-white" fill="currentColor" />
               </div>
             </Link>

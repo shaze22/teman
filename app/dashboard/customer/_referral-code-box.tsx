@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { Copy, Check } from 'lucide-react'
@@ -23,7 +23,7 @@ export default function ReferralCodeBox({ code }: { code: string }) {
       <button
         onClick={copy}
         className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all ${
-          copied ? 'bg-emerald-100 text-emerald-600' : 'bg-[#6366F1] text-white hover:bg-[#4F46E5]'
+          copied ? 'bg-emerald-100 text-emerald-600' : 'bg-[#0D9488] text-white hover:bg-[#0F766E]'
         }`}
       >
         {copied ? <><Check className="w-3 h-3" /> Disalin!</> : <><Copy className="w-3 h-3" /> Salin</>}

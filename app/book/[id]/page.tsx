@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, use, useEffect, useMemo } from 'react'
 import Link from 'next/link'
@@ -255,8 +255,8 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </button>
           <Link href="/" className="flex items-center gap-1.5">
-            <Heart className="w-5 h-5 text-[#6366F1]" fill="currentColor" />
-            <span className="font-bold text-[#6366F1]">SenioCare</span>
+            <Heart className="w-5 h-5 text-[#0D9488]" fill="currentColor" />
+            <span className="font-bold text-[#0D9488]">SenioCare</span>
           </Link>
           <span className="text-sm text-gray-500 ml-2">{t.bookingPage.title}</span>
         </div>
@@ -276,13 +276,13 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
             <ul className="space-y-2 mb-5">
               {SERVICE_SCOPE[scopeModal as keyof typeof SERVICE_SCOPE]?.items.map((item, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                  <span className="text-[#6366F1] font-bold mt-0.5 flex-shrink-0">✓</span>
+                  <span className="text-[#0D9488] font-bold mt-0.5 flex-shrink-0">✓</span>
                   {item}
                 </li>
               ))}
             </ul>
             <button onClick={() => setScopeModal(null)}
-              className="w-full py-2.5 bg-[#6366F1] text-white rounded-xl font-medium text-sm hover:bg-[#4F46E5] transition-colors">
+              className="w-full py-2.5 bg-[#0D9488] text-white rounded-xl font-medium text-sm hover:bg-[#0F766E] transition-colors">
               {t.bookingPage.scopeClose}
             </button>
           </div>
@@ -308,12 +308,12 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                         <div key={opt.id} className="flex items-center gap-2">
                           <button type="button" onClick={() => setServiceType(opt.id)}
                             className={`flex-1 text-left px-4 py-3 rounded-xl border-2 font-medium transition-all ${
-                              serviceType === opt.id ? 'border-[#6366F1] bg-[#EEF2FF] text-[#6366F1]' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                              serviceType === opt.id ? 'border-[#0D9488] bg-[#F0FDFA] text-[#0D9488]' : 'border-gray-200 text-gray-600 hover:border-gray-300'
                             }`}>
                             {lang === 'en' ? opt.labelEn : opt.label}
                           </button>
                           <button type="button" onClick={() => setScopeModal(opt.id)}
-                            className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-[#6366F1] hover:border-[#6366F1] transition-colors flex-shrink-0">
+                            className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-[#0D9488] hover:border-[#0D9488] transition-colors flex-shrink-0">
                             <HelpCircle className="w-4 h-4" />
                           </button>
                         </div>
@@ -331,9 +331,9 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <button type="button" onClick={() => setIsDuo(false)}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${!isDuo ? 'border-[#6366F1] bg-[#EEF2FF]' : 'border-gray-200 hover:border-gray-300'}`}>
-                      <User className={`w-6 h-6 ${!isDuo ? 'text-[#6366F1]' : 'text-gray-400'}`} />
-                      <span className={`text-sm font-semibold ${!isDuo ? 'text-[#6366F1]' : 'text-gray-600'}`}>
+                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${!isDuo ? 'border-[#0D9488] bg-[#F0FDFA]' : 'border-gray-200 hover:border-gray-300'}`}>
+                      <User className={`w-6 h-6 ${!isDuo ? 'text-[#0D9488]' : 'text-gray-400'}`} />
+                      <span className={`text-sm font-semibold ${!isDuo ? 'text-[#0D9488]' : 'text-gray-600'}`}>
                         {lang === 'en' ? 'Solo' : 'Solo'}
                       </span>
                       <span className="text-xs text-gray-400">
@@ -405,10 +405,10 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                             onClick={() => avail && selectDate(d)}
                             disabled={!avail}
                             className={`aspect-square flex items-center justify-center text-sm m-0.5 rounded-lg transition-colors font-medium
-                              ${selected ? 'bg-[#6366F1] text-white' : ''}
-                              ${!selected && avail && !isPast ? 'hover:bg-[#EEF2FF] text-gray-900 cursor-pointer' : ''}
+                              ${selected ? 'bg-[#0D9488] text-white' : ''}
+                              ${!selected && avail && !isPast ? 'hover:bg-[#F0FDFA] text-gray-900 cursor-pointer' : ''}
                               ${!avail || isPast ? 'text-gray-300 cursor-not-allowed' : ''}
-                              ${avail && !selected && hasAvailability ? 'ring-1 ring-inset ring-[#C7D2FE]' : ''}
+                              ${avail && !selected && hasAvailability ? 'ring-1 ring-inset ring-[#99F6E4]' : ''}
                             `}>
                             {d.getDate()}
                           </button>
@@ -417,7 +417,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                     </div>
                     {hasAvailability && (
                       <div className="px-4 py-2 bg-gray-50 border-t border-gray-100 text-xs text-gray-400 flex items-center gap-1.5">
-                        <span className="inline-block w-3 h-3 rounded-sm ring-1 ring-[#C7D2FE] bg-white" />
+                        <span className="inline-block w-3 h-3 rounded-sm ring-1 ring-[#99F6E4] bg-white" />
                         {t.bookingPage.availDays}
                       </div>
                     )}
@@ -440,20 +440,20 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                     <div className="flex flex-wrap gap-2">
                       {timeOptions.map(tm => (
                         <button key={tm} type="button" onClick={() => setStartTime(tm)}
-                          className={`px-3 py-2 rounded-xl border text-sm font-medium transition-colors ${startTime === tm ? 'bg-[#6366F1] text-white border-[#6366F1]' : 'border-gray-200 text-gray-600 hover:border-[#6366F1]'}`}>
+                          className={`px-3 py-2 rounded-xl border text-sm font-medium transition-colors ${startTime === tm ? 'bg-[#0D9488] text-white border-[#0D9488]' : 'border-gray-200 text-gray-600 hover:border-[#0D9488]'}`}>
                           {tm}
                         </button>
                       ))}
                     </div>
                   ) : (
                     <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0D9488]" />
                   )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">{t.bookingPage.duration}</label>
                   <select value={duration} onChange={(e) => setDuration(parseInt(e.target.value))}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] bg-white">
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0D9488] bg-white">
                     {DURATION_OPTIONS.map((h) => (
                       <option key={h} value={h}>{h} {t.bookingPage.hours}</option>
                     ))}
@@ -466,7 +466,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                   <div className="flex items-center gap-2"><MapPin className="w-4 h-4" /> {t.bookingPage.address}</div>
                 </label>
                 <textarea value={address} onChange={(e) => setAddress(e.target.value)}
-                  rows={2} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] resize-none"
+                  rows={2} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0D9488] resize-none"
                   placeholder={t.bookingPage.addressPlaceholder} />
               </div>
 
@@ -481,14 +481,14 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                   value={recipientName}
                   onChange={e => setRecipientName(e.target.value)}
                   placeholder={lang === 'en' ? 'E.g., Mak Cik Ramlah (Room 3)' : 'Cth: Mak Cik Ramlah (Bilik 3)'}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0D9488] text-sm"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">{t.bookingPage.requirements}</label>
                 <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)}
-                  rows={3} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1] resize-none"
+                  rows={3} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0D9488] resize-none"
                   placeholder={t.bookingPage.requirementsPlaceholder} />
               </div>
 
@@ -497,7 +497,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                 <div className="grid grid-cols-2 gap-3">
                   {(['stripe', 'cash'] as const).map(m => (
                     <button key={m} type="button" onClick={() => setPaymentMethod(m)}
-                      className={`px-4 py-3 rounded-xl border-2 font-medium text-sm transition-all ${paymentMethod === m ? 'border-[#6366F1] bg-[#EEF2FF] text-[#6366F1]' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
+                      className={`px-4 py-3 rounded-xl border-2 font-medium text-sm transition-all ${paymentMethod === m ? 'border-[#0D9488] bg-[#F0FDFA] text-[#0D9488]' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
                       {m === 'stripe' ? t.bookingPage.paymentOnline : t.bookingPage.paymentCash}
                     </button>
                   ))}
@@ -509,13 +509,13 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                 )}
               </div>
 
-              <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-sm text-indigo-800">
+              <div className="bg-teal-50 border border-teal-100 rounded-xl p-4 text-sm text-teal-800">
                 🍽️ {t.bookingPage.diningRule}
               </div>
 
               <button type="button" onClick={() => setStep(1)}
                 disabled={!date || !address || !startTime}
-                className="w-full bg-[#6366F1] text-white font-semibold py-3 rounded-xl hover:bg-[#4F46E5] transition-colors disabled:opacity-60">
+                className="w-full bg-[#0D9488] text-white font-semibold py-3 rounded-xl hover:bg-[#0F766E] transition-colors disabled:opacity-60">
                 {t.bookingPage.nextStep}
               </button>
             </div>
@@ -556,7 +556,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                 )}
                 <div className="flex justify-between font-bold text-base pt-2 border-t border-gray-100">
                   <span>{t.bookingPage.totalRow}</span>
-                  <span className="text-[#6366F1]">{formatRM(total)}</span>
+                  <span className="text-[#0D9488]">{formatRM(total)}</span>
                 </div>
               </div>
 
@@ -581,9 +581,9 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                   <div className="flex gap-2">
                     <input value={promoInput} onChange={e => setPromoInput(e.target.value.toUpperCase())}
                       placeholder={t.bookingPage.promoPlaceholder}
-                      className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                      className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]" />
                     <button type="button" onClick={applyPromo} disabled={promoLoading || !promoInput.trim()}
-                      className="px-4 py-2.5 bg-[#6366F1] text-white text-sm font-semibold rounded-xl hover:bg-[#4F46E5] disabled:opacity-50 transition-colors">
+                      className="px-4 py-2.5 bg-[#0D9488] text-white text-sm font-semibold rounded-xl hover:bg-[#0F766E] disabled:opacity-50 transition-colors">
                       {promoLoading ? '...' : t.bookingPage.promoApply}
                     </button>
                   </div>
@@ -596,7 +596,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                 </div>
               )}
 
-              <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-sm text-indigo-800">
+              <div className="bg-teal-50 border border-teal-100 rounded-xl p-4 text-sm text-teal-800">
                 🍽️ {t.bookingPage.diningRule}
               </div>
 
@@ -614,7 +614,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
               )}
 
               <button type="button" onClick={handleBook} disabled={loading}
-                className="w-full bg-[#6366F1] text-white font-semibold py-3 rounded-xl hover:bg-[#4F46E5] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+                className="w-full bg-[#0D9488] text-white font-semibold py-3 rounded-xl hover:bg-[#0F766E] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                 {loading
                   ? (paymentMethod === 'cash' ? t.bookingPage.processingCash : t.bookingPage.processingPay)

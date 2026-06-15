@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { Heart, LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
@@ -30,7 +30,7 @@ export default async function NgoLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-[#F8FAFC] flex">
       <aside className="w-60 bg-[#0F0E17] flex flex-col fixed inset-y-0 left-0 z-50">
         <div className="h-16 flex items-center gap-2.5 px-5 border-b border-white/10">
-          <div className="w-7 h-7 rounded-lg bg-[#6366F1] flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-[#0D9488] flex items-center justify-center">
             <Heart className="w-3.5 h-3.5 text-white" fill="currentColor" />
           </div>
           <div className="min-w-0">

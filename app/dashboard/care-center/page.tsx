@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
@@ -52,7 +52,7 @@ export default async function CareCenterDashboard() {
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#6366F1] flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-[#0D9488] flex items-center justify-center">
               <Heart className="w-3.5 h-3.5 text-white" fill="currentColor" />
             </div>
             <span className="font-bold text-[#0F0E17]">SenioCare</span>
@@ -87,7 +87,7 @@ export default async function CareCenterDashboard() {
 
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
-            { label: 'Aktif', value: activeCount, icon: Clock, color: 'text-indigo-600 bg-indigo-50' },
+            { label: 'Aktif', value: activeCount, icon: Clock, color: 'text-teal-600 bg-teal-50' },
             { label: 'Selesai', value: completedCount, icon: CheckCircle2, color: 'text-emerald-600 bg-emerald-50' },
             { label: 'Kapasiti', value: profile.resident_capacity ?? ' ', icon: Building2, color: 'text-amber-600 bg-amber-50' },
           ].map(s => (
@@ -108,7 +108,7 @@ export default async function CareCenterDashboard() {
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
               isPending
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-[#6366F1] text-white hover:bg-[#4F46E5]'
+                : 'bg-[#0D9488] text-white hover:bg-[#0F766E]'
             }`}
           >
             <CalendarPlus className="w-4 h-4" />
@@ -126,7 +126,7 @@ export default async function CareCenterDashboard() {
             <Search className="w-8 h-8 text-gray-300 mx-auto mb-3" />
             <p className="text-sm font-medium text-gray-700 mb-1">Belum ada tempahan</p>
             <p className="text-xs text-gray-400 mb-4">Cari pengasuh yang sesuai untuk penghuni anda</p>
-            <Link href="/search" className="inline-flex items-center gap-2 bg-[#6366F1] text-white text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-[#4F46E5] transition-colors">
+            <Link href="/search" className="inline-flex items-center gap-2 bg-[#0D9488] text-white text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-[#0F766E] transition-colors">
               <Search className="w-4 h-4" /> Cari Pengasuh
             </Link>
           </div>
@@ -138,7 +138,7 @@ export default async function CareCenterDashboard() {
               const statusMap: Record<string, { label: string; cls: string }> = {
                 pending: { label: 'Menunggu', cls: 'bg-amber-100 text-amber-700' },
                 confirmed: { label: 'Disahkan', cls: 'bg-blue-100 text-blue-700' },
-                in_progress: { label: 'Sedang Berjalan', cls: 'bg-indigo-100 text-indigo-700' },
+                in_progress: { label: 'Sedang Berjalan', cls: 'bg-teal-100 text-teal-700' },
                 completed: { label: 'Selesai', cls: 'bg-emerald-100 text-emerald-700' },
                 cancelled: { label: 'Dibatalkan', cls: 'bg-gray-100 text-gray-500' },
               }

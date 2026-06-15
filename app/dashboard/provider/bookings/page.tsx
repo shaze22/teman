@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
@@ -10,7 +10,7 @@ const STATUS_COLORS: Record<string, string> = {
   pending:     'bg-yellow-100 text-yellow-700',
   confirmed:   'bg-blue-100 text-blue-700',
   in_progress: 'bg-[#FFE4E6] text-[#BE123C]',
-  completed:   'bg-[#E0E7FF] text-[#3730A3]',
+  completed:   'bg-[#CCFBF1] text-[#134E4A]',
   cancelled:   'bg-red-100 text-red-700',
 }
 
@@ -67,8 +67,8 @@ export default async function ProviderBookingsPage() {
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </Link>
           <Link href="/" className="flex items-center gap-1.5">
-            <Heart className="w-5 h-5 text-[#6366F1]" fill="currentColor" />
-            <span className="font-bold text-[#6366F1]">SenioCare</span>
+            <Heart className="w-5 h-5 text-[#0D9488]" fill="currentColor" />
+            <span className="font-bold text-[#0D9488]">SenioCare</span>
           </Link>
           <span className="font-semibold text-gray-900 ml-2">{dc.allBookings}</span>
           <span className="ml-auto text-sm text-gray-400">{bookings.length} {dc.bookingCount}</span>
@@ -95,7 +95,7 @@ export default async function ProviderBookingsPage() {
                 <div className="space-y-2">
                   {grouped[status].map(b => (
                     <Link key={b.id} href={`/booking/${b.id}`}
-                      className="block bg-white rounded-xl border border-gray-100 p-4 hover:border-[#6366F1] hover:shadow-sm transition-all">
+                      className="block bg-white rounded-xl border border-gray-100 p-4 hover:border-[#0D9488] hover:shadow-sm transition-all">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-500 flex-shrink-0">
@@ -123,7 +123,7 @@ export default async function ProviderBookingsPage() {
                           </div>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <div className="font-bold text-[#6366F1]">RM{b.providerPrice.toFixed(0)}</div>
+                          <div className="font-bold text-[#0D9488]">RM{b.providerPrice.toFixed(0)}</div>
                           <div className="text-xs text-gray-400 font-mono mt-0.5">{b.bookingCode}</div>
                         </div>
                       </div>

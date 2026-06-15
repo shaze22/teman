@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Send, Loader2 } from 'lucide-react'
@@ -162,14 +162,14 @@ export default function ChatWindow({ bookingId, userId, initialMessages, canSend
               return (
                 <div key={m.id} className={`flex items-end gap-2 mb-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
                   {!isMe && (
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${showAvatar ? 'bg-[#6366F1] text-white' : 'opacity-0'}`}>
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${showAvatar ? 'bg-[#0D9488] text-white' : 'opacity-0'}`}>
                       {otherName.charAt(0)}
                     </div>
                   )}
                   <div className={`max-w-[72%] group`}>
                     <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words ${
                       isMe
-                        ? 'bg-[#6366F1] text-white rounded-br-sm'
+                        ? 'bg-[#0D9488] text-white rounded-br-sm'
                         : 'bg-white border border-gray-100 text-gray-900 rounded-bl-sm shadow-sm'
                     } ${m.id.startsWith('temp-') ? 'opacity-70' : ''}`}>
                       {m.content}
@@ -200,13 +200,13 @@ export default function ChatWindow({ bookingId, userId, initialMessages, canSend
               onKeyDown={handleKeyDown}
               placeholder={`Mesej kepada ${otherName}…`}
               rows={1}
-              className="flex-1 resize-none px-4 py-2.5 rounded-2xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]/30 focus:border-[#6366F1] transition-all max-h-32 overflow-y-auto"
+              className="flex-1 resize-none px-4 py-2.5 rounded-2xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]/30 focus:border-[#0D9488] transition-all max-h-32 overflow-y-auto"
               style={{ minHeight: '44px' }}
             />
             <button
               type="submit"
               disabled={!input.trim() || sending}
-              className="w-11 h-11 bg-[#6366F1] text-white rounded-2xl flex items-center justify-center hover:bg-[#4F46E5] disabled:opacity-40 transition-colors flex-shrink-0"
+              className="w-11 h-11 bg-[#0D9488] text-white rounded-2xl flex items-center justify-center hover:bg-[#0F766E] disabled:opacity-40 transition-colors flex-shrink-0"
             >
               {sending
                 ? <Loader2 className="w-4 h-4 animate-spin" />

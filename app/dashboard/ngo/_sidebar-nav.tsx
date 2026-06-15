@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -19,7 +19,7 @@ export default function NgoSidebarNav() {
         return (
           <Link key={href} href={href}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors group ${
-              active ? 'bg-[#6366F1] text-white' : 'text-white/60 hover:text-white hover:bg-white/8'
+              active ? 'bg-[#0D9488] text-white' : 'text-white/60 hover:text-white hover:bg-white/8'
             }`}>
             <Icon className={`w-4 h-4 transition-colors ${active ? 'text-white' : 'group-hover:text-[#818CF8]'}`} />
             {label}

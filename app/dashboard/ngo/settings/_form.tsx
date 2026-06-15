@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { CheckCircle, Clock } from 'lucide-react'
@@ -42,7 +42,7 @@ export default function NgoSettingsForm({ initial, ngoId, adminName, adminEmail 
     setLoading(false)
   }
 
-  const inputCls = 'w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]/30 bg-white'
+  const inputCls = 'w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]/30 bg-white'
   const labelCls = 'block text-xs font-medium text-gray-500 mb-1'
 
   return (
@@ -124,7 +124,7 @@ export default function NgoSettingsForm({ initial, ngoId, adminName, adminEmail 
         {saved && <p className="text-xs text-emerald-600 font-medium">✓ Maklumat berjaya disimpan</p>}
 
         <button type="submit" disabled={loading}
-          className="w-full bg-[#6366F1] text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-[#4F46E5] disabled:opacity-50 transition-colors">
+          className="w-full bg-[#0D9488] text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-[#0F766E] disabled:opacity-50 transition-colors">
           {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
       </form>

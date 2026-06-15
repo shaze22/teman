@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -151,22 +151,22 @@ export default function RescheduleSection({ bookingId, isProvider, userId, statu
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">{tx(lang, 'New Date', 'Tarikh Baru')}</label>
                   <input type="date" min={minDateStr} value={newDate} onChange={e => setNewDate(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0D9488]" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">{tx(lang, 'New Time', 'Masa Baru')}</label>
                   <input type="time" value={newTime} onChange={e => setNewTime(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0D9488]" />
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">{tx(lang, 'Note (optional)', 'Nota (pilihan)')}</label>
                 <input type="text" value={note} onChange={e => setNote(e.target.value)} maxLength={300}
                   placeholder={tx(lang, 'Reason for reschedule...', 'Sebab tukar jadual...')}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0D9488]" />
               </div>
               <button onClick={submitRequest} disabled={!!loading}
-                className="w-full flex items-center justify-center gap-2 bg-[#6366F1] text-white py-2.5 rounded-xl font-semibold hover:bg-[#4F46E5] disabled:opacity-50 transition-colors text-sm">
+                className="w-full flex items-center justify-center gap-2 bg-[#0D9488] text-white py-2.5 rounded-xl font-semibold hover:bg-[#0F766E] disabled:opacity-50 transition-colors text-sm">
                 {loading === 'request' ? <Loader2 className="w-4 h-4 animate-spin" /> : <CalendarDays className="w-4 h-4" />}
                 {tx(lang, 'Send Request', 'Hantar Permintaan')}
               </button>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -54,7 +54,7 @@ function ReviewCard({ booking, onDone }: { booking: PendingBooking; onDone: (id:
         onClick={() => setExpanded(e => !e)}
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-[#0D9488] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
             {booking.providerName.charAt(0)}
           </div>
           <div>
@@ -107,13 +107,13 @@ function ReviewCard({ booking, onDone }: { booking: PendingBooking; onDone: (id:
                 onChange={(e) => setComment(e.target.value)}
                 rows={2}
                 placeholder="Kongsikan pengalaman anda (pilihan)..."
-                className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#6366F1]/30 resize-none mb-3"
+                className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0D9488]/30 resize-none mb-3"
               />
               <div className="flex gap-2">
                 <button
                   onClick={submit}
                   disabled={loading}
-                  className="flex-1 flex items-center justify-center gap-2 bg-[#6366F1] text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-[#4F46E5] disabled:opacity-50 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 bg-[#0D9488] text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-[#0F766E] disabled:opacity-50 transition-colors"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Star className="w-4 h-4" />}
                   Hantar Ulasan
@@ -150,9 +150,9 @@ export default function PendingReviews({ bookings: initial }: { bookings: Pendin
   if (visible.length === 0) {
     if (doneIds.size > 0) {
       return (
-        <div className="bg-[#EEF2FF] border border-[#C7D2FE] rounded-2xl p-4 flex items-center gap-3">
-          <CheckCircle className="w-5 h-5 text-[#6366F1] flex-shrink-0" />
-          <p className="text-sm font-medium text-[#3730A3]">Semua ulasan telah diberikan. Terima kasih!</p>
+        <div className="bg-[#F0FDFA] border border-[#99F6E4] rounded-2xl p-4 flex items-center gap-3">
+          <CheckCircle className="w-5 h-5 text-[#0D9488] flex-shrink-0" />
+          <p className="text-sm font-medium text-[#134E4A]">Semua ulasan telah diberikan. Terima kasih!</p>
         </div>
       )
     }

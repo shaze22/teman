@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation'
+﻿import { notFound, redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
@@ -55,8 +55,8 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
         <style>{`
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111; background: #fff; padding: 40px 20px; max-width: 600px; margin: 0 auto; }
-          .header { text-align: center; border-bottom: 2px solid #6366F1; padding-bottom: 20px; margin-bottom: 24px; }
-          .brand { font-size: 24px; font-weight: 800; color: #6366F1; }
+          .header { text-align: center; border-bottom: 2px solid #0D9488; padding-bottom: 20px; margin-bottom: 24px; }
+          .brand { font-size: 24px; font-weight: 800; color: #0D9488; }
           .title { font-size: 14px; color: #6B7280; margin-top: 4px; }
           .code { font-size: 18px; font-weight: 700; color: #111; margin-top: 8px; }
           .section { margin-bottom: 20px; }
@@ -65,9 +65,9 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
           .row:last-child { border-bottom: none; }
           .row .label { color: #6B7280; }
           .row .value { font-weight: 500; color: #111; text-align: right; max-width: 60%; }
-          .total-row { display: flex; justify-content: space-between; padding: 12px 0; font-size: 16px; font-weight: 700; border-top: 2px solid #6366F1; margin-top: 8px; }
+          .total-row { display: flex; justify-content: space-between; padding: 12px 0; font-size: 16px; font-weight: 700; border-top: 2px solid #0D9488; margin-top: 8px; }
           .total-row .label { color: #111; }
-          .total-row .value { color: #6366F1; }
+          .total-row .value { color: #0D9488; }
           .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: #D1FAE5; color: #065F46; }
           .footer { margin-top: 32px; text-align: center; font-size: 12px; color: #9CA3AF; border-top: 1px solid #F3F4F6; padding-top: 20px; }
           @media print {
@@ -118,7 +118,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
         </div>
 
         <div className="no-print" style={{ marginTop: '32px', textAlign: 'center' }}>
-          <button onClick={() => window.print()} style={{ padding: '12px 32px', background: '#6366F1', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+          <button onClick={() => window.print()} style={{ padding: '12px 32px', background: '#0D9488', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
             🖨 {r.print}
           </button>
         </div>

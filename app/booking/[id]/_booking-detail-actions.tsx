@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -128,7 +128,7 @@ export default function BookingDetailActions({
             <button
               onClick={() => updateStatus('confirmed')}
               disabled={!!loading}
-              className="flex-1 flex items-center justify-center gap-2 bg-[#6366F1] text-white py-3 rounded-xl font-semibold hover:bg-[#4F46E5] disabled:opacity-50 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 bg-[#0D9488] text-white py-3 rounded-xl font-semibold hover:bg-[#0F766E] disabled:opacity-50 transition-colors"
             >
               {isLoading('confirmed') ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
               {tx(lang, 'Accept', 'Terima')}
@@ -167,7 +167,7 @@ export default function BookingDetailActions({
           <button
             onClick={() => updateStatus('completed')}
             disabled={!!loading}
-            className="w-full flex items-center justify-center gap-2 bg-[#6366F1] text-white py-3 rounded-xl font-semibold hover:bg-[#4F46E5] disabled:opacity-50 transition-colors"
+            className="w-full flex items-center justify-center gap-2 bg-[#0D9488] text-white py-3 rounded-xl font-semibold hover:bg-[#0F766E] disabled:opacity-50 transition-colors"
           >
             {isLoading('completed') ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
             {tx(lang, 'End Session (Check-Out)', 'Tamat Sesi (Check-Out)')}
@@ -237,7 +237,7 @@ export default function BookingDetailActions({
 
       {!isProvider && status === 'completed' && reviewDone && (
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
-          <div className="flex items-center gap-2 text-sm text-[#3730A3] bg-[#EEF2FF] rounded-xl px-4 py-3">
+          <div className="flex items-center gap-2 text-sm text-[#134E4A] bg-[#F0FDFA] rounded-xl px-4 py-3">
             <CheckCircle className="w-4 h-4" />
             Ulasan telah diberikan. Terima kasih!
           </div>

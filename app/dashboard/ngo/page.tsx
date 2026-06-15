@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
@@ -89,9 +89,9 @@ export default async function NgoDashboard() {
             </div>
           </div>
           {ngo.referral_code && (
-            <div className="bg-[#EEF2FF] rounded-2xl px-4 py-3 text-center">
+            <div className="bg-[#F0FDFA] rounded-2xl px-4 py-3 text-center">
               <div className="text-xs text-gray-500 mb-1">{ng.referralCode}</div>
-              <div className="font-mono font-bold text-[#6366F1] text-lg tracking-wider">{ngo.referral_code}</div>
+              <div className="font-mono font-bold text-[#0D9488] text-lg tracking-wider">{ngo.referral_code}</div>
               <div className="text-xs text-gray-400 mt-1">{ng.referralShare}</div>
             </div>
           )}
@@ -110,7 +110,7 @@ export default async function NgoDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={Users} label={ng.providerMembers} value={String(providers.length)} color="bg-[#EEF2FF] text-[#6366F1]" />
+        <StatCard icon={Users} label={ng.providerMembers} value={String(providers.length)} color="bg-[#F0FDFA] text-[#0D9488]" />
         <StatCard icon={Heart} label={ng.customerMembers.split(' (')[0]} value={String(customers.length)} color="bg-[#FFF1F2] text-[#F43F5E]" />
         <StatCard icon={CheckCircle} label={ng.verifiedProviders} value={String(verifiedCount)} color="bg-emerald-50 text-emerald-600" />
         <StatCard icon={Star} label={ng.avgRating} value={avgRating} color="bg-yellow-50 text-yellow-500" />
@@ -124,12 +124,12 @@ export default async function NgoDashboard() {
               <h2 className="font-semibold text-gray-900">{ng.providerMembers}</h2>
               <p className="text-xs text-gray-400 mt-0.5">{pendingCount} {ng.awaitingVerification}</p>
             </div>
-            <Link href="/dashboard/ngo/members" className="text-xs text-[#6366F1] font-medium hover:underline">{ng.viewAll}</Link>
+            <Link href="/dashboard/ngo/members" className="text-xs text-[#0D9488] font-medium hover:underline">{ng.viewAll}</Link>
           </div>
           <div className="divide-y divide-gray-50">
             {providers.slice(0, 5).map(m => (
               <div key={m.id} className="px-6 py-3 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-[#0D9488] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                   {m.fullName.charAt(0)}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -143,7 +143,7 @@ export default async function NgoDashboard() {
             ))}
             {providers.length === 0 && (
               <div className="px-6 py-8 text-center text-sm text-gray-400">
-                {ng.emptyProvider} <span className="font-mono font-bold text-[#6366F1]">{ngo.referral_code}</span> {ng.emptyProviderSuffix}
+                {ng.emptyProvider} <span className="font-mono font-bold text-[#0D9488]">{ngo.referral_code}</span> {ng.emptyProviderSuffix}
               </div>
             )}
           </div>
@@ -173,7 +173,7 @@ export default async function NgoDashboard() {
             ))}
             {customers.length === 0 && (
               <div className="px-6 py-8 text-center text-sm text-gray-400">
-                {ng.emptyCustomer} <span className="font-mono font-bold text-[#6366F1]">{ngo.referral_code}</span> {ng.emptyCustomerSuffix}
+                {ng.emptyCustomer} <span className="font-mono font-bold text-[#0D9488]">{ngo.referral_code}</span> {ng.emptyCustomerSuffix}
               </div>
             )}
           </div>

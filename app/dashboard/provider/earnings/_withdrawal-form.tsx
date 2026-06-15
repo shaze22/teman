@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -60,7 +60,7 @@ export default function WithdrawalForm({ walletBalance }: Props) {
         className="w-full flex items-center justify-between p-5 text-left"
       >
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#EEF2FF] text-[#6366F1] flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-[#F0FDFA] text-[#0D9488] flex items-center justify-center">
             <Wallet className="w-5 h-5" />
           </div>
           <div>
@@ -79,7 +79,7 @@ export default function WithdrawalForm({ walletBalance }: Props) {
               <p className="font-semibold text-gray-900">Permohonan Dihantar!</p>
               <p className="text-sm text-gray-500 mt-1">Admin akan proses dan transfer dalam 7 hari bekerja.</p>
               <button onClick={() => { setSuccess(false); setOpen(false) }}
-                className="mt-4 text-sm text-[#6366F1] hover:underline">Tutup</button>
+                className="mt-4 text-sm text-[#0D9488] hover:underline">Tutup</button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="pt-4 space-y-4">
@@ -97,18 +97,18 @@ export default function WithdrawalForm({ walletBalance }: Props) {
                     type="number" step="0.01" min="10" max={walletBalance}
                     value={amount} onChange={e => setAmount(e.target.value)} required
                     placeholder={`Max RM${walletBalance.toFixed(2)}`}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]"
                   />
                 </div>
                 <div className="flex gap-2 mt-2">
                   {[50, 100, 200].filter(v => v <= walletBalance).map(v => (
                     <button key={v} type="button" onClick={() => setAmount(String(v))}
-                      className="text-xs px-3 py-1 rounded-lg bg-[#EEF2FF] text-[#6366F1] font-medium hover:bg-[#6366F1] hover:text-white transition-colors">
+                      className="text-xs px-3 py-1 rounded-lg bg-[#F0FDFA] text-[#0D9488] font-medium hover:bg-[#0D9488] hover:text-white transition-colors">
                       RM{v}
                     </button>
                   ))}
                   <button type="button" onClick={() => setAmount(walletBalance.toFixed(2))}
-                    className="text-xs px-3 py-1 rounded-lg bg-[#EEF2FF] text-[#6366F1] font-medium hover:bg-[#6366F1] hover:text-white transition-colors">
+                    className="text-xs px-3 py-1 rounded-lg bg-[#F0FDFA] text-[#0D9488] font-medium hover:bg-[#0D9488] hover:text-white transition-colors">
                     Semua
                   </button>
                 </div>
@@ -117,7 +117,7 @@ export default function WithdrawalForm({ walletBalance }: Props) {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Bank</label>
                 <select value={bankName} onChange={e => setBankName(e.target.value)} required
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1] bg-white">
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488] bg-white">
                   <option value="">Pilih bank...</option>
                   {BANKS.map(b => <option key={b} value={b}>{b}</option>)}
                 </select>
@@ -127,18 +127,18 @@ export default function WithdrawalForm({ walletBalance }: Props) {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">No. Akaun</label>
                 <input type="text" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} required
                   placeholder="cth. 1234567890"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Pemegang Akaun</label>
                 <input type="text" value={accountHolder} onChange={e => setAccountHolder(e.target.value)} required
                   placeholder="Nama penuh seperti dalam buku bank"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D9488]" />
               </div>
 
               <button type="submit" disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-[#6366F1] text-white py-3 rounded-xl font-semibold hover:bg-[#4F46E5] disabled:opacity-50 transition-colors text-sm">
+                className="w-full flex items-center justify-center gap-2 bg-[#0D9488] text-white py-3 rounded-xl font-semibold hover:bg-[#0F766E] disabled:opacity-50 transition-colors text-sm">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wallet className="w-4 h-4" />}
                 {loading ? 'Menghantar...' : 'Hantar Permohonan'}
               </button>

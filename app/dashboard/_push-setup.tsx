@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { Bell, BellOff } from 'lucide-react'
@@ -66,7 +66,7 @@ export default function PushSetup() {
       onClick={toggle}
       disabled={loading}
       title={subscribed ? 'Matikan notifikasi' : 'Hidupkan notifikasi'}
-      className={`p-2 rounded-lg transition-colors ${subscribed ? 'text-[#6366F1] bg-[#EEF2FF]' : 'hover:bg-gray-100 text-gray-500'}`}
+      className={`p-2 rounded-lg transition-colors ${subscribed ? 'text-[#0D9488] bg-[#F0FDFA]' : 'hover:bg-gray-100 text-gray-500'}`}
     >
       {subscribed ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
     </button>

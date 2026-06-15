@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
@@ -20,7 +20,7 @@ const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-700',
   confirmed: 'bg-blue-100 text-blue-700',
   in_progress: 'bg-[#FFE4E6] text-[#BE123C]',
-  completed: 'bg-[#E0E7FF] text-[#3730A3]',
+  completed: 'bg-[#CCFBF1] text-[#134E4A]',
   cancelled: 'bg-red-100 text-red-700',
 }
 
@@ -168,7 +168,7 @@ export default async function CustomerDashboard() {
                     <div key={b.id} className="bg-white rounded-xl border-2 border-[#F43F5E]/30 p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-sm font-bold">
+                          <div className="w-10 h-10 rounded-full bg-[#0D9488] text-white flex items-center justify-center text-sm font-bold">
                             {b.provider.fullName.charAt(0)}
                           </div>
                           <div>
@@ -192,7 +192,7 @@ export default async function CustomerDashboard() {
                       </div>
                       <div className="mt-3 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-[#6366F1]">RM{parseFloat(String(b.totalAmount)).toFixed(0)}</span>
+                          <span className="font-bold text-[#0D9488]">RM{parseFloat(String(b.totalAmount)).toFixed(0)}</span>
                           {b.paymentStatus === 'pending' && b.status === 'confirmed' && (
                             <span className="text-xs bg-yellow-100 text-yellow-700 font-semibold px-2 py-0.5 rounded-full">{dc.needPay}</span>
                           )}
@@ -227,7 +227,7 @@ export default async function CustomerDashboard() {
                   {bookings.map((b) => (
                     <div key={b.id} className="bg-white rounded-xl border border-gray-100 p-4 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-sm font-bold">
+                        <div className="w-9 h-9 rounded-full bg-[#0D9488] text-white flex items-center justify-center text-sm font-bold">
                           {b.provider.fullName.charAt(0)}
                         </div>
                         <div>

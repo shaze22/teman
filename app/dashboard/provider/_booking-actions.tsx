@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -35,7 +35,7 @@ export default function BookingActions({ bookingId }: { bookingId: string }) {
         <button
           onClick={() => update('confirmed')}
           disabled={!!loading}
-          className="flex items-center gap-1 px-3 py-1.5 bg-[#6366F1] text-white text-xs font-medium rounded-lg hover:bg-[#4F46E5] disabled:opacity-50 transition-colors"
+          className="flex items-center gap-1 px-3 py-1.5 bg-[#0D9488] text-white text-xs font-medium rounded-lg hover:bg-[#0F766E] disabled:opacity-50 transition-colors"
         >
           {loading === 'confirmed' ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
           Terima

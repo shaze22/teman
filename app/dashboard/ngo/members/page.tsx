@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
@@ -99,7 +99,7 @@ export default async function NgoMembersPage({ searchParams }: { searchParams: P
         <p className="text-sm text-gray-500 mt-1">
           {ngo.name}
           {ngo.referral_code && (
-            <span> · {ng.codeLabel}: <span className="font-mono font-semibold text-[#6366F1]">{ngo.referral_code}</span></span>
+            <span> · {ng.codeLabel}: <span className="font-mono font-semibold text-[#0D9488]">{ngo.referral_code}</span></span>
           )}
         </p>
       </div>
@@ -108,7 +108,7 @@ export default async function NgoMembersPage({ searchParams }: { searchParams: P
       <div className="flex gap-2 mb-6">
         <Link
           href="/dashboard/ngo/members"
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${activeTab === 'providers' ? 'bg-[#6366F1] text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${activeTab === 'providers' ? 'bg-[#0D9488] text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
         >
           <Users className="w-4 h-4" /> {ng.providerMembers} ({providers.length})
         </Link>
@@ -179,7 +179,7 @@ export default async function NgoMembersPage({ searchParams }: { searchParams: P
             {customers.length === 0 && (
               <div className="p-8 text-center">
                 <div className="text-3xl mb-2">🧓</div>
-                <p className="text-sm text-gray-500">{ng.emptyCustomerMembers} <span className="font-mono font-bold text-[#6366F1]">{ngo.referral_code}</span> {ng.emptyCustomerMembersSuffix}</p>
+                <p className="text-sm text-gray-500">{ng.emptyCustomerMembers} <span className="font-mono font-bold text-[#0D9488]">{ngo.referral_code}</span> {ng.emptyCustomerMembersSuffix}</p>
               </div>
             )}
           </div>
@@ -198,14 +198,14 @@ function ProviderRow({ member: m, ngoId, inline, newLabel, bookingsLabel }: {
 }) {
   return (
     <div className={`flex items-center gap-4 ${inline ? 'p-4' : 'p-4 rounded-2xl bg-orange-50 border border-orange-100'}`}>
-      <div className="w-10 h-10 rounded-full bg-[#6366F1] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+      <div className="w-10 h-10 rounded-full bg-[#0D9488] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
         {m.fullName.charAt(0)}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-semibold text-gray-900 text-sm">{m.fullName}</span>
           {m.verifiedByNgo && <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">NGO ✓</span>}
-          {m.verifiedByAdmin && <span className="text-xs bg-[#E0E7FF] text-[#6366F1] px-1.5 py-0.5 rounded-full">Admin ✓</span>}
+          {m.verifiedByAdmin && <span className="text-xs bg-[#CCFBF1] text-[#0D9488] px-1.5 py-0.5 rounded-full">Admin ✓</span>}
           {!m.isActive && <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">Suspended</span>}
         </div>
         <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">

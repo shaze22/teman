@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -92,7 +92,7 @@ export default function CustomerEditForm({ initial }: Props) {
   return (
     <form onSubmit={submit} className="space-y-6">
       {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">{error}</div>}
-      {saved && <div className="bg-[#EEF2FF] border border-[#C7D2FE] text-[#3730A3] text-sm rounded-xl px-4 py-3">{cf.profileSaved}</div>}
+      {saved && <div className="bg-[#F0FDFA] border border-[#99F6E4] text-[#134E4A] text-sm rounded-xl px-4 py-3">{cf.profileSaved}</div>}
 
       {/* Personal */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">

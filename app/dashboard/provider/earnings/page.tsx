@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
@@ -95,8 +95,8 @@ export default async function ProviderEarningsPage() {
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </Link>
           <Link href="/" className="flex items-center gap-1.5">
-            <Heart className="w-5 h-5 text-[#6366F1]" fill="currentColor" />
-            <span className="font-bold text-[#6366F1]">SenioCare</span>
+            <Heart className="w-5 h-5 text-[#0D9488]" fill="currentColor" />
+            <span className="font-bold text-[#0D9488]">SenioCare</span>
           </Link>
           <span className="font-semibold text-gray-900 ml-2">{ep.title}</span>
         </div>
@@ -105,7 +105,7 @@ export default async function ProviderEarningsPage() {
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
 
         {/* Wallet balance */}
-        <div className="bg-[#6366F1] rounded-2xl p-6 text-white">
+        <div className="bg-[#0D9488] rounded-2xl p-6 text-white">
           <div className="flex items-center gap-2 mb-1 opacity-80 text-sm">
             <ShieldCheck className="w-4 h-4" /> {ep.walletBalance}
           </div>
@@ -184,7 +184,7 @@ export default async function ProviderEarningsPage() {
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {(walletTx ?? []).map((tx: any) => (
                 <Link key={tx.id} href={tx.reference_id ? `/booking/${tx.reference_id}` : '#'}
-                  className="flex items-center justify-between bg-white rounded-xl border border-gray-100 p-4 hover:border-[#6366F1] hover:shadow-sm transition-all">
+                  className="flex items-center justify-between bg-white rounded-xl border border-gray-100 p-4 hover:border-[#0D9488] hover:shadow-sm transition-all">
                   <div>
                     <div className="font-medium text-gray-900 text-sm">{tx.description}</div>
                     <div className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
@@ -217,7 +217,7 @@ export default async function ProviderEarningsPage() {
               </div>
               <div className="flex justify-between border-t border-gray-100 pt-3 font-bold">
                 <span>{ep.netEarnings}</span>
-                <span className="text-[#6366F1]">RM{thisMonthNet.toFixed(2)}</span>
+                <span className="text-[#0D9488]">RM{thisMonthNet.toFixed(2)}</span>
               </div>
             </div>
           </div>
