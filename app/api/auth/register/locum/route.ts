@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
       .insert({
         id: userId,
         email,
-        phone: phone || null,
+        phone: phone || '',
         full_name: fullName,
         role,
         status: 'pending',

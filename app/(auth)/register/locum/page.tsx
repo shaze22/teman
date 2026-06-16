@@ -204,15 +204,13 @@ export default function RegisterLocumPage() {
       const res = await fetch('/api/auth/register/companion/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ icBase64: icData.base64, icMime: icData.mimeType, selfieBase64: selfieData.base64, selfieMime: selfieData.mimeType }),
+        body: JSON.stringify({ icBase64: icData.base64, icMimeType: icData.mimeType, selfieBase64: selfieData.base64, selfieMimeType: selfieData.mimeType }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error || 'Pengesahan gagal.'); return }
-      if (data.passed) {
+      if (!res.ok) { setError(data.error || data.message || 'Pengesahan gagal.'); return }
+      if (data.faceMatch && data.icAuthentic && data.isAdult) {
         setGeminiPassed(true)
         setGeminiMsg('IC dan wajah disahkan berjaya.')
-        if (requiresLicense) setStep(3)
-        else setStep(requiresLicense ? 3 : (totalSteps - 1) as Step)
       } else {
         setError(`Pengesahan gagal: ${data.issues?.join(', ') || 'IC atau wajah tidak sepadan.'}`)
       }
@@ -248,6 +246,9 @@ export default function RegisterLocumPage() {
       const res = await fetch('/api/auth/register/locum', { method: 'POST', body: formData })
       const data = await res.json()
       if (!res.ok) { setError(data.error || 'Pendaftaran gagal.'); return }
+
+      const supabase = createClient()
+      await supabase.auth.signInWithPassword({ email, password })
       router.push('/dashboard/provider?welcome=true')
     } catch {
       setError('Ralat rangkaian. Sila cuba lagi.')
