@@ -118,7 +118,7 @@ export default async function CustomerDashboard() {
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#F43F5E] flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-[#0D9488] flex items-center justify-center">
               <Heart className="w-3.5 h-3.5 text-white" fill="currentColor" />
             </div>
             <span className="font-bold text-[#0F0E17]">SenioCare</span>
@@ -126,7 +126,7 @@ export default async function CustomerDashboard() {
           </Link>
           <div className="flex items-center gap-2">
             <PushSetup />
-            <NotificationBell userId={user.id} accentColor="#F43F5E" />
+            <NotificationBell userId={user.id} accentColor="#0D9488" />
             <Link href="/dashboard/customer/settings" className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500">
               <Settings className="w-5 h-5" />
             </Link>
@@ -137,7 +137,7 @@ export default async function CustomerDashboard() {
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-14 h-14 rounded-full bg-[#F43F5E] text-white flex items-center justify-center text-xl font-bold">
+          <div className="w-14 h-14 rounded-full bg-[#0D9488] text-white flex items-center justify-center text-xl font-bold">
             {initials}
           </div>
           <div>
@@ -165,7 +165,7 @@ export default async function CustomerDashboard() {
                 <h2 className="text-lg font-bold text-gray-900 mb-3">{dc.activeBookings}</h2>
                 <div className="space-y-3">
                   {activeBookings.map((b) => (
-                    <div key={b.id} className="bg-white rounded-xl border-2 border-[#F43F5E]/30 p-4">
+                    <div key={b.id} className="bg-white rounded-xl border-2 border-[#0D9488]/30 p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-[#0D9488] text-white flex items-center justify-center text-sm font-bold">
@@ -200,7 +200,7 @@ export default async function CustomerDashboard() {
                             <span className="text-xs bg-green-100 text-green-700 font-semibold px-2 py-0.5 rounded-full">{dc.paid}</span>
                           )}
                         </div>
-                        <Link href={`/booking/${b.id}`} className="text-sm text-[#F43F5E] font-medium hover:underline">{dc.viewDetail}</Link>
+                        <Link href={`/booking/${b.id}`} className="text-sm text-[#0D9488] font-medium hover:underline">{dc.viewDetail}</Link>
                       </div>
                     </div>
                   ))}
@@ -218,7 +218,7 @@ export default async function CustomerDashboard() {
                   <h3 className="font-semibold text-gray-900 mb-2">{dc.noBookings}</h3>
                   <p className="text-sm text-gray-500 mb-4">{dc.noBookingsCustomerDesc}</p>
                   <Link href="/search"
-                    className="inline-flex items-center gap-2 bg-[#F43F5E] text-white font-semibold px-6 py-3 rounded-xl hover:bg-[#E11D48] transition-colors">
+                    className="inline-flex items-center gap-2 bg-[#0D9488] text-white font-semibold px-6 py-3 rounded-xl hover:bg-[#0F766E] transition-colors">
                     <Search className="w-4 h-4" /> {dc.findNow}
                   </Link>
                 </div>
@@ -240,7 +240,7 @@ export default async function CustomerDashboard() {
                           {t.status[b.status as keyof typeof t.status] ?? b.status}
                         </span>
                         <span className="text-sm font-bold text-gray-900">RM{parseFloat(String(b.totalAmount)).toFixed(0)}</span>
-                        <Link href={`/booking/${b.id}`} className="text-xs text-[#F43F5E] hover:underline">{dc.detail}</Link>
+                        <Link href={`/booking/${b.id}`} className="text-xs text-[#0D9488] hover:underline">{dc.detail}</Link>
                       </div>
                     </div>
                   ))}
@@ -251,14 +251,14 @@ export default async function CustomerDashboard() {
 
           <div className="space-y-4">
             <Link href="/search"
-              className="flex items-center gap-3 bg-[#F43F5E] text-white p-4 rounded-xl hover:bg-[#E11D48] transition-colors font-semibold">
+              className="flex items-center gap-3 bg-[#0D9488] text-white p-4 rounded-xl hover:bg-[#0F766E] transition-colors font-semibold">
               <Search className="w-5 h-5" />
               {dc.findNew}
             </Link>
 
             <div className="bg-white rounded-xl border border-gray-100 p-4">
               <h3 className="text-sm font-semibold text-gray-900 mb-1 flex items-center gap-2">
-                <Gift className="w-4 h-4 text-[#F43F5E]" />
+                <Gift className="w-4 h-4 text-[#0D9488]" />
                 {dc.referralTitle}
               </h3>
               <p className="text-xs text-gray-500 mb-3">{dc.referralDesc}</p>
@@ -285,7 +285,7 @@ export default async function CustomerDashboard() {
                   <div key={c.id}>
                     <div className="font-medium text-gray-900">{c.name}</div>
                     <div className="text-sm text-gray-500">{c.relationship}</div>
-                    <a href={`tel:${c.phone}`} className="text-sm text-[#F43F5E] font-medium hover:underline">{c.phone}</a>
+                    <a href={`tel:${c.phone}`} className="text-sm text-[#0D9488] font-medium hover:underline">{c.phone}</a>
                   </div>
                 ))}
               </div>
@@ -310,7 +310,7 @@ export default async function CustomerDashboard() {
                 </div>
               </div>
               <Link href="/dashboard/customer/profile"
-                className="mt-3 block text-center text-sm text-[#F43F5E] font-medium hover:underline">
+                className="mt-3 block text-center text-sm text-[#0D9488] font-medium hover:underline">
                 {dc.editProfile}
               </Link>
             </div>

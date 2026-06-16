@@ -66,7 +66,7 @@ function ReviewCard({ booking, onDone }: { booking: PendingBooking; onDone: (id:
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[#F43F5E] font-semibold bg-[#FFF1F2] px-2 py-1 rounded-full">
+          <span className="text-xs text-[#0D9488] font-semibold bg-[#F0FDFA] px-2 py-1 rounded-full">
             Beri Ulasan
           </span>
           <ChevronRight className={`w-4 h-4 text-gray-400 transition-transform ${expanded ? 'rotate-90' : ''}`} />
@@ -163,7 +163,7 @@ export default function PendingReviews({ bookings: initial }: { bookings: Pendin
     <div>
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-lg font-bold text-gray-900">Ulasan Tertunggak</h2>
-        <span className="text-xs bg-[#F43F5E] text-white font-bold px-2 py-0.5 rounded-full">{visible.length}</span>
+        <span className="text-xs bg-[#0D9488] text-white font-bold px-2 py-0.5 rounded-full">{visible.length}</span>
       </div>
       <div className="space-y-2">
         {visible.map(b => (

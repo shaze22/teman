@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
@@ -39,7 +39,7 @@ export default async function CustomerSettingsPage() {
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-[#F43F5E] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-[#0D9488] flex items-center justify-center">
                 <Heart className="w-3.5 h-3.5 text-white" fill="currentColor" />
               </div>
               <span className="font-bold text-[#0F0E17]">SenioCare</span>
@@ -61,7 +61,7 @@ export default async function CustomerSettingsPage() {
                 <div className="text-sm font-medium text-gray-900">{s.fullName}</div>
                 <div className="text-sm text-gray-500 mt-0.5">{u.full_name}</div>
               </div>
-              <Link href="/dashboard/customer/profile" className="text-xs text-[#F43F5E] font-medium hover:underline">
+              <Link href="/dashboard/customer/profile" className="text-xs text-[#0D9488] font-medium hover:underline">
                 Edit
               </Link>
             </div>
@@ -121,15 +121,15 @@ function NotifRow({ icon: Icon, label, desc, defaultOn }: { icon: typeof Bell; l
   return (
     <div className="flex items-center justify-between p-4">
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-[#FFF1F2] flex items-center justify-center">
-          <Icon className="w-4 h-4 text-[#F43F5E]" />
+        <div className="w-8 h-8 rounded-lg bg-[#F0FDFA] flex items-center justify-center">
+          <Icon className="w-4 h-4 text-[#0D9488]" />
         </div>
         <div>
           <div className="text-sm font-medium text-gray-900">{label}</div>
           <div className="text-xs text-gray-500">{desc}</div>
         </div>
       </div>
-      <div className={`w-11 h-6 rounded-full relative transition-colors ${defaultOn ? 'bg-[#F43F5E]' : 'bg-gray-200'}`}>
+      <div className={`w-11 h-6 rounded-full relative transition-colors ${defaultOn ? 'bg-[#0D9488]' : 'bg-gray-200'}`}>
         <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${defaultOn ? 'translate-x-5' : 'translate-x-0.5'}`} />
       </div>
     </div>
