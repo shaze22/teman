@@ -25,22 +25,22 @@ const LANGUAGES = [
 ]
 
 const SERVICE_CHIPS = [
-  { id: 'all', label: 'Semua' },
-  { id: 'nursing', label: '🩺 Jururawat' },
-  { id: 'physiotherapy', label: '🦾 Fisioterapi' },
-  { id: 'home_care', label: '🏠 Penjagaan Rumah' },
-  { id: 'medical_escort', label: '🚗 Pendamping Perubatan' },
-  { id: 'riadah', label: '🏃 Riadah' },
-  { id: 'ibadah', label: '🕌 Ibadah' },
-  { id: 'makan', label: '🍽️ Makan' },
+  { id: 'all',            en: 'All',                bm: 'Semua' },
+  { id: 'nursing',        en: '🩺 Nurse',           bm: '🩺 Jururawat' },
+  { id: 'physiotherapy',  en: '🦾 Physio',          bm: '🦾 Fisioterapi' },
+  { id: 'home_care',      en: '🏠 Home Care',       bm: '🏠 Penjagaan Rumah' },
+  { id: 'medical_escort', en: '🚗 Medical Escort',  bm: '🚗 Pendamping Perubatan' },
+  { id: 'riadah',         en: '🏃 Wellness',        bm: '🏃 Riadah' },
+  { id: 'ibadah',         en: '🕌 Worship',         bm: '🕌 Ibadah' },
+  { id: 'makan',          en: '🍽️ Dining',          bm: '🍽️ Makan' },
 ]
 
-const ROLE_BADGE: Record<string, { label: string; color: string }> = {
-  locum_nurse:     { label: 'Jururawat Berlesen', color: 'bg-blue-100 text-blue-700' },
-  locum_physio:    { label: 'Fisioterapi', color: 'bg-purple-100 text-purple-700' },
-  locum_care_aide: { label: 'Pembantu Penjagaan', color: 'bg-orange-100 text-orange-700' },
-  medical_escort:  { label: 'Pendamping Perubatan', color: 'bg-red-100 text-red-700' },
-  companion:       { label: 'Companion', color: 'bg-teal-100 text-teal-700' },
+const ROLE_BADGE: Record<string, { en: string; bm: string; color: string }> = {
+  locum_nurse:     { en: 'Licensed Nurse',    bm: 'Jururawat Berlesen',   color: 'bg-blue-100 text-blue-700' },
+  locum_physio:    { en: 'Physiotherapist',   bm: 'Fisioterapi',          color: 'bg-purple-100 text-purple-700' },
+  locum_care_aide: { en: 'Home Care Aide',    bm: 'Pembantu Penjagaan',   color: 'bg-orange-100 text-orange-700' },
+  medical_escort:  { en: 'Medical Escort',    bm: 'Pendamping Perubatan', color: 'bg-red-100 text-red-700' },
+  companion:       { en: 'Companion',         bm: 'Companion',            color: 'bg-teal-100 text-teal-700' },
 }
 
 type Provider = {
@@ -176,7 +176,7 @@ export default function SearchPageClient() {
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-teal-500'
               }`}
             >
-              {st.label}
+              {lang === 'en' ? st.en : st.bm}
             </button>
           ))}
         </div>
@@ -535,7 +535,7 @@ function ProviderCard({ provider: p, lang }: { provider: Provider; lang: string 
         <div className="flex flex-wrap gap-1 mt-3">
           {badge && (
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex items-center gap-1 ${badge.color}`}>
-              <Stethoscope className="w-3 h-3" />{badge.label}
+              <Stethoscope className="w-3 h-3" />{lang === 'en' ? badge.en : badge.bm}
             </span>
           )}
           {p.licenseVerified && (
