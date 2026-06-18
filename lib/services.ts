@@ -133,7 +133,7 @@ export const COMPANION_SERVICES = SERVICE_TYPES.filter(s => s.tier === 'companio
 export const ACTIVE_SERVICES = SERVICE_TYPES.filter(s => s.active)
 
 // Service IDs that require license_verified = true before accepting bookings
-export const LOCUM_TYPES: ServiceId[] = ['nursing', 'physiotherapy', 'home_care']
+export const LOCUM_TYPES: string[] = ['nursing', 'physiotherapy', 'home_care']
 
 export const SERVICE_MAP = Object.fromEntries(SERVICE_TYPES.map(s => [s.id, s])) as Record<ServiceId, ServiceType>
 
