@@ -18,10 +18,10 @@ export default async function AdminDashboard() {
     { data: revenueData },
     { data: recentBookings },
   ] = await Promise.all([
-    supabaseAdmin.from('single_mother_profiles').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('provider_profiles').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('customer_profiles').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('bookings').select('*', { count: 'exact', head: true }),
-    supabaseAdmin.from('single_mother_profiles').select('*', { count: 'exact', head: true }).eq('verified_by_admin', false).eq('verified_by_ngo', false),
+    supabaseAdmin.from('provider_profiles').select('*', { count: 'exact', head: true }).eq('license_verified', false).eq('ic_verified', false),
     supabaseAdmin.from('bookings').select('*', { count: 'exact', head: true }).in('status', ['confirmed', 'in_progress']),
     supabaseAdmin.from('sos_events').select('*', { count: 'exact', head: true }).eq('status', 'active'),
     supabaseAdmin.from('bookings').select('platform_fee').eq('status', 'completed').gte('created_at', startOfMonth),
@@ -85,7 +85,7 @@ export default async function AdminDashboard() {
             <div key={b.id} className="px-6 py-3 flex items-center gap-4">
               <div className="text-xs font-mono text-gray-400 w-24 flex-shrink-0">{b.booking_code}</div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 truncate">{b.customer?.full_name} â†' {b.provider?.full_name}</div>
+                <div className="text-sm font-medium text-gray-900 truncate">{b.customer?.full_name} {'→'} {b.provider?.full_name}</div>
                 <div className="text-xs text-gray-500">{new Date(b.scheduled_date).toLocaleDateString('ms-MY')}</div>
               </div>
               <StatusBadge status={b.status} />
@@ -109,7 +109,7 @@ function StatCard({ icon: Icon, label, value, color, href }: { icon: typeof User
       </div>
       <div className="text-2xl font-bold text-gray-900">{value}</div>
       <div className="text-xs text-gray-500 mt-0.5">{label}</div>
-      {href && <div className="text-xs text-[#6366F1] mt-2 opacity-0 group-hover:opacity-100 transition-opacity font-medium">Lihat semua â†'</div>}
+      {href && <div className="text-xs text-[#6366F1] mt-2 opacity-0 group-hover:opacity-100 transition-opacity font-medium">{'View all →'}</div>}
     </>
   )
   if (href) return (
