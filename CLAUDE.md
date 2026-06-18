@@ -242,7 +242,29 @@ SenioCare    → locum + companion untuk warga emas ← projek ini
 - `riadah`, `ibadah`, `makan` → provider `ic_verified = true`
 - Booking form filter `activeServiceTypes` dari `/api/providers/[id]/profile`
 
-## Known Issues (v2 — in progress)
-- [ ] Registration wizard locum belum dibina
-- [ ] Admin verify license belum dibina
-- [ ] Landing page masih v1 (Meal Companion)
+## Status Audit (2026-06-18) — BERSIH
+- ✅ ZERO `single_mother_profiles` references — semua 44 instances diperbaiki
+- ✅ Webhook idempotency, escrow double-release guard, soft delete
+- ✅ getProviderAmount() single source of truth (lib/services.ts)
+- ✅ provider_pricing.profile_id (bukan provider_id)
+- ✅ Disputes N+1 fixed (batch query, no FK joins)
+- ✅ Map lat/lng = location_lat/location_lng
+- ✅ Encoding bugs fixed (▲▼ dalam analytics)
+- ⚠️ Customer registration flow belum diaudit
+- ⚠️ Booking flow end-to-end belum ditest
+
+## Supabase Join Patterns (provider_profiles)
+```typescript
+// FROM provider_profiles JOIN TO users (forward)
+supabaseAdmin.from('provider_profiles')
+  .select('..., users!provider_profiles_user_id_fkey(full_name, email)')
+
+// FROM users JOIN TO provider_profiles (reverse, dalam booking query)
+supabaseAdmin.from('bookings')
+  .select('provider:users!bookings_provider_id_fkey(full_name, provider_profiles(location_city))')
+
+// disputes.booking_id + raised_by — NO FK CONSTRAINTS — guna batch query, bukan join
+```
+
+## api/auth/register/provider
+⛔ DEPRECATED — returns 410 Gone. Guna /api/auth/register/locum atau /api/auth/register/companion
