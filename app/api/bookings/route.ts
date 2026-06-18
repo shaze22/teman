@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
       bookingId: booking.id,
       scheduledDate: data.scheduledDate,
       serviceType: data.serviceType,
-      totalAmount: data.totalAmount,
+      totalAmount,
     }).catch(() => {})
   }
 
