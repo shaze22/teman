@@ -242,21 +242,57 @@ SenioCare    → locum + companion untuk warga emas ← projek ini
 - `riadah`, `ibadah`, `makan` → provider `ic_verified = true`
 - Booking form filter `activeServiceTypes` dari `/api/providers/[id]/profile`
 
-## Status Audit (2026-06-18) — BERSIH
-- ✅ ZERO `single_mother_profiles` references — semua 44 instances diperbaiki
-- ✅ Webhook idempotency, escrow double-release guard, soft delete
+## Status Audit (2026-06-18) — PRODUCTION READY
+- ✅ ZERO `single_mother_profiles` references
+- ✅ v3 Clean Architecture — 53 routes, 5 repos, 10 use cases, withAuth/withAdmin/withPublic HOFs
+- ✅ Admin UI fully English, teal #0D9488, sidebar active-state bug fixed
+- ✅ Atomic wallet ops (advisory lock RPC) — no race conditions
+- ✅ Atomic escrow release (first-write-wins RPC) — no double credit
+- ✅ Promo codes re-validated server-side — no free booking exploit
+- ✅ Atomic credit deduction (UPDATE WHERE balance >= amount) — no race
+- ✅ PDPA delete-account: anonymize PII + clear storage files + free auth email
+- ✅ Companion register: withAuth (userId from session, not body)
+- ✅ Withdrawal: debit before approve (no phantom approvals)
+- ✅ Dispute GET: ownership check (must be party to booking)
+- ✅ Status transitions: role-gated (only provider can confirm/start)
+- ✅ Webhook: throws on booking update failure (Stripe will retry)
+- ✅ Gemini: try/catch with 503 on rate limit, no silent registration failures
+- ✅ Cron reminders: batch email fetch (no N+1), datetime window uses full ISO
+- ✅ Admin pages: all queries have .limit(500)
+- ✅ Zod validation on all admin + push + notification routes
+- ✅ Signout redirects to /login (was going to localhost:3000)
 - ✅ getProviderAmount() single source of truth (lib/services.ts)
 - ✅ provider_pricing.profile_id (bukan provider_id)
-- ✅ Disputes N+1 fixed (batch query, no FK joins)
-- ✅ Map lat/lng = location_lat/location_lng
-- ✅ Encoding bugs fixed (▲▼ dalam analytics)
-- ✅ Server-side locum gating (ic_verified, license_verified, is_active, is_available)
 - ✅ Server-side price computation dari provider_pricing (prevent client spoofing)
-- ✅ provider/[id]/profile: activeServiceTypes filtered by verification status
-- ✅ Email templates: teal #0D9488, v2 service labels, no Meal Companion refs
-- ✅ Customer register: v2 NEEDS (7 service types), teal logo, updated consent
 - ✅ syedshazni@gmail.com = super_admin (DB updated)
 - ⚠️ Booking flow end-to-end belum ditest (E2E — perlu manual test)
+
+## Atomic DB Functions (Supabase RPC)
+```
+atomic_wallet_credit(user_id, amount, type, ref_type, ref_id, desc, id) → NUMERIC
+atomic_wallet_debit(user_id, amount, ref_type, ref_id, desc, id) → NUMERIC
+atomic_release_escrow(booking_id, released_at) → BOOLEAN  ← returns true only if first caller
+atomic_deduct_credit(user_id, amount) → BOOLEAN  ← returns false if insufficient balance
+atomic_increment_promo_uses(promo_id) → VOID
+```
+Semua fungsi guna `pg_advisory_xact_lock(hashtext(user_id))` untuk serialize concurrent ops.
+
+## Architecture (v3)
+```
+lib/errors.ts          — AppError, Errors.unauthorized/forbidden/notFound/conflict/badRequest
+lib/api/handler.ts     — withAuth / withAdmin / withPublic HOFs
+lib/api/parse.ts       — parseBody(req, zodSchema), parseQuery(searchParams, zodSchema)
+lib/repositories/      — users, providers, bookings, wallets, notifications
+lib/use-cases/         — create/cancel/complete-booking, payment-checkout/webhook,
+                         register-locum/companion/customer, verify-provider-license,
+                         approve-withdrawal
+```
+Route pattern:
+```typescript
+export const POST = withAuth(async ({ user, dbUser, req, params }) => { ... })
+export const GET  = withAdmin(async ({ user, req }) => { ... })
+export const GET  = withPublic(async (req) => { ... })
+```
 
 ## Supabase Join Patterns (provider_profiles)
 ```typescript
