@@ -1,38 +1,37 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { supabaseAdmin } from '@/lib/supabase/admin'
-import { stripe } from '@/lib/stripe'
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { notifyBookingStatusChange, notifyFundsReleased } from '@/lib/notifications'
-import { getProviderAmount } from '@/lib/services'
-import {
-  sendBookingConfirmedCustomer,
-  sendBookingCancelledBoth,
-  sendBookingCompletedCustomer,
-} from '@/lib/email'
+import { withAuth } from '@/lib/api/handler'
+import { parseBody } from '@/lib/api/parse'
+import { cancelBooking } from '@/lib/use-cases/cancel-booking'
+import { completeBooking } from '@/lib/use-cases/complete-booking'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+import { notifyBookingStatusChange } from '@/lib/notifications'
+import { sendBookingConfirmedCustomer } from '@/lib/email'
 
 const schema = z.object({
   status: z.enum(['confirmed', 'cancelled', 'in_progress', 'completed']),
   cancellationReason: z.string().optional(),
 })
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+export const PATCH = withAuth(async ({ user, req, params }) => {
+  const { id } = params
+  const { status, cancellationReason } = await parseBody(req, schema)
 
-  const body = await request.json()
-  const parsed = schema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ message: 'Invalid data' }, { status: 400 })
+  if (status === 'cancelled') {
+    const result = await cancelBooking(id, user.id, cancellationReason)
+    return NextResponse.json({ success: true, ...result })
+  }
 
-  const { status, cancellationReason } = parsed.data
+  if (status === 'completed') {
+    await completeBooking(id, user.id)
+    return NextResponse.json({ success: true })
+  }
 
+  // confirmed / in_progress — simple status transitions
   const { data: booking } = await supabaseAdmin
     .from('bookings')
     .select(`
-      customer_id, provider_id, status, booking_code, scheduled_date, start_time,
-      total_amount, provider_price, payment_status, payment_method, service_type, funds_released,
+      customer_id, provider_id, booking_code, scheduled_date, total_amount,
       customer:users!bookings_customer_id_fkey(full_name),
       provider:users!bookings_provider_id_fkey(full_name, phone)
     `)
@@ -49,154 +48,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   const now = new Date().toISOString()
   const update: Record<string, unknown> = { status, updated_at: now }
-
   if (status === 'confirmed') update.confirmed_at = now
   if (status === 'in_progress') update.checked_in_at = now
-  if (status === 'completed') { update.checked_out_at = now; update.completed_at = now }
-  let refundAmount = 0
-  let refundStatus = ''
 
-  if (status === 'cancelled') {
-    update.cancelled_at = now
-    update.cancelled_by = user.id
-    update.cancellation_reason = cancellationReason ?? null
+  await supabaseAdmin.from('bookings').update(update).eq('id', id)
 
-    if (b.payment_status === 'paid' && b.payment_method === 'stripe') {
-      const sessionDate = new Date(`${b.scheduled_date}T${b.start_time ?? '00:00'}`)
-      const hoursUntil = (sessionDate.getTime() - Date.now()) / 3_600_000
-      const totalAmt = parseFloat(String(b.total_amount))
-      refundAmount = hoursUntil >= 24 ? totalAmt : totalAmt * 0.5
-
-      const { data: payment } = await supabaseAdmin
-        .from('payments')
-        .select('transaction_id')
-        .eq('booking_id', id)
-        .eq('status', 'paid')
-        .single()
-
-      if (payment?.transaction_id) {
-        try {
-          const session = await stripe.checkout.sessions.retrieve(payment.transaction_id)
-          const paymentIntentId = typeof session.payment_intent === 'string'
-            ? session.payment_intent
-            : session.payment_intent?.id
-
-          if (paymentIntentId) {
-            const refundSen = Math.round(refundAmount * 100)
-            await stripe.refunds.create({ payment_intent: paymentIntentId, amount: refundSen })
-            refundStatus = hoursUntil >= 24 ? 'full' : 'partial'
-            update.payment_status = 'refunded'
-            await supabaseAdmin.from('payments').update({ status: 'refunded' }).eq('booking_id', id)
-          }
-        } catch (err) {
-          console.error('[status/cancel] Stripe refund failed:', err)
-          // Non-fatal: booking is cancelled but refund may need manual processing
-        }
-      }
-    }
-  }
-
-  const { error } = await supabaseAdmin.from('bookings').update(update).eq('id', id)
-  if (error) return NextResponse.json({ message: error.message }, { status: 500 })
-
-  // Referral reward on provider's first completed booking
-  if (status === 'completed') {
-    const { data: reward } = await supabaseAdmin
-      .from('referral_rewards')
-      .select('id, referrer_id, referrer_amount, referee_amount')
-      .eq('referee_id', b.provider_id)
-      .eq('status', 'pending')
-      .maybeSingle()
-
-    if (reward) {
-      const { count } = await supabaseAdmin
-        .from('bookings')
-        .select('id', { count: 'exact', head: true })
-        .eq('provider_id', b.provider_id)
-        .eq('status', 'completed')
-
-      if ((count ?? 0) === 1) {
-        const creditNow = new Date().toISOString()
-        const refereeCredit = parseFloat(String(reward.referee_amount))
-        const referrerCredit = parseFloat(String(reward.referrer_amount))
-
-        // Get current wallet balance for referee
-        const { data: refLastTx } = await supabaseAdmin
-          .from('wallet_transactions').select('balance_after')
-          .eq('user_id', b.provider_id).order('created_at', { ascending: false }).limit(1).maybeSingle()
-        const refBal = parseFloat(String(refLastTx?.balance_after ?? 0)) + refereeCredit
-
-        await supabaseAdmin.from('wallet_transactions').insert({
-          id: crypto.randomUUID(), user_id: b.provider_id, type: 'credit',
-          amount: refereeCredit, balance_after: refBal,
-          reference_type: 'referral', reference_id: reward.id,
-          description: 'Referral bonus — first session completed!',
-          created_at: creditNow,
-        })
-
-        // Get current wallet balance for referrer
-        const { data: rerLastTx } = await supabaseAdmin
-          .from('wallet_transactions').select('balance_after')
-          .eq('user_id', reward.referrer_id).order('created_at', { ascending: false }).limit(1).maybeSingle()
-        const rerBal = parseFloat(String(rerLastTx?.balance_after ?? 0)) + referrerCredit
-
-        await supabaseAdmin.from('wallet_transactions').insert({
-          id: crypto.randomUUID(), user_id: reward.referrer_id, type: 'credit',
-          amount: referrerCredit, balance_after: rerBal,
-          reference_type: 'referral', reference_id: reward.id,
-          description: 'Referral commission — your referral completed their first session!',
-          created_at: creditNow,
-        })
-
-        await supabaseAdmin.from('referral_rewards')
-          .update({ status: 'credited', booking_id: id, credited_at: creditNow })
-          .eq('id', reward.id)
-      }
-    }
-  }
-
-  // Auto-release escrow when booking is completed (guard: not already released)
-  if (status === 'completed' && b.payment_status === 'paid' && !b.funds_released) {
-    const providerNet = getProviderAmount(b.service_type, parseFloat(String(b.provider_price)))
-
-    const { data: lastTx } = await supabaseAdmin
-      .from('wallet_transactions').select('balance_after')
-      .eq('user_id', b.provider_id).order('created_at', { ascending: false }).limit(1).maybeSingle()
-    const balanceAfter = parseFloat(String(lastTx?.balance_after ?? 0)) + providerNet
-
-    const [releaseRes, walletRes] = await Promise.all([
-      supabaseAdmin.from('bookings').update({ funds_released: true, funds_released_at: now }).eq('id', id),
-      supabaseAdmin.from('wallet_transactions').insert({
-        id: crypto.randomUUID(),
-        user_id: b.provider_id,
-        type: 'credit',
-        amount: providerNet,
-        balance_after: balanceAfter,
-        reference_type: 'booking',
-        reference_id: id,
-        description: `Earnings from booking #${b.booking_code}`,
-        created_at: now,
-      }),
-    ])
-
-    if (releaseRes.error || walletRes.error) {
-      console.error('[status/auto-release] Failed:', releaseRes.error ?? walletRes.error)
-    } else {
-      // Update denormalized earnings on provider_profiles (non-fatal)
-      void supabaseAdmin.from('provider_profiles')
-        .update({ earnings_total: balanceAfter, updated_at: now })
-        .eq('user_id', b.provider_id)
-      notifyFundsReleased({ bookingId: id, bookingCode: b.booking_code, providerId: b.provider_id, amount: providerNet }).catch(() => {})
-    }
-  }
-
-  // Fetch emails for notifications
   const [customerAuth, providerAuth] = await Promise.all([
     supabaseAdmin.auth.admin.getUserById(b.customer_id),
     supabaseAdmin.auth.admin.getUserById(b.provider_id),
   ])
   const customerEmail = customerAuth.data?.user?.email ?? ''
-  const providerEmail = providerAuth.data?.user?.email ?? ''
   const customerName = b.customer?.full_name ?? ''
   const providerName = b.provider?.full_name ?? ''
 
@@ -216,30 +77,5 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }).catch(() => {})
   }
 
-  if (status === 'cancelled') {
-    const cancelledBy = isCustomer ? 'customer' : 'provider'
-    if (customerEmail) {
-      sendBookingCancelledBoth({
-        to: customerEmail, name: customerName, otherName: providerName,
-        bookingCode: b.booking_code, bookingId: id,
-        scheduledDate: b.scheduled_date, cancelledBy,
-      }).catch(() => {})
-    }
-    if (providerEmail) {
-      sendBookingCancelledBoth({
-        to: providerEmail, name: providerName, otherName: customerName,
-        bookingCode: b.booking_code, bookingId: id,
-        scheduledDate: b.scheduled_date, cancelledBy,
-      }).catch(() => {})
-    }
-  }
-
-  if (status === 'completed' && customerEmail) {
-    sendBookingCompletedCustomer({
-      to: customerEmail, customerName, providerName,
-      bookingCode: b.booking_code, bookingId: id,
-    }).catch(() => {})
-  }
-
-  return NextResponse.json({ success: true, refundAmount: refundAmount || undefined, refundStatus: refundStatus || undefined })
-}
+  return NextResponse.json({ success: true })
+})

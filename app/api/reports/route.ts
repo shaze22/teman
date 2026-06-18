@@ -1,7 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { supabaseAdmin } from '@/lib/supabase/admin'
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+import { withAuth } from '@/lib/api/handler'
+import { parseBody } from '@/lib/api/parse'
+import { Errors } from '@/lib/errors'
 
 const schema = z.object({
   reportedUserId: z.string().optional(),
@@ -10,46 +12,22 @@ const schema = z.object({
   description: z.string().min(10).max(1000),
 })
 
-export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+export const POST = withAuth(async ({ user, req }) => {
+  const { reportedUserId, bookingId, category, description } = await parseBody(req, schema)
 
-  let body: unknown
-  try { body = await request.json() } catch {
-    return NextResponse.json({ message: 'Invalid JSON' }, { status: 400 })
-  }
-
-  const parsed = schema.safeParse(body)
-  if (!parsed.success) {
-    return NextResponse.json({ message: 'Data tidak lengkap', errors: parsed.error.flatten() }, { status: 400 })
-  }
-
-  const { reportedUserId, bookingId, category, description } = parsed.data
-
-  // Check for duplicate report on same booking
   if (bookingId) {
-    const { data: existing } = await supabaseAdmin
-      .from('reports')
-      .select('id')
-      .eq('reporter_id', user.id)
-      .eq('booking_id', bookingId)
-      .maybeSingle()
-    if (existing) return NextResponse.json({ message: 'Anda sudah membuat laporan untuk sesi ini' }, { status: 409 })
+    const { data: existing } = await supabaseAdmin.from('reports').select('id')
+      .eq('reporter_id', user.id).eq('booking_id', bookingId).maybeSingle()
+    if (existing) throw Errors.conflict('Anda sudah membuat laporan untuk sesi ini')
   }
 
   const { error } = await supabaseAdmin.from('reports').insert({
     reporter_id: user.id,
     reported_user_id: reportedUserId ?? null,
     booking_id: bookingId ?? null,
-    category,
-    description,
+    category, description,
   })
-
-  if (error) {
-    console.error('[reports/POST]', error)
-    return NextResponse.json({ message: 'Gagal hantar laporan' }, { status: 500 })
-  }
+  if (error) throw Errors.serverError('Gagal hantar laporan')
 
   return NextResponse.json({ success: true })
-}
+})

@@ -1,32 +1,24 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { withAuth } from '@/lib/api/handler'
+import { Errors } from '@/lib/errors'
 
-export async function POST(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
+export const POST = withAuth(async ({ user, req }) => {
   const { currentPassword, newPassword } = await req.json()
-  if (!currentPassword || !newPassword) {
-    return NextResponse.json({ error: 'Sila isi semua medan' }, { status: 400 })
-  }
-  if (newPassword.length < 8) {
-    return NextResponse.json({ error: 'Kata laluan mesti sekurang-kurangnya 8 aksara' }, { status: 400 })
-  }
+  if (!currentPassword || !newPassword) throw Errors.badRequest('Sila isi semua medan')
+  if (newPassword.length < 8) throw Errors.badRequest('Kata laluan mesti sekurang-kurangnya 8 aksara')
 
-  // Verify current password by signing in again
+  // Need raw client for signInWithPassword + updateUser (cookie-bound operations)
+  const supabase = await createClient()
+
   const { error: signInError } = await supabase.auth.signInWithPassword({
     email: user.email!,
     password: currentPassword,
   })
-  if (signInError) {
-    return NextResponse.json({ error: 'Kata laluan semasa tidak betul' }, { status: 400 })
-  }
+  if (signInError) throw Errors.badRequest('Kata laluan semasa tidak betul')
 
   const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
-  if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 })
-  }
+  if (updateError) throw Errors.serverError(updateError.message)
 
   return NextResponse.json({ ok: true })
-}
+})

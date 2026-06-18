@@ -1,7 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { supabaseAdmin } from '@/lib/supabase/admin'
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+import { withAuth } from '@/lib/api/handler'
+import { parseBody } from '@/lib/api/parse'
+import { Errors } from '@/lib/errors'
 
 const schema = z.object({
   fullName: z.string().min(2),
@@ -20,63 +22,45 @@ const schema = z.object({
   emergencyPhone: z.string().min(8),
 })
 
-export async function PATCH(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ message: 'Perlu log masuk' }, { status: 401 })
-
-  const body = await request.json()
-  const parsed = schema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ message: 'Data tidak sah', errors: parsed.error.flatten() }, { status: 400 })
-
-  const data = parsed.data
+export const PATCH = withAuth(async ({ user, req }) => {
+  const data = await parseBody(req, schema)
   const now = new Date().toISOString()
 
   const { data: profile } = await supabaseAdmin
-    .from('customer_profiles')
-    .select('id, emergency_contacts(id)')
-    .eq('user_id', user.id)
-    .single()
-  if (!profile) return NextResponse.json({ message: 'Profil tidak dijumpai' }, { status: 404 })
+    .from('customer_profiles').select('id, emergency_contacts(id)').eq('user_id', user.id).single()
+  if (!profile) throw Errors.notFound('Profil')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ecId = (profile as any).emergency_contacts?.[0]?.id as string | undefined
 
   const [userErr, profileErr] = await Promise.all([
-    supabaseAdmin.from('users').update({ full_name: data.fullName, phone: data.phone, updated_at: now }).eq('id', user.id).then(r => r.error),
+    supabaseAdmin.from('users')
+      .update({ full_name: data.fullName, phone: data.phone, updated_at: now })
+      .eq('id', user.id).then(r => r.error),
     supabaseAdmin.from('customer_profiles').update({
       is_for_self: data.isForSelf,
       senior_full_name: data.seniorFullName ?? null,
       senior_age: data.seniorAge ?? null,
       senior_phone: data.seniorPhone ?? null,
-      location_state: data.locationState,
-      location_city: data.locationCity,
+      location_state: data.locationState, location_city: data.locationCity,
       location_postcode: data.locationPostcode ?? null,
-      mobility_status: data.mobilityStatus,
-      needs: data.needs,
-      updated_at: now,
+      mobility_status: data.mobilityStatus, needs: data.needs, updated_at: now,
     }).eq('id', profile.id).then(r => r.error),
   ])
-  if (userErr) return NextResponse.json({ message: userErr.message }, { status: 500 })
-  if (profileErr) return NextResponse.json({ message: profileErr.message }, { status: 500 })
+  if (userErr) throw Errors.serverError(userErr.message)
+  if (profileErr) throw Errors.serverError(profileErr.message)
 
-  // Upsert emergency contact
   if (ecId) {
     await supabaseAdmin.from('emergency_contacts').update({
-      name: data.emergencyName,
-      relationship: data.emergencyRelation ?? '',
-      phone: data.emergencyPhone,
+      name: data.emergencyName, relationship: data.emergencyRelation ?? '', phone: data.emergencyPhone,
     }).eq('id', ecId)
   } else {
     await supabaseAdmin.from('emergency_contacts').insert({
-      id: crypto.randomUUID(),
-      customer_profile_id: profile.id,
-      name: data.emergencyName,
-      relationship: data.emergencyRelation ?? '',
-      phone: data.emergencyPhone,
-      is_primary: true,
+      id: crypto.randomUUID(), customer_profile_id: profile.id,
+      name: data.emergencyName, relationship: data.emergencyRelation ?? '',
+      phone: data.emergencyPhone, is_primary: true,
     })
   }
 
   return NextResponse.json({ success: true })
-}
+})

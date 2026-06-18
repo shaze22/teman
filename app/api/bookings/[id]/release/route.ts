@@ -1,14 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { notifyFundsReleased } from '@/lib/notifications'
+import { withAuth } from '@/lib/api/handler'
+import { walletsRepo } from '@/lib/repositories/wallets'
 import { getProviderAmount } from '@/lib/services'
+import { notifyFundsReleased } from '@/lib/notifications'
+import { Errors } from '@/lib/errors'
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+export const POST = withAuth(async ({ user, params }) => {
+  const { id } = params
 
   const { data: booking } = await supabaseAdmin
     .from('bookings')
@@ -16,60 +15,34 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     .eq('id', id)
     .single()
 
-  if (!booking) return NextResponse.json({ message: 'Booking not found' }, { status: 404 })
-  if (booking.customer_id !== user.id) return NextResponse.json({ message: 'Only the customer can release funds' }, { status: 403 })
-  if (booking.status !== 'completed') return NextResponse.json({ message: 'Booking is not completed' }, { status: 400 })
-  if (booking.payment_status !== 'paid') return NextResponse.json({ message: 'Payment not received' }, { status: 400 })
-  if (booking.funds_released) return NextResponse.json({ message: 'Funds already released' }, { status: 400 })
+  if (!booking) throw Errors.notFound('Booking')
+  if (booking.customer_id !== user.id) throw Errors.forbidden('Only the customer can release funds')
+  if (booking.status !== 'completed') throw Errors.badRequest('Booking is not completed')
+  if (booking.payment_status !== 'paid') throw Errors.badRequest('Payment not received')
+  if (booking.funds_released) throw Errors.badRequest('Funds already released')
 
   const now = new Date().toISOString()
   const providerNet = getProviderAmount(booking.service_type, parseFloat(String(booking.provider_price)))
 
-  // Get current wallet balance for balance_after calculation
-  const { data: lastTx } = await supabaseAdmin
-    .from('wallet_transactions')
-    .select('balance_after')
-    .eq('user_id', booking.provider_id)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  const balanceAfter = parseFloat(String(lastTx?.balance_after ?? 0)) + providerNet
-
-  const [releaseRes, walletRes] = await Promise.all([
-    supabaseAdmin
-      .from('bookings')
+  const [, newBalance] = await Promise.all([
+    supabaseAdmin.from('bookings')
       .update({ funds_released: true, funds_released_at: now, updated_at: now })
       .eq('id', id),
-    supabaseAdmin.from('wallet_transactions').insert({
-      id: crypto.randomUUID(),
-      user_id: booking.provider_id,
-      type: 'credit',
-      amount: providerNet,
-      balance_after: balanceAfter,
-      reference_type: 'booking',
-      reference_id: id,
+    walletsRepo.credit(booking.provider_id, providerNet, {
+      referenceType: 'booking',
+      referenceId: id,
       description: `Earnings from booking #${booking.booking_code}`,
-      created_at: now,
     }),
   ])
 
-  if (releaseRes.error || walletRes.error) {
-    console.error('[release] DB error:', releaseRes.error ?? walletRes.error)
-    return NextResponse.json({ message: 'Failed to release funds' }, { status: 500 })
-  }
-
-  // Update denormalized earnings on provider_profiles (non-fatal)
   void supabaseAdmin.from('provider_profiles')
-    .update({ earnings_total: balanceAfter, updated_at: now })
+    .update({ earnings_total: newBalance, updated_at: now })
     .eq('user_id', booking.provider_id)
 
   notifyFundsReleased({
-    bookingId: id,
-    bookingCode: booking.booking_code,
-    providerId: booking.provider_id,
-    amount: providerNet,
+    bookingId: id, bookingCode: booking.booking_code,
+    providerId: booking.provider_id, amount: providerNet,
   }).catch(() => {})
 
   return NextResponse.json({ success: true, amountReleased: providerNet })
-}
+})

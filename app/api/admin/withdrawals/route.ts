@@ -1,15 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { supabaseAdmin } from '@/lib/supabase/admin'
-import { isAdmin } from '@/lib/admin-auth'
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+import { withAdmin } from '@/lib/api/handler'
+import { parseBody } from '@/lib/api/parse'
+import { approveWithdrawal } from '@/lib/use-cases/approve-withdrawal'
 
-export async function GET() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user || !(await isAdmin(user.id))) return NextResponse.json({ message: 'Access denied' }, { status: 403 })
-
-  // Batch fetch users to avoid N+1
+export const GET = withAdmin(async () => {
   const { data } = await supabaseAdmin
     .from('withdrawal_requests')
     .select(`
@@ -26,65 +22,16 @@ export async function GET() {
   }))
 
   return NextResponse.json(enriched)
-}
+})
 
-const schema = z.object({
+const patchSchema = z.object({
   id: z.string(),
   action: z.enum(['approved', 'rejected']),
   notes: z.string().optional(),
 })
 
-export async function PATCH(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user || !(await isAdmin(user.id))) return NextResponse.json({ message: 'Access denied' }, { status: 403 })
-
-  const body = await request.json()
-  const parsed = schema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ message: 'Invalid data' }, { status: 400 })
-
-  const { id, action, notes } = parsed.data
-  const now = new Date().toISOString()
-
-  const { data: wr } = await supabaseAdmin
-    .from('withdrawal_requests')
-    .select('provider_id, amount, status')
-    .eq('id', id)
-    .single()
-
-  if (!wr) return NextResponse.json({ message: 'Request not found' }, { status: 404 })
-  if (wr.status !== 'pending') return NextResponse.json({ message: 'Request already processed' }, { status: 400 })
-
-  await supabaseAdmin
-    .from('withdrawal_requests')
-    .update({ status: action, notes: notes ?? null, processed_at: now, updated_at: now })
-    .eq('id', id)
-
-  if (action === 'approved') {
-    // Get current wallet balance from last transaction
-    const { data: lastTx } = await supabaseAdmin
-      .from('wallet_transactions')
-      .select('balance_after')
-      .eq('user_id', wr.provider_id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-
-    const currentBalance = parseFloat(String(lastTx?.balance_after ?? 0))
-    const newBalance = Math.max(0, currentBalance - parseFloat(String(wr.amount)))
-
-    await supabaseAdmin.from('wallet_transactions').insert({
-      id: crypto.randomUUID(),
-      user_id: wr.provider_id,
-      type: 'debit',
-      amount: wr.amount,
-      balance_after: newBalance,
-      reference_type: 'withdrawal',
-      reference_id: id,
-      description: 'Withdrawal approved',
-      created_at: now,
-    })
-  }
-
+export const PATCH = withAdmin(async ({ user, req }) => {
+  const { id, action, notes } = await parseBody(req, patchSchema)
+  await approveWithdrawal(id, action, user.id, notes)
   return NextResponse.json({ success: true })
-}
+})

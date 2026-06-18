@@ -1,22 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { withAuth, type AuthContext } from '@/lib/api/handler'
+import { Errors } from '@/lib/errors'
 
-export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ message: 'Perlu log masuk' }, { status: 401 })
-
+export const POST = withAuth(async ({ user, req }: AuthContext) => {
   const { data: profile } = await supabaseAdmin
     .from('provider_profiles').select('id').eq('user_id', user.id).maybeSingle()
-  if (!profile) return NextResponse.json({ message: 'Profil tidak dijumpai' }, { status: 404 })
+  if (!profile) throw Errors.notFound('Profil')
 
-  const formData = await request.formData()
+  const formData = await req.formData()
   const file = formData.get('file') as File | null
   const caption = formData.get('caption') as string | null
 
-  if (!file) return NextResponse.json({ message: 'Fail tidak ditemui' }, { status: 400 })
-  if (file.size > 5 * 1024 * 1024) return NextResponse.json({ message: 'Fail terlalu besar (max 5MB)' }, { status: 400 })
+  if (!file) throw Errors.badRequest('Fail tidak ditemui')
+  if (file.size > 5 * 1024 * 1024) throw Errors.badRequest('Fail terlalu besar (max 5MB)')
 
   const ext = file.name.split('.').pop()
   const path = `${profile.id}/${Date.now()}.${ext}`
@@ -24,38 +21,31 @@ export async function POST(request: NextRequest) {
 
   const { error: uploadError } = await supabaseAdmin.storage
     .from('portfolio').upload(path, Buffer.from(bytes), { contentType: file.type, upsert: false })
-  if (uploadError) return NextResponse.json({ message: uploadError.message }, { status: 500 })
+  if (uploadError) throw Errors.serverError(uploadError.message)
 
   const { data: { publicUrl } } = supabaseAdmin.storage.from('portfolio').getPublicUrl(path)
 
   const { data: inserted } = await supabaseAdmin.from('provider_portfolios').insert({
-    id: crypto.randomUUID(),
-    profile_id: profile.id,
-    image_url: publicUrl,
-    title: caption ?? null,
+    id: crypto.randomUUID(), profile_id: profile.id, image_url: publicUrl, title: caption ?? null,
   }).select('id, image_url, title').single()
 
   return NextResponse.json(inserted)
-}
+})
 
-export async function DELETE(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ message: 'Perlu log masuk' }, { status: 401 })
-
-  const { id } = await request.json()
+export const DELETE = withAuth(async ({ user, req }: AuthContext) => {
+  const { id } = await req.json()
 
   const { data: profile } = await supabaseAdmin
     .from('provider_profiles').select('id').eq('user_id', user.id).maybeSingle()
-  if (!profile) return NextResponse.json({ message: 'Profil tidak dijumpai' }, { status: 404 })
+  if (!profile) throw Errors.notFound('Profil')
 
   const { data: photo } = await supabaseAdmin
     .from('provider_portfolios').select('id, image_url').eq('id', id).eq('profile_id', profile.id).single()
-  if (!photo) return NextResponse.json({ message: 'Foto tidak dijumpai' }, { status: 404 })
+  if (!photo) throw Errors.notFound('Foto')
 
   const path = photo.image_url.split('/portfolio/')[1]
   if (path) await supabaseAdmin.storage.from('portfolio').remove([path])
 
   await supabaseAdmin.from('provider_portfolios').delete().eq('id', id)
   return NextResponse.json({ success: true })
-}
+})

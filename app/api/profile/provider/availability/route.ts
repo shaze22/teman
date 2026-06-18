@@ -1,7 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { supabaseAdmin } from '@/lib/supabase/admin'
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+import { withAuth } from '@/lib/api/handler'
+import { parseBody } from '@/lib/api/parse'
+import { Errors } from '@/lib/errors'
 
 const schema = z.object({
   slots: z.array(z.object({
@@ -12,42 +14,26 @@ const schema = z.object({
   })),
 })
 
-export async function PUT(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+export const PUT = withAuth(async ({ user, req }) => {
+  const { slots } = await parseBody(req, schema)
 
-  const body = await request.json()
-  const parsed = schema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ message: 'Invalid data' }, { status: 400 })
-
-  const { slots } = parsed.data
-
-  // Get provider profile id (used as FK in provider_availabilities)
   const { data: profile } = await supabaseAdmin
-    .from('provider_profiles')
-    .select('id')
-    .eq('user_id', user.id)
-    .single()
-  if (!profile) return NextResponse.json({ message: 'Provider profile not found' }, { status: 404 })
+    .from('provider_profiles').select('id').eq('user_id', user.id).single()
+  if (!profile) throw Errors.notFound('Provider profile')
 
-  // Replace all recurring slots
-  await supabaseAdmin.from('provider_availabilities').delete().eq('profile_id', profile.id).eq('is_recurring', true)
+  await supabaseAdmin.from('provider_availabilities')
+    .delete().eq('profile_id', profile.id).eq('is_recurring', true)
 
   if (slots.length > 0) {
     const { error } = await supabaseAdmin.from('provider_availabilities').insert(
       slots.map(s => ({
-        id: crypto.randomUUID(),
-        profile_id: profile.id,
-        day_of_week: s.dayOfWeek,
-        start_time: s.startTime,
-        end_time: s.endTime,
-        is_recurring: true,
-        is_available: true,
+        id: crypto.randomUUID(), profile_id: profile.id,
+        day_of_week: s.dayOfWeek, start_time: s.startTime, end_time: s.endTime,
+        is_recurring: true, is_available: true,
       }))
     )
-    if (error) return NextResponse.json({ message: error.message }, { status: 500 })
+    if (error) throw Errors.serverError(error.message)
   }
 
   return NextResponse.json({ success: true })
-}
+})

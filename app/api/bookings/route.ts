@@ -1,167 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { createClient } from '@/lib/supabase/server'
-import { z } from 'zod'
-import { notifyNewBooking } from '@/lib/notifications'
-import { sendBookingNewProvider } from '@/lib/email'
-import { getPlatformFee, getProviderAmount, LOCUM_TYPES } from '@/lib/services'
+import { withAuth } from '@/lib/api/handler'
+import { parseBody } from '@/lib/api/parse'
+import { createBooking, createBookingSchema } from '@/lib/use-cases/create-booking'
 
-const schema = z.object({
-  providerId: z.string(),
-  serviceType: z.enum(['nursing', 'physiotherapy', 'home_care', 'medical_escort', 'riadah', 'ibadah', 'makan']),
-  scheduledDate: z.string(),
-  startTime: z.string(),
-  durationHours: z.number().int().min(1).max(24),
-  locationAddress: z.string().optional(),
-  requirements: z.string().optional(),
-  recipientName: z.string().optional(),
-  paymentMethod: z.enum(['stripe', 'cash']).default('stripe'),
-  promoCode: z.string().optional(),
-  discountAmount: z.number().nonnegative().default(0),
-  creditUsed: z.number().nonnegative().default(0),
+export const POST = withAuth(async ({ user, req }) => {
+  const input = await parseBody(req, createBookingSchema)
+  const result = await createBooking(user.id, input)
+  return NextResponse.json(result)
 })
 
-export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-
-  let body: unknown
-  try { body = await request.json() } catch {
-    return NextResponse.json({ message: 'Invalid JSON' }, { status: 400 })
-  }
-
-  const parsed = schema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ message: 'Missing or invalid fields', errors: parsed.error.flatten() }, { status: 400 })
-
-  const data = parsed.data
-
-  const { data: providerProfile, error: ppError } = await supabaseAdmin
-    .from('provider_profiles')
-    .select('id, user_id, ic_verified, license_verified, is_active, is_available')
-    .eq('user_id', data.providerId)
-    .single()
-
-  if (ppError || !providerProfile) {
-    return NextResponse.json({ message: 'Provider not found' }, { status: 404 })
-  }
-
-  if (!providerProfile.is_active || !providerProfile.ic_verified) {
-    return NextResponse.json({ message: 'Provider is not verified or inactive' }, { status: 403 })
-  }
-
-  if (!providerProfile.is_available) {
-    return NextResponse.json({ message: 'Provider is not available for bookings' }, { status: 409 })
-  }
-
-  if (LOCUM_TYPES.includes(data.serviceType) && !providerProfile.license_verified) {
-    return NextResponse.json({ message: 'Provider license not verified for this service type' }, { status: 403 })
-  }
-
-  // Server-side price computation — reject client-supplied amounts
-  const { data: pricing, error: pricingError } = await supabaseAdmin
-    .from('provider_pricing')
-    .select('price')
-    .eq('profile_id', providerProfile.id)
-    .eq('service_type', data.serviceType)
-    .eq('is_active', true)
-    .single()
-
-  if (pricingError || !pricing) {
-    return NextResponse.json({ message: 'Provider does not offer this service' }, { status: 400 })
-  }
-
-  const baseAmount = Number(pricing.price) * data.durationHours
-  const platformFee = getPlatformFee(data.serviceType, baseAmount)
-  const providerPrice = getProviderAmount(data.serviceType, baseAmount)
-  const totalAmount = Math.max(0, baseAmount - data.discountAmount - data.creditUsed)
-
-  // Server-generated booking code prevents client spoofing
-  const bookingCode = 'BK' + Date.now().toString(36).toUpperCase()
-
-  const { data: booking, error: bookingError } = await supabaseAdmin
-    .from('bookings')
-    .insert({
-      id: crypto.randomUUID(),
-      booking_code: bookingCode,
-      customer_id: user.id,
-      provider_id: providerProfile.user_id,
-      service_type: data.serviceType,
-      scheduled_date: data.scheduledDate,
-      start_time: data.startTime,
-      duration_hours: data.durationHours,
-      location_address: data.locationAddress ?? null,
-      requirements: data.requirements ?? null,
-      recipient_name: data.recipientName ?? null,
-      booked_by_care_center: !!(data.recipientName),
-      provider_price: providerPrice,
-      platform_fee: platformFee,
-      total_amount: totalAmount,
-      payment_method: data.paymentMethod,
-      promo_code: data.promoCode ?? null,
-      discount_amount: data.discountAmount,
-      updated_at: new Date().toISOString(),
-    })
-    .select('id, booking_code')
-    .single()
-
-  if (bookingError || !booking) {
-    console.error('[bookings POST]', bookingError)
-    return NextResponse.json({ message: 'Failed to create booking' }, { status: 500 })
-  }
-
-  // Atomic credit deduction
-  if (data.creditUsed > 0) {
-    const { data: userRow } = await supabaseAdmin.from('users').select('credit_balance').eq('id', user.id).single()
-    const current = parseFloat(String(userRow?.credit_balance ?? 0))
-    if (current >= data.creditUsed) {
-      await supabaseAdmin.from('users').update({ credit_balance: current - data.creditUsed }).eq('id', user.id)
-    }
-  }
-
-  // Increment promo uses_count
-  if (data.promoCode) {
-    const { data: promo } = await supabaseAdmin.from('promo_codes').select('uses_count').eq('code', data.promoCode).single()
-    if (promo) await supabaseAdmin.from('promo_codes').update({ uses_count: (promo.uses_count ?? 0) + 1 }).eq('code', data.promoCode)
-  }
-
-  // Notify provider of new booking (in-app + email)
-  const [customerUser, providerAuth] = await Promise.all([
-    supabaseAdmin.from('users').select('full_name').eq('id', user.id).single(),
-    supabaseAdmin.auth.admin.getUserById(providerProfile.user_id),
-  ])
-  const customerName = customerUser.data?.full_name ?? ''
-  notifyNewBooking({
-    bookingId: booking.id,
-    bookingCode: booking.booking_code,
-    providerId: providerProfile.user_id,
-    customerName,
-    scheduledDate: data.scheduledDate,
-  }).catch(() => {})
-  const providerEmail = providerAuth.data?.user?.email ?? ''
-  if (providerEmail) {
-    sendBookingNewProvider({
-      to: providerEmail,
-      providerName: '',
-      customerName,
-      bookingCode: booking.booking_code,
-      bookingId: booking.id,
-      scheduledDate: data.scheduledDate,
-      serviceType: data.serviceType,
-      totalAmount,
-    }).catch(() => {})
-  }
-
-  return NextResponse.json({ bookingCode: booking.booking_code, id: booking.id })
-}
-
-export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-
+export const GET = withAuth(async ({ user }) => {
   const { data: bookings, error } = await supabaseAdmin
     .from('bookings')
     .select(`
@@ -173,10 +22,6 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: false })
     .limit(20)
 
-  if (error) {
-    console.error('[bookings GET]', error)
-    return NextResponse.json([], { status: 200 })
-  }
-
+  if (error) return NextResponse.json([], { status: 200 })
   return NextResponse.json(bookings ?? [])
-}
+})

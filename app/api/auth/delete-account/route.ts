@@ -1,20 +1,17 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { withAuth } from '@/lib/api/handler'
+import { Errors } from '@/lib/errors'
 
-export async function DELETE() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  // Soft delete only — healthcare records are Class A data, never hard delete
-  const { error } = await supabaseAdmin
-    .from('users')
+// Soft delete only — Class A healthcare data, no hard delete
+export const DELETE = withAuth(async ({ user }) => {
+  const { error } = await supabaseAdmin.from('users')
     .update({ status: 'suspended', updated_at: new Date().toISOString() })
     .eq('id', user.id)
+  if (error) throw Errors.serverError(error.message)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
+  const supabase = await createClient()
   await supabase.auth.signOut()
   return NextResponse.json({ ok: true })
-}
+})
