@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 
 async function isAdmin(userId: string) {
   const { data } = await supabaseAdmin.from('users').select('role').eq('id', userId).single()
-  return data?.role === 'super_admin' || data?.role === 'ngo_admin'
+  return data?.role === 'super_admin'
 }
 
 export async function PATCH(req: NextRequest) {

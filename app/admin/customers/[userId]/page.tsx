@@ -4,7 +4,6 @@ import { requireAdmin } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { ArrowLeft, MapPin, Calendar, ShoppingBag, Heart, Phone } from 'lucide-react'
 import UserSuspendButton from '../_user-suspend-button'
-import AssignNgoButton from '../../_assign-ngo-button'
 
 const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-700',
@@ -24,7 +23,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
 
   const [{ data: user }, { data: profile }, { data: rawBookings }] = await Promise.all([
     supabaseAdmin.from('users').select('id, full_name, email, phone, status, created_at').eq('id', userId).single(),
-    supabaseAdmin.from('customer_profiles').select('id, ngo_id, is_for_self, mobility_status, health_conditions, location_city, location_state').eq('user_id', userId).single(),
+    supabaseAdmin.from('customer_profiles').select('id, is_for_self, mobility_status, health_conditions, location_city, location_state').eq('user_id', userId).single(),
     supabaseAdmin
       .from('bookings')
       .select(`
@@ -64,7 +63,6 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
           <p className="text-sm text-gray-500 mt-0.5">{user.email}</p>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          {profile && <AssignNgoButton type="customer" profileId={profile.id} currentNgoId={profile.ngo_id} />}
           <UserSuspendButton userId={userId} isActive={user.status !== 'suspended'} />
         </div>
       </div>

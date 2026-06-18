@@ -13,16 +13,14 @@ export async function requireAdmin() {
     .eq('id', user.id)
     .single()
 
-  if (!u || (u.role !== 'super_admin' && u.role !== 'ngo_admin')) {
-    redirect('/')
-  }
+  if (!u || u.role !== 'super_admin') redirect('/')
 
-  return { user, role: u.role as 'super_admin' | 'ngo_admin' }
+  return { user, role: u.role as 'super_admin' }
 }
 
 export async function isAdmin(userId: string): Promise<boolean> {
   const { data } = await supabaseAdmin.from('users').select('role').eq('id', userId).single()
-  return !!data && (data.role === 'super_admin' || data.role === 'ngo_admin')
+  return data?.role === 'super_admin'
 }
 
 export async function requireSuperAdmin() {

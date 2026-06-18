@@ -250,8 +250,13 @@ SenioCare    → locum + companion untuk warga emas ← projek ini
 - ✅ Disputes N+1 fixed (batch query, no FK joins)
 - ✅ Map lat/lng = location_lat/location_lng
 - ✅ Encoding bugs fixed (▲▼ dalam analytics)
-- ⚠️ Customer registration flow belum diaudit
-- ⚠️ Booking flow end-to-end belum ditest
+- ✅ Server-side locum gating (ic_verified, license_verified, is_active, is_available)
+- ✅ Server-side price computation dari provider_pricing (prevent client spoofing)
+- ✅ provider/[id]/profile: activeServiceTypes filtered by verification status
+- ✅ Email templates: teal #0D9488, v2 service labels, no Meal Companion refs
+- ✅ Customer register: v2 NEEDS (7 service types), teal logo, updated consent
+- ✅ syedshazni@gmail.com = super_admin (DB updated)
+- ⚠️ Booking flow end-to-end belum ditest (E2E — perlu manual test)
 
 ## Supabase Join Patterns (provider_profiles)
 ```typescript

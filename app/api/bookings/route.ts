@@ -4,9 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { notifyNewBooking } from '@/lib/notifications'
 import { sendBookingNewProvider } from '@/lib/email'
-import { getPlatformFee, getProviderAmount } from '@/lib/services'
-
-const LOCUM_TYPES = ['nursing', 'physiotherapy', 'home_care']
+import { getPlatformFee, getProviderAmount, LOCUM_TYPES } from '@/lib/services'
 
 const schema = z.object({
   providerId: z.string(),

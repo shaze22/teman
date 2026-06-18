@@ -17,11 +17,13 @@ export default async function DashboardRedirect() {
   if (!dbUser) redirect('/register')
 
   switch (dbUser.role) {
-    case 'single_mother': redirect('/dashboard/provider')
+    case 'locum_nurse':
+    case 'locum_physio':
+    case 'locum_care_aide':
+    case 'medical_escort':
+    case 'companion': redirect('/dashboard/provider')
     case 'customer':
     case 'waris': redirect('/dashboard/customer')
-    case 'ngo_admin': redirect('/dashboard/ngo')
-    case 'care_center': redirect('/dashboard/care-center')
     case 'super_admin': redirect('/admin')
     default: redirect('/')
   }

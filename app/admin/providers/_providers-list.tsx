@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Star, MapPin, Clock, ShieldAlert, CheckCircle2, Loader2 } from 'lucide-react'
 import ProviderActions from './_provider-actions'
-import AssignNgoButton from '../_assign-ngo-button'
 import IcActions from './_ic-actions'
 
 type Provider = {
@@ -14,16 +13,13 @@ type Provider = {
   fullName: string
   email: string
   userStatus: string
-  verifiedByNgo: boolean
   verifiedByAdmin: boolean
-  bgCheck: string
   locationCity: string
   locationState: string
   ratingAvg: number
   totalReviews: number
   totalBookings: number
   isActive: boolean
-  ngoId: string | null
   icNumber: string | null
   icSubmittedAt: string | null
   icVerified: boolean
@@ -188,7 +184,6 @@ function ProviderRow({
         {p.isLocum && p.locumVerified && (
           <span className="text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded-full font-medium">🩺 Locum ✓</span>
         )}
-        <AssignNgoButton type="provider" profileId={p.id} currentNgoId={p.ngoId} />
         <ProviderActions profileId={p.id} userId={p.userId} verifiedByAdmin={p.verifiedByAdmin} isActive={p.isActive} bgCheck={p.bgCheck} />
       </div>
     </div>

@@ -11,10 +11,6 @@ export type UserRole =
   | 'customer'
   | 'waris'
   | 'super_admin'
-  // Legacy roles (keep for existing data)
-  | 'single_mother'
-  | 'ngo_admin'
-  | 'care_center'
 
 export type UserStatus = 'active' | 'pending' | 'suspended' | 'verified'
 
