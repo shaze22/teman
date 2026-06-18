@@ -20,7 +20,7 @@ export async function handlePaymentWebhook(sessionId: string, bookingId: string,
     .single()
 
   const now = new Date().toISOString()
-  await Promise.all([
+  const [paymentResult, bookingResult] = await Promise.all([
     payment
       ? supabaseAdmin.from('payments').update({ status: 'paid' }).eq('id', payment.id)
       : Promise.resolve({ error: null }),
@@ -28,6 +28,15 @@ export async function handlePaymentWebhook(sessionId: string, bookingId: string,
       .update({ status: 'confirmed', payment_status: 'paid', payment_method: 'stripe', updated_at: now })
       .eq('id', bookingId),
   ])
+
+  if (bookingResult.error) {
+    console.error('[webhook] booking update failed:', bookingResult.error.message, { bookingId, sessionId })
+    throw new Error(`Booking update failed: ${bookingResult.error.message}`)
+  }
+  if (paymentResult.error) {
+    console.error('[webhook] payment update failed:', paymentResult.error.message, { bookingId, sessionId })
+    // Non-fatal — booking is confirmed; payment record mismatch is fixable
+  }
 
   // Fetch booking details for notifications
   const { data: booking } = await supabaseAdmin

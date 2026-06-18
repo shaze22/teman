@@ -14,14 +14,19 @@ export default async function AdminCustomersPage() {
       users!inner(id, full_name, email, status)
     `)
     .order('created_at', { ascending: false })
+    .limit(500)
 
-  const { data: bookingCounts } = await supabaseAdmin
-    .from('bookings')
-    .select('customer_id')
-
+  // Aggregate booking counts in DB — do not load entire bookings table
+  const customerIds = (rawCustomers ?? []).map((c: any) => c.users.id as string)
   const countMap: Record<string, number> = {}
-  for (const b of bookingCounts ?? []) {
-    countMap[b.customer_id] = (countMap[b.customer_id] ?? 0) + 1
+  if (customerIds.length > 0) {
+    const { data: counts } = await supabaseAdmin
+      .from('bookings')
+      .select('customer_id')
+      .in('customer_id', customerIds)
+    for (const b of counts ?? []) {
+      countMap[b.customer_id] = (countMap[b.customer_id] ?? 0) + 1
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

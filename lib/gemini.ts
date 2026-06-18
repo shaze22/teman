@@ -124,9 +124,25 @@ Analisa dan balas JSON sahaja:
   "issues": ["senarai masalah jika ada"]
 }`
 
-  const result = await model.generateContent([icPart, selfiePart, prompt])
-  const text = result.response.text()
+  let text: string
+  try {
+    const result = await model.generateContent([icPart, selfiePart, prompt])
+    text = result.response.text()
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    // Rate limit or service unavailable — surface a user-friendly error
+    if (msg.includes('429') || msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED')) {
+      throw Object.assign(new Error('Verification service is temporarily busy. Please try again in a few minutes.'), { status: 503 })
+    }
+    throw Object.assign(new Error('Identity verification service unavailable. Please try again later.'), { status: 503 })
+  }
+
   const match = text.match(/\{[\s\S]*\}/)
-  if (!match) throw new Error('Invalid Gemini response')
-  return JSON.parse(match[0]) as SelfieVerifyResult
+  if (!match) throw Object.assign(new Error('Verification service returned an unexpected response. Please try again.'), { status: 503 })
+
+  try {
+    return JSON.parse(match[0]) as SelfieVerifyResult
+  } catch {
+    throw Object.assign(new Error('Verification service returned an unexpected response. Please try again.'), { status: 503 })
+  }
 }

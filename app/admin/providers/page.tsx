@@ -14,6 +14,7 @@ export default async function AdminProvidersPage() {
       users!provider_profiles_user_id_fkey(id, full_name, email, status, role)
     `)
     .order('created_at', { ascending: false })
+    .limit(500)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const providers = (rawProviders ?? []).map((p: any) => ({

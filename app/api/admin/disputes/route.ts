@@ -10,6 +10,7 @@ export async function GET() {
     .from('disputes')
     .select('id, booking_id, raised_by, reason, status, resolution, admin_notes, created_at, updated_at, resolved_at')
     .order('created_at', { ascending: false })
+    .limit(500)
 
   if (!data || data.length === 0) return NextResponse.json([])
 

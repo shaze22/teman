@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { Errors } from '@/lib/errors'
 
 export const walletsRepo = {
   async getBalance(userId: string): Promise<number> {
@@ -12,25 +13,23 @@ export const walletsRepo = {
     return parseFloat(String(data?.balance_after ?? 0))
   },
 
+  // Uses Postgres advisory lock to serialize concurrent ops — no read-modify-write race
   async credit(
     userId: string,
     amount: number,
     opts: { referenceType: string; referenceId: string; description: string },
   ): Promise<number> {
-    const currentBalance = await this.getBalance(userId)
-    const newBalance = currentBalance + amount
-    await supabaseAdmin.from('wallet_transactions').insert({
-      id: crypto.randomUUID(),
-      user_id: userId,
-      type: 'credit',
-      amount,
-      balance_after: newBalance,
-      reference_type: opts.referenceType,
-      reference_id: opts.referenceId,
-      description: opts.description,
-      created_at: new Date().toISOString(),
+    const { data, error } = await supabaseAdmin.rpc('atomic_wallet_credit', {
+      p_user_id:  userId,
+      p_amount:   amount,
+      p_type:     'credit',
+      p_ref_type: opts.referenceType,
+      p_ref_id:   opts.referenceId,
+      p_desc:     opts.description,
+      p_id:       crypto.randomUUID(),
     })
-    return newBalance
+    if (error) throw Errors.serverError(`Wallet credit failed: ${error.message}`)
+    return parseFloat(String(data))
   },
 
   async debit(
@@ -38,19 +37,15 @@ export const walletsRepo = {
     amount: number,
     opts: { referenceType: string; referenceId: string; description: string },
   ): Promise<number> {
-    const currentBalance = await this.getBalance(userId)
-    const newBalance = Math.max(0, currentBalance - amount)
-    await supabaseAdmin.from('wallet_transactions').insert({
-      id: crypto.randomUUID(),
-      user_id: userId,
-      type: 'debit',
-      amount,
-      balance_after: newBalance,
-      reference_type: opts.referenceType,
-      reference_id: opts.referenceId,
-      description: opts.description,
-      created_at: new Date().toISOString(),
+    const { data, error } = await supabaseAdmin.rpc('atomic_wallet_debit', {
+      p_user_id:  userId,
+      p_amount:   amount,
+      p_ref_type: opts.referenceType,
+      p_ref_id:   opts.referenceId,
+      p_desc:     opts.description,
+      p_id:       crypto.randomUUID(),
     })
-    return newBalance
+    if (error) throw Errors.serverError(`Wallet debit failed: ${error.message}`)
+    return parseFloat(String(data))
   },
 }

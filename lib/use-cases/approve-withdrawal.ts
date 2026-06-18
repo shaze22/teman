@@ -18,10 +18,8 @@ export async function approveWithdrawal(
   if (wr.status !== 'pending') throw Errors.conflict('Request already processed')
 
   const now = new Date().toISOString()
-  await supabaseAdmin.from('withdrawal_requests')
-    .update({ status: action, notes: notes ?? null, processed_at: now, updated_at: now, processed_by: adminId })
-    .eq('id', withdrawalId)
 
+  // Debit wallet first — if this fails, the request stays pending (no phantom approval)
   if (action === 'approved') {
     await walletsRepo.debit(wr.provider_id, parseFloat(String(wr.amount)), {
       referenceType: 'withdrawal',
@@ -29,4 +27,11 @@ export async function approveWithdrawal(
       description: 'Withdrawal approved',
     })
   }
+
+  // Only mark approved after wallet is successfully debited
+  const { error } = await supabaseAdmin.from('withdrawal_requests')
+    .update({ status: action, notes: notes ?? null, processed_at: now, updated_at: now, processed_by: adminId })
+    .eq('id', withdrawalId)
+
+  if (error) throw Errors.serverError(error.message)
 }

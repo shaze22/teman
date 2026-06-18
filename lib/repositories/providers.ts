@@ -24,9 +24,10 @@ export const providersRepo = {
   },
 
   async updateProfile(id: string, data: Record<string, unknown>): Promise<void> {
-    await supabaseAdmin.from('provider_profiles')
+    const { error } = await supabaseAdmin.from('provider_profiles')
       .update({ ...data, updated_at: new Date().toISOString() })
       .eq('id', id)
+    if (error) throw Errors.serverError(error.message)
   },
 
   async getPricingForService(profileId: string, serviceType: string): Promise<DbProviderPricing | null> {
@@ -50,7 +51,8 @@ export const providersRepo = {
   },
 
   async createPricing(entries: Array<Record<string, unknown>>): Promise<void> {
-    await supabaseAdmin.from('provider_pricing').insert(entries)
+    const { error } = await supabaseAdmin.from('provider_pricing').insert(entries)
+    if (error) throw Errors.serverError(error.message)
   },
 
   async approveLicense(profileId: string, adminId: string): Promise<void> {

@@ -58,30 +58,27 @@ export async function completeBooking(bookingId: string, userId: string): Promis
     }
   }
 
-  // Auto-release escrow (guard: not already released)
-  if (b.payment_status === 'paid' && !b.funds_released) {
-    const providerNet = getProviderAmount(b.service_type, parseFloat(String(b.provider_price)))
-
-    const [newBalance] = await Promise.all([
-      walletsRepo.credit(b.provider_id, providerNet, {
+  // Auto-release escrow — atomic flag flip prevents double-release under concurrent requests
+  if (b.payment_status === 'paid') {
+    const wasFirst = await bookingsRepo.releaseEscrow(bookingId)
+    if (wasFirst) {
+      const providerNet = getProviderAmount(b.service_type, parseFloat(String(b.provider_price)))
+      const newBalance = await walletsRepo.credit(b.provider_id, providerNet, {
         referenceType: 'booking',
         referenceId: bookingId,
         description: `Earnings from booking #${b.booking_code}`,
-      }),
-      supabaseAdmin.from('bookings')
-        .update({ funds_released: true, funds_released_at: now, updated_at: now })
-        .eq('id', bookingId),
-    ])
+      })
 
-    // Denormalize earnings on provider_profiles (non-fatal)
-    void supabaseAdmin.from('provider_profiles')
-      .update({ earnings_total: newBalance, updated_at: now })
-      .eq('user_id', b.provider_id)
+      // Denormalize earnings on provider_profiles (non-fatal)
+      void supabaseAdmin.from('provider_profiles')
+        .update({ earnings_total: newBalance, updated_at: now })
+        .eq('user_id', b.provider_id)
 
-    notifyFundsReleased({
-      bookingId, bookingCode: b.booking_code,
-      providerId: b.provider_id, amount: providerNet,
-    }).catch(() => {})
+      notifyFundsReleased({
+        bookingId, bookingCode: b.booking_code,
+        providerId: b.provider_id, amount: providerNet,
+      }).catch(() => {})
+    }
   }
 
   // Notifications + email (fire and forget)

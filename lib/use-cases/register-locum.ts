@@ -118,7 +118,7 @@ export async function registerLocum(input: RegisterLocumInput): Promise<Register
   }
 
   const profileId = crypto.randomUUID()
-  await supabaseAdmin.from('provider_profiles').insert({
+  const { error: profileError } = await supabaseAdmin.from('provider_profiles').insert({
     id: profileId, user_id: userId, full_name: fullName,
     location_state: locationState, location_city: locationCity,
     ic_url: icUrl, selfie_url: selfieUrl,
@@ -137,12 +137,25 @@ export async function registerLocum(input: RegisterLocumInput): Promise<Register
     is_available: !needsLicense,
   })
 
+  if (profileError) {
+    await supabaseAdmin.from('users').delete().eq('id', userId)
+    await supabaseAdmin.auth.admin.deleteUser(userId)
+    throw Errors.serverError('Failed to create provider profile.')
+  }
+
   if (needsLicense && licenseType && licenseNumber) {
-    await supabaseAdmin.from('professional_licenses').insert({
+    const { error: licError } = await supabaseAdmin.from('professional_licenses').insert({
       provider_id: userId, license_type: licenseType, license_number: licenseNumber,
       license_url: licenseUrl, expiry_date: licenseExpiry || null,
       verified: false, is_primary: true, is_active: true,
-    }).then(null, () => {})
+    })
+    if (licError) {
+      // License record is required for admin review — if it fails, clean up and abort
+      await supabaseAdmin.from('provider_profiles').delete().eq('user_id', userId)
+      await supabaseAdmin.from('users').delete().eq('id', userId)
+      await supabaseAdmin.auth.admin.deleteUser(userId)
+      throw Errors.serverError('Failed to save license record. Please try again.')
+    }
   }
 
   // Default pricing
@@ -175,12 +188,13 @@ export async function registerLocum(input: RegisterLocumInput): Promise<Register
   }
 
   if (needsLicense) {
-    await supabaseAdmin.from('notifications').insert({
+    // Non-fatal — notification failure must not block registration
+    void supabaseAdmin.from('notifications').insert({
       user_id: userId, type: 'registration_pending',
       title: 'Registration Received',
       message: `Thank you ${fullName}. Your license is being reviewed by our admin team. This usually takes 1-3 business days.`,
       sent_via: ['in_app'],
-    }).then(null, () => {})
+    }).then(null, (e) => console.error('[register-locum] notification insert failed:', e))
   }
 
   return {

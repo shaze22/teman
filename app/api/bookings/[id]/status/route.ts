@@ -27,11 +27,11 @@ export const PATCH = withAuth(async ({ user, req, params }) => {
     return NextResponse.json({ success: true })
   }
 
-  // confirmed / in_progress — simple status transitions
+  // confirmed / in_progress — simple status transitions with role-based guards
   const { data: booking } = await supabaseAdmin
     .from('bookings')
     .select(`
-      customer_id, provider_id, booking_code, scheduled_date, total_amount,
+      customer_id, provider_id, status, payment_status, booking_code, scheduled_date, total_amount,
       customer:users!bookings_customer_id_fkey(full_name),
       provider:users!bookings_provider_id_fkey(full_name, phone)
     `)
@@ -46,12 +46,25 @@ export const PATCH = withAuth(async ({ user, req, params }) => {
   const isCustomer = b.customer_id === user.id
   if (!isProvider && !isCustomer) return NextResponse.json({ message: 'Access denied' }, { status: 403 })
 
+  // Role-based transition rules
+  if (status === 'confirmed') {
+    // Only provider can confirm; booking must have been paid
+    if (!isProvider) return NextResponse.json({ message: 'Only the provider can confirm a booking' }, { status: 403 })
+    if (b.payment_status !== 'paid') return NextResponse.json({ message: 'Booking must be paid before confirming' }, { status: 400 })
+  }
+  if (status === 'in_progress') {
+    // Only provider can start a session
+    if (!isProvider) return NextResponse.json({ message: 'Only the provider can mark a session as in progress' }, { status: 403 })
+    if (b.status !== 'confirmed') return NextResponse.json({ message: 'Booking must be confirmed before starting' }, { status: 400 })
+  }
+
   const now = new Date().toISOString()
   const update: Record<string, unknown> = { status, updated_at: now }
   if (status === 'confirmed') update.confirmed_at = now
   if (status === 'in_progress') update.checked_in_at = now
 
-  await supabaseAdmin.from('bookings').update(update).eq('id', id)
+  const { error: updateError } = await supabaseAdmin.from('bookings').update(update).eq('id', id)
+  if (updateError) return NextResponse.json({ message: updateError.message }, { status: 500 })
 
   const [customerAuth, providerAuth] = await Promise.all([
     supabaseAdmin.auth.admin.getUserById(b.customer_id),

@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { withPublic } from '@/lib/api/handler'
+import { NextResponse } from 'next/server'
+import { withAuth } from '@/lib/api/handler'
 import { registerCompanion } from '@/lib/use-cases/register-companion'
 
-export const POST = withPublic(async (req: NextRequest) => {
+// withAuth ensures userId comes from the verified session — never from client body
+export const POST = withAuth(async ({ user, req }) => {
   let form: FormData
   try {
     form = await req.formData()
@@ -10,7 +11,6 @@ export const POST = withPublic(async (req: NextRequest) => {
     return NextResponse.json({ message: 'Invalid form data' }, { status: 400 })
   }
 
-  const userId = form.get('userId') as string
   const fullName = form.get('fullName') as string
   const email = form.get('email') as string
   const phone = form.get('phone') as string
@@ -20,13 +20,14 @@ export const POST = withPublic(async (req: NextRequest) => {
   const icFrontFile = form.get('icFront') as File | null
   const selfieFile = form.get('selfie') as File | null
 
-  if (!userId || !fullName || !email || !phone || !locationState || !locationCity)
+  if (!fullName || !email || !phone || !locationState || !locationCity)
     return NextResponse.json({ message: 'Missing required fields' }, { status: 400 })
   if (!icFrontFile || !selfieFile)
     return NextResponse.json({ message: 'IC and selfie are required' }, { status: 400 })
 
   await registerCompanion({
-    userId, fullName, email, phone, locationState, locationCity,
+    userId: user.id,  // always from session, never from body
+    fullName, email, phone, locationState, locationCity,
     referralCode, icFrontFile, selfieFile,
   })
 

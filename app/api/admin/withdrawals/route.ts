@@ -13,6 +13,7 @@ export const GET = withAdmin(async () => {
       provider:users!withdrawal_requests_provider_id_fkey(full_name)
     `)
     .order('created_at', { ascending: false })
+    .limit(500)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const enriched = (data ?? []).map((w: any) => ({

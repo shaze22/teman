@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { withAuth } from '@/lib/api/handler'
+import { parseBody } from '@/lib/api/parse'
 
 export const GET = withAuth(async ({ user }) => {
   const { data } = await supabaseAdmin
@@ -12,8 +14,10 @@ export const GET = withAuth(async ({ user }) => {
   return NextResponse.json(data ?? [])
 })
 
+const patchSchema = z.object({ id: z.string().uuid() })
+
 export const PATCH = withAuth(async ({ user, req }) => {
-  const { id } = await req.json()
+  const { id } = await parseBody(req, patchSchema)
   await supabaseAdmin.from('notifications')
     .update({ is_read: true, read_at: new Date().toISOString() })
     .eq('id', id)

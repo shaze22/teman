@@ -43,9 +43,20 @@ export const bookingsRepo = {
   },
 
   async updateStatus(id: string, status: BookingStatus, extra?: Record<string, unknown>): Promise<void> {
-    await supabaseAdmin.from('bookings')
+    const { error } = await supabaseAdmin.from('bookings')
       .update({ status, ...extra, updated_at: new Date().toISOString() })
       .eq('id', id)
+    if (error) throw Errors.serverError(error.message)
+  },
+
+  // Returns true only if this call was first to flip funds_released (atomic, no race)
+  async releaseEscrow(id: string): Promise<boolean> {
+    const { data, error } = await supabaseAdmin.rpc('atomic_release_escrow', {
+      p_booking_id:  id,
+      p_released_at: new Date().toISOString(),
+    })
+    if (error) throw Errors.serverError(`Escrow release failed: ${error.message}`)
+    return data as boolean
   },
 
   async getByStripeSession(sessionId: string): Promise<{ id: string; payment_status: string; service_type: string } | null> {

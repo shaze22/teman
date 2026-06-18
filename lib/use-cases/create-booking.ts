@@ -18,7 +18,7 @@ export const createBookingSchema = z.object({
   recipientName: z.string().optional(),
   paymentMethod: z.enum(['stripe', 'cash']).default('stripe'),
   promoCode: z.string().optional(),
-  discountAmount: z.number().nonnegative().default(0),
+  // discountAmount is derived server-side from promoCode; client value is ignored
   creditUsed: z.number().nonnegative().default(0),
 })
 
@@ -45,8 +45,40 @@ export async function createBooking(
   const baseAmount = Number(pricing.price) * input.durationHours
   const platformFee = getPlatformFee(input.serviceType, baseAmount)
   const providerPrice = getProviderAmount(input.serviceType, baseAmount)
-  const totalAmount = Math.max(0, baseAmount - input.discountAmount - input.creditUsed)
 
+  // Re-validate promo server-side — never trust client-supplied discountAmount
+  let serverDiscountAmount = 0
+  let promoId: string | null = null
+  if (input.promoCode) {
+    const { data: promo } = await supabaseAdmin
+      .from('promo_codes')
+      .select('id, discount_type, discount_value, min_purchase, max_uses, uses_count, expires_at')
+      .eq('code', input.promoCode.toUpperCase())
+      .maybeSingle()
+
+    if (!promo) throw Errors.badRequest('Invalid promo code')
+    if (promo.expires_at && new Date(promo.expires_at) < new Date())
+      throw Errors.badRequest('Promo code has expired')
+    if (promo.max_uses !== null && (promo.uses_count ?? 0) >= promo.max_uses)
+      throw Errors.badRequest('Promo code usage limit reached')
+    if (promo.min_purchase && baseAmount < promo.min_purchase)
+      throw Errors.badRequest(`Minimum purchase of RM${promo.min_purchase} required`)
+
+    serverDiscountAmount = promo.discount_type === 'percentage'
+      ? (baseAmount * promo.discount_value) / 100
+      : promo.discount_value
+    serverDiscountAmount = Math.min(serverDiscountAmount, baseAmount)
+    promoId = promo.id
+  }
+
+  // Validate requested credit against actual balance before creating booking
+  let creditUsed = 0
+  if (input.creditUsed > 0) {
+    const currentCredit = await usersRepo.getCreditBalance(customerId)
+    creditUsed = Math.min(input.creditUsed, currentCredit)
+  }
+
+  const totalAmount = Math.max(0, baseAmount - serverDiscountAmount - creditUsed)
   const bookingCode = 'BK' + Date.now().toString(36).toUpperCase()
 
   const { data: booking, error: bookingError } = await supabaseAdmin
@@ -69,7 +101,7 @@ export async function createBooking(
       total_amount: totalAmount,
       payment_method: input.paymentMethod,
       promo_code: input.promoCode ?? null,
-      discount_amount: input.discountAmount,
+      discount_amount: serverDiscountAmount,
       updated_at: new Date().toISOString(),
     })
     .select('id, booking_code')
@@ -77,23 +109,22 @@ export async function createBooking(
 
   if (bookingError || !booking) throw Errors.serverError('Failed to create booking')
 
-  // Deduct credits
-  if (input.creditUsed > 0) {
-    const current = await usersRepo.getCreditBalance(customerId)
-    if (current >= input.creditUsed) {
-      await usersRepo.updateCreditBalance(customerId, current - input.creditUsed)
+  // Atomic credit deduction — single UPDATE prevents concurrent over-spend
+  if (creditUsed > 0) {
+    const { data: deducted, error: creditError } = await supabaseAdmin.rpc('atomic_deduct_credit', {
+      p_user_id: customerId,
+      p_amount:  creditUsed,
+    })
+    if (creditError || !deducted) {
+      // Rollback booking if credit deduction fails
+      await supabaseAdmin.from('bookings').delete().eq('id', booking.id)
+      throw Errors.conflict('Insufficient credit balance')
     }
   }
 
-  // Increment promo uses
-  if (input.promoCode) {
-    const { data: promo } = await supabaseAdmin
-      .from('promo_codes').select('uses_count').eq('code', input.promoCode).single()
-    if (promo) {
-      await supabaseAdmin.from('promo_codes')
-        .update({ uses_count: (promo.uses_count ?? 0) + 1 })
-        .eq('code', input.promoCode)
-    }
+  // Increment promo uses_count atomically (non-fatal if it fails)
+  if (promoId) {
+    void supabaseAdmin.rpc('atomic_increment_promo_uses', { p_promo_id: promoId }).then(null, () => {})
   }
 
   // Notify provider (fire and forget)
