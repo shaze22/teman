@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
   if (!users?.length) return NextResponse.json([])
 
   const profiles = await supabaseAdmin
-    .from('single_mother_profiles')
+    .from('provider_profiles')
     .select('user_id, location_city, location_state, ic_verified, rating_avg')
     .in('user_id', users.map((u) => u.id))
 

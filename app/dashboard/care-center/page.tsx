@@ -37,7 +37,7 @@ export default async function CareCenterDashboard() {
     .select(`
       id, booking_code, status, scheduled_date, start_time, duration_hours,
       total_amount, service_type, recipient_name,
-      single_mother_profiles!inner(users!inner(full_name))
+      provider:users!bookings_provider_id_fkey(full_name)
     `)
     .eq('customer_id', user.id)
     .order('scheduled_date', { ascending: false })
@@ -134,7 +134,7 @@ export default async function CareCenterDashboard() {
           <div className="space-y-3">
             {bookings.map((b) => {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const providerName = (b.single_mother_profiles as any)?.users?.full_name ?? ' '
+              const providerName = (b as any)?.provider?.full_name ?? ' '
               const statusMap: Record<string, { label: string; cls: string }> = {
                 pending: { label: 'Menunggu', cls: 'bg-amber-100 text-amber-700' },
                 confirmed: { label: 'Disahkan', cls: 'bg-blue-100 text-blue-700' },

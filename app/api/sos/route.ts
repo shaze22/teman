@@ -71,28 +71,7 @@ export async function POST(req: NextRequest) {
     .eq('customer_id', user.id)
     .in('status', ['confirmed', 'in_progress'])
 
-  if (activeBookings && activeBookings.length > 0) {
-    const providerIds = activeBookings.map(b => b.provider_id)
-    const { data: ngoAdmins } = await supabaseAdmin
-      .from('single_mother_profiles')
-      .select('ngos!inner(admin_user_id)')
-      .in('user_id', providerIds)
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    for (const row of (ngoAdmins ?? []) as any[]) {
-      const adminId = row.ngos?.admin_user_id
-      if (adminId) {
-        notifPromises.push(createNotification({
-          userId: adminId,
-          type: 'sos_triggered',
-          title: `🆘 SOS! ${customerName}`,
-          message: `${customerName} memerlukan bantuan kecemasan.${locationText}`,
-          actionUrl: '/dashboard/ngo',
-          data: { sosEventId: sosEvent.id, lat, lng },
-        }))
-      }
-    }
-  }
+  // NGO notification removed — NGO system not in v2
 
   // Log notification for emergency contacts (in-app they may not have accounts)
   // The contacts list is available for display in admin SOS panel

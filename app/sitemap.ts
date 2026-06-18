@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Dynamic companion profile pages
   const { data: profiles } = await supabaseAdmin
-    .from('single_mother_profiles')
+    .from('provider_profiles')
     .select('id, updated_at')
     .eq('is_active', true)
     .limit(500)

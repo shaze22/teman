@@ -22,10 +22,9 @@ export async function PATCH(req: NextRequest) {
 
   if (!ngo) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  await supabaseAdmin.from('single_mother_profiles')
-    .update({ verified_by_ngo: verifiedByNgo, updated_at: new Date().toISOString() })
+  await supabaseAdmin.from('provider_profiles')
+    .update({ ic_verified: verifiedByNgo, updated_at: new Date().toISOString() })
     .eq('id', profileId)
-    .eq('ngo_id', ngoId)
 
   return NextResponse.json({ ok: true })
 }

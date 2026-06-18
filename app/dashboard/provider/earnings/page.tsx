@@ -35,7 +35,7 @@ export default async function ProviderEarningsPage() {
       .limit(20),
 
     supabaseAdmin
-      .from('single_mother_profiles')
+      .from('provider_profiles')
       .select('earnings_total')
       .eq('user_id', user.id)
       .single(),

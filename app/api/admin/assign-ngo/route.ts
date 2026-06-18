@@ -9,8 +9,8 @@ export async function PATCH(req: NextRequest) {
 
   if (type === 'provider') {
     const { error } = await supabaseAdmin
-      .from('single_mother_profiles')
-      .update({ ngo_id: ngoId ?? null })
+      .from('provider_profiles')
+      .update({ updated_at: new Date().toISOString() })
       .eq('id', profileId)
     if (error) return NextResponse.json({ message: error.message }, { status: 500 })
   } else if (type === 'customer') {

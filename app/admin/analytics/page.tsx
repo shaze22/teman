@@ -39,17 +39,17 @@ export default async function AdminAnalyticsPage() {
     { data: skillDist },
     { data: stateDist },
   ] = await Promise.all([
-    supabaseAdmin.from('single_mother_profiles').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('provider_profiles').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('customer_profiles').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('bookings').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('bookings').select('*', { count: 'exact', head: true }).eq('status', 'completed'),
     supabaseAdmin.from('bookings').select('*', { count: 'exact', head: true }).eq('status', 'cancelled'),
     supabaseAdmin.from('bookings').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
     supabaseAdmin.from('bookings').select('*', { count: 'exact', head: true }).eq('status', 'disputed'),
-    supabaseAdmin.from('single_mother_profiles').select('*', { count: 'exact', head: true }).eq('verified_by_admin', true),
-    supabaseAdmin.from('single_mother_profiles').select('*', { count: 'exact', head: true }).eq('ic_verified', true),
-    supabaseAdmin.from('single_mother_profiles').select('*', { count: 'exact', head: true }).eq('verified_by_ngo', true),
-    supabaseAdmin.from('single_mother_profiles').select('*', { count: 'exact', head: true }).gte('created_at', startOfMonth),
+    supabaseAdmin.from('provider_profiles').select('*', { count: 'exact', head: true }).eq('is_active', true),
+    supabaseAdmin.from('provider_profiles').select('*', { count: 'exact', head: true }).eq('ic_verified', true),
+    supabaseAdmin.from('provider_profiles').select('*', { count: 'exact', head: true }).eq('license_verified', true),
+    supabaseAdmin.from('provider_profiles').select('*', { count: 'exact', head: true }).gte('created_at', startOfMonth),
     supabaseAdmin.from('customer_profiles').select('*', { count: 'exact', head: true }).gte('created_at', startOfMonth),
     supabaseAdmin.from('bookings').select('*', { count: 'exact', head: true }).gte('created_at', startOfMonth),
     supabaseAdmin.from('bookings').select('*', { count: 'exact', head: true }).gte('created_at', startOfLastMonth).lte('created_at', endOfLastMonth),
@@ -60,13 +60,13 @@ export default async function AdminAnalyticsPage() {
     supabaseAdmin.from('sos_events').select('*', { count: 'exact', head: true }).eq('status', 'active'),
     supabaseAdmin.from('sos_events').select('*', { count: 'exact', head: true }).eq('status', 'resolved'),
     supabaseAdmin
-      .from('single_mother_profiles')
-      .select('id, rating_avg, total_reviews, total_bookings, users!inner(full_name)')
-      .eq('verified_by_admin', true)
+      .from('provider_profiles')
+      .select('id, rating_avg, total_reviews, total_bookings, users!provider_profiles_user_id_fkey(full_name)')
+      .eq('is_active', true)
       .order('total_bookings', { ascending: false })
       .limit(5),
     supabaseAdmin.from('provider_skills').select('skill_category'),
-    supabaseAdmin.from('single_mother_profiles').select('location_state').eq('verified_by_admin', true),
+    supabaseAdmin.from('provider_profiles').select('location_state').eq('is_active', true),
   ])
 
   const totalRevenue = (revenueAllTime ?? []).reduce((s, b) => s + parseFloat(String(b.platform_fee ?? 0)), 0)
@@ -131,7 +131,7 @@ export default async function AdminAnalyticsPage() {
           <div className="text-3xl font-bold text-gray-900">RM{thisMonthRevenue.toFixed(0)}</div>
           {revenueGrowth !== null && (
             <div className={`text-xs mt-1 font-medium ${revenueGrowth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-              {revenueGrowth >= 0 ? 'â–²' : 'â–¼'} {Math.abs(revenueGrowth).toFixed(1)}% vs bulan lepas
+              {revenueGrowth >= 0 ? '▲' : '▼'} {Math.abs(revenueGrowth).toFixed(1)}% vs bulan lepas
             </div>
           )}
         </div>
@@ -172,7 +172,7 @@ export default async function AdminAnalyticsPage() {
           <div className="text-xs text-gray-500 mt-1">Booking bulan ini</div>
           {bookingGrowth !== null && (
             <div className={`text-sm font-semibold mt-2 ${bookingGrowth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-              {bookingGrowth >= 0 ? 'â–²' : 'â–¼'} {Math.abs(bookingGrowth).toFixed(1)}% vs bulan lepas ({bookingsLastMonth ?? 0})
+              {bookingGrowth >= 0 ? '▲' : '▼'} {Math.abs(bookingGrowth).toFixed(1)}% vs bulan lepas ({bookingsLastMonth ?? 0})
             </div>
           )}
         </div>

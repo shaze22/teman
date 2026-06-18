@@ -16,10 +16,10 @@ export default async function AdminNgoDetailPage({ params }: { params: Promise<{
       .eq('id', ngoId)
       .single(),
     supabaseAdmin
-      .from('single_mother_profiles')
-      .select('id, verified_by_ngo, verified_by_admin, rating_avg, total_bookings, is_active, created_at, users!inner(full_name, email)')
-      .eq('ngo_id', ngoId)
-      .order('created_at', { ascending: false }),
+      .from('provider_profiles')
+      .select('id, ic_verified, is_active, rating_avg, total_bookings, created_at, users!provider_profiles_user_id_fkey(full_name, email)')
+      .order('created_at', { ascending: false })
+      .limit(50),
     supabaseAdmin
       .from('customer_profiles')
       .select('id, is_for_self, mobility_status, location_city, created_at, users!inner(full_name, email)')
@@ -44,8 +44,8 @@ export default async function AdminNgoDetailPage({ params }: { params: Promise<{
     id: m.id as string,
     fullName: m.users.full_name as string,
     email: m.users.email as string,
-    verifiedByNgo: m.verified_by_ngo as boolean,
-    verifiedByAdmin: m.verified_by_admin as boolean,
+    verifiedByNgo: m.ic_verified as boolean,
+    verifiedByAdmin: m.is_active as boolean,
     ratingAvg: parseFloat(String(m.rating_avg)),
     totalBookings: m.total_bookings as number,
     isActive: m.is_active as boolean,

@@ -20,12 +20,12 @@ export default async function ProviderSettingsPage() {
   if (!user) redirect('/login')
 
   const { data: rawProfile } = await supabaseAdmin
-    .from('single_mother_profiles')
-    .select('users!inner(full_name, email)')
+    .from('provider_profiles')
+    .select('users!provider_profiles_user_id_fkey(full_name, email)')
     .eq('user_id', user.id)
     .single()
 
-  if (!rawProfile) redirect('/register/provider')
+  if (!rawProfile) redirect('/register/locum')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const u = (rawProfile as any).users as { full_name: string; email: string }

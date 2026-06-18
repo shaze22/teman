@@ -29,10 +29,10 @@ export default async function NgoDashboard() {
 
   const [{ data: rawProviders }, { data: rawCustomers }] = await Promise.all([
     supabaseAdmin
-      .from('single_mother_profiles')
-      .select('id, verified_by_ngo, verified_by_admin, rating_avg, total_bookings, is_active, created_at, users!inner(full_name)')
-      .eq('ngo_id', ngo.id)
-      .order('created_at', { ascending: false }),
+      .from('provider_profiles')
+      .select('id, ic_verified, is_active, rating_avg, total_bookings, created_at, users!provider_profiles_user_id_fkey(full_name)')
+      .order('created_at', { ascending: false })
+      .limit(20),
     supabaseAdmin
       .from('customer_profiles')
       .select('id, is_for_self, mobility_status, created_at, users!inner(full_name)')
@@ -44,8 +44,8 @@ export default async function NgoDashboard() {
   const providers = (rawProviders ?? []).map((m: any) => ({
     id: m.id as string,
     fullName: m.users.full_name as string,
-    verifiedByNgo: m.verified_by_ngo as boolean,
-    verifiedByAdmin: m.verified_by_admin as boolean,
+    verifiedByNgo: m.ic_verified as boolean,
+    verifiedByAdmin: m.is_active as boolean,
     ratingAvg: parseFloat(String(m.rating_avg)),
     totalBookings: m.total_bookings as number,
     isActive: m.is_active as boolean,

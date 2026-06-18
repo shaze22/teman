@@ -21,7 +21,7 @@ export async function PATCH(req: NextRequest) {
     await supabaseAdmin.from('users')
       .update({ status: suspend ? 'suspended' : 'active', updated_at: now })
       .eq('id', userId)
-    await supabaseAdmin.from('single_mother_profiles')
+    await supabaseAdmin.from('provider_profiles')
       .update({ is_active: !suspend, updated_at: now })
       .eq('id', profileId)
     return NextResponse.json({ ok: true })
@@ -29,11 +29,9 @@ export async function PATCH(req: NextRequest) {
 
   const update: Record<string, unknown> = { updated_at: now }
   if (verifiedByAdmin !== undefined) {
-    update.verified_by_admin = verifiedByAdmin
-    if (verifiedByAdmin === true) update.is_active = true
+    update.is_active = verifiedByAdmin
   }
-  if (bgCheck !== undefined) update.background_check_status = bgCheck
 
-  await supabaseAdmin.from('single_mother_profiles').update(update).eq('id', profileId)
+  await supabaseAdmin.from('provider_profiles').update(update).eq('id', profileId)
   return NextResponse.json({ ok: true })
 }

@@ -26,7 +26,7 @@ export async function GET() {
     .single()
 
   const { data: partnerProfile } = await supabaseAdmin
-    .from('single_mother_profiles')
+    .from('provider_profiles')
     .select('location_city, location_state, rating_avg, ic_verified')
     .eq('user_id', partnerId)
     .maybeSingle()

@@ -43,7 +43,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
     .select(`
       *,
       customer:users!bookings_customer_id_fkey(full_name, phone),
-      provider:users!bookings_provider_id_fkey(full_name, phone, single_mother_profiles(location_city, location_state))
+      provider:users!bookings_provider_id_fkey(full_name, phone, provider_profiles(location_city, location_state))
     `)
     .eq('id', id)
     .single()
@@ -74,14 +74,13 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const customer = (b as any).customer as { full_name: string; phone: string }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const provider = (b as any).provider as { full_name: string; phone: string; single_mother_profiles: { location_city: string; location_state: string }[] }
+  const provider = (b as any).provider as { full_name: string; phone: string; provider_profiles: { location_city: string; location_state: string }[] }
   const status = STATUS_CONFIG[b.status] ?? STATUS_CONFIG.pending
   const StatusIcon = status.icon
   const isCustomer = b.customer_id === user.id
   const isProvider = b.provider_id === user.id
   const fundsReleased = (b as any).funds_released ?? false
   const fundsReleasedAt = (b as any).funds_released_at ?? null
-  const providerId = (b as any).single_mother_profile_id ?? null
 
   const { data: existingDispute } = await supabaseAdmin
     .from('disputes')
@@ -100,7 +99,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
   const customerCheckinAt = (b as any).customer_checkin_at as string | null
 
   const { data: providerProfile } = await supabaseAdmin
-    .from('single_mother_profiles')
+    .from('provider_profiles')
     .select('id')
     .eq('user_id', b.provider_id)
     .single()
@@ -159,10 +158,10 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
             </div>
             <div>
               <div className="font-semibold text-gray-900">{isCustomer ? provider.full_name : customer.full_name}</div>
-              {isCustomer && provider.single_mother_profiles?.[0] && (
+              {isCustomer && provider.provider_profiles?.[0] && (
                 <div className="flex items-center gap-1 text-sm text-gray-500">
                   <MapPin className="w-3.5 h-3.5" />
-                  {provider.single_mother_profiles[0].location_city}, {provider.single_mother_profiles[0].location_state}
+                  {provider.provider_profiles[0].location_city}, {provider.provider_profiles[0].location_state}
                 </div>
               )}
             </div>

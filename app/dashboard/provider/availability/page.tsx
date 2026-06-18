@@ -18,12 +18,12 @@ export default async function ProviderAvailabilityPage() {
   if (!user) redirect('/login')
 
   const { data: profile } = await supabaseAdmin
-    .from('single_mother_profiles')
+    .from('provider_profiles')
     .select('id')
     .eq('user_id', user.id)
     .single()
 
-  if (!profile) redirect('/register/provider')
+  if (!profile) redirect('/register/locum')
 
   const { data: rawSlots } = await supabaseAdmin
     .from('provider_availabilities')

@@ -6,14 +6,12 @@ export default async function AdminProvidersPage() {
   await requireAdmin()
 
   const { data: rawProviders } = await supabaseAdmin
-    .from('single_mother_profiles')
+    .from('provider_profiles')
     .select(`
-      id, verified_by_ngo, verified_by_admin, background_check_status,
-      location_city, location_state, rating_avg, total_reviews, total_bookings,
-      is_active, created_at, ngo_id,
-      ic_number, ic_submitted_at, ic_verified, ic_front_url, ic_back_url, ic_rejected_reason,
-      is_locum, locum_cert_type, locum_cert_url, locum_verified,
-      users!inner(id, full_name, email, status)
+      id, is_active, ic_number, ic_url, ic_verified, gemini_verified_at,
+      license_type, license_url, license_verified, license_rejection_reason,
+      location_city, location_state, rating_avg, total_reviews, total_bookings, created_at,
+      users!provider_profiles_user_id_fkey(id, full_name, email, status, role)
     `)
     .order('created_at', { ascending: false })
 
@@ -24,26 +22,26 @@ export default async function AdminProvidersPage() {
     fullName: p.users.full_name as string,
     email: p.users.email as string,
     userStatus: p.users.status as string,
-    verifiedByNgo: p.verified_by_ngo as boolean,
-    verifiedByAdmin: p.verified_by_admin as boolean,
-    bgCheck: p.background_check_status as string,
+    verifiedByNgo: false,
+    verifiedByAdmin: p.is_active as boolean,
+    bgCheck: p.is_active ? 'approved' : 'pending',
     locationCity: p.location_city as string,
     locationState: p.location_state as string,
     ratingAvg: parseFloat(String(p.rating_avg)),
     totalReviews: p.total_reviews as number,
     totalBookings: p.total_bookings as number,
     isActive: p.is_active as boolean,
-    ngoId: p.ngo_id as string | null,
+    ngoId: null,
     icNumber: p.ic_number as string | null,
-    icSubmittedAt: p.ic_submitted_at as string | null,
+    icSubmittedAt: p.gemini_verified_at as string | null,
     icVerified: p.ic_verified as boolean,
-    icFrontUrl: p.ic_front_url as string | null,
-    icBackUrl: p.ic_back_url as string | null,
-    icRejectedReason: p.ic_rejected_reason as string | null,
-    isLocum: p.is_locum as boolean ?? false,
-    locumCertType: p.locum_cert_type as string | null,
-    locumCertUrl: p.locum_cert_url as string | null,
-    locumVerified: p.locum_verified as boolean ?? false,
+    icFrontUrl: p.ic_url as string | null,
+    icBackUrl: null,
+    icRejectedReason: null,
+    isLocum: ['locum_nurse', 'locum_physio', 'locum_care_aide'].includes(p.users.role as string),
+    locumCertType: p.license_type as string | null,
+    locumCertUrl: p.license_url as string | null,
+    locumVerified: (p.license_verified as boolean) ?? false,
   }))
 
   const pending = providers.filter(p => !p.verifiedByAdmin)

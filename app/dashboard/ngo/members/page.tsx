@@ -32,15 +32,15 @@ export default async function NgoMembersPage({ searchParams }: { searchParams: P
 
   const [{ data: rawProviders }, { data: rawCustomers }] = await Promise.all([
     supabaseAdmin
-      .from('single_mother_profiles')
+      .from('provider_profiles')
       .select(`
-        id, verified_by_ngo, verified_by_admin, background_check_status,
+        id, ic_verified, is_active,
         location_city, location_state, rating_avg, total_reviews, total_bookings,
-        is_active, created_at,
-        users!inner(id, full_name, email, status)
+        created_at,
+        users!provider_profiles_user_id_fkey(id, full_name, email, status)
       `)
-      .eq('ngo_id', ngo.id)
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(100),
     supabaseAdmin
       .from('customer_profiles')
       .select(`
@@ -57,9 +57,9 @@ export default async function NgoMembersPage({ searchParams }: { searchParams: P
     userId: m.users.id as string,
     fullName: m.users.full_name as string,
     email: m.users.email as string,
-    verifiedByNgo: m.verified_by_ngo as boolean,
-    verifiedByAdmin: m.verified_by_admin as boolean,
-    bgCheck: m.background_check_status as string,
+    verifiedByNgo: m.ic_verified as boolean,
+    verifiedByAdmin: m.is_active as boolean,
+    bgCheck: m.is_active ? 'approved' : 'pending',
     locationCity: m.location_city as string,
     ratingAvg: parseFloat(String(m.rating_avg)),
     totalBookings: m.total_bookings as number,

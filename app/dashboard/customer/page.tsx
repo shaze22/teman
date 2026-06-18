@@ -62,7 +62,7 @@ export default async function CustomerDashboard() {
     .from('bookings')
     .select(`
       id, status, payment_status, scheduled_date, start_time, duration_hours, total_amount,
-      provider:users!bookings_provider_id_fkey(full_name, avatar_url, single_mother_profiles(location_city))
+      provider:users!bookings_provider_id_fkey(full_name, avatar_url, provider_profiles(location_city))
     `)
     .eq('customer_id', user.id)
     .order('created_at', { ascending: false })
@@ -102,8 +102,8 @@ export default async function CustomerDashboard() {
     provider: {
       fullName: b.provider?.full_name ?? '',
       avatarUrl: b.provider?.avatar_url ?? null,
-      singleMotherProfile: {
-        locationCity: b.provider?.single_mother_profiles?.[0]?.location_city ?? null,
+      providerProfile: {
+        locationCity: b.provider?.provider_profiles?.[0]?.location_city ?? null,
       },
     },
   }))
@@ -173,7 +173,7 @@ export default async function CustomerDashboard() {
                           </div>
                           <div>
                             <div className="font-semibold text-gray-900">{b.provider.fullName}</div>
-                            <div className="text-xs text-gray-500">{b.provider.singleMotherProfile.locationCity}</div>
+                            <div className="text-xs text-gray-500">{b.provider.providerProfile?.locationCity}</div>
                           </div>
                         </div>
                         <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[b.status]}`}>
