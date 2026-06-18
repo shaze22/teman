@@ -9,10 +9,9 @@ type Props = {
   userId: string
   verifiedByAdmin: boolean
   isActive: boolean
-  bgCheck: string
 }
 
-export default function ProviderActions({ profileId, userId, verifiedByAdmin, isActive, bgCheck }: Props) {
+export default function ProviderActions({ profileId, userId, verifiedByAdmin, isActive }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -31,7 +30,7 @@ export default function ProviderActions({ profileId, userId, verifiedByAdmin, is
     <div className="flex items-center gap-1">
       {!verifiedByAdmin ? (
         <button
-          onClick={() => update({ verifiedByAdmin: true, bgCheck: 'approved' })}
+          onClick={() => update({ verifiedByAdmin: true })}
           disabled={loading}
           title="Sahkan (Admin)"
           className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500 text-white text-xs font-medium rounded-lg hover:bg-emerald-600 disabled:opacity-50 transition-colors"

@@ -156,7 +156,6 @@ function ProviderRow({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-gray-900 text-sm">{p.fullName}</span>
-            {p.verifiedByNgo && <span className="text-xs bg-[#E0E7FF] text-[#6366F1] px-1.5 py-0.5 rounded-full">NGO ✓</span>}
             {p.verifiedByAdmin && <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">Admin ✓</span>}
             {!p.isActive && <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">Suspended</span>}
           </div>
@@ -169,9 +168,6 @@ function ProviderRow({
         </div>
       </Link>
       <div className="flex items-center gap-2 flex-shrink-0">
-        <span className={`text-xs px-2 py-1 rounded-full font-medium ${p.bgCheck === 'approved' ? 'bg-emerald-100 text-emerald-700' : p.bgCheck === 'rejected' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-700'}`}>
-          BG: {p.bgCheck}
-        </span>
         {p.icSubmittedAt && (
           <IcActions profileId={p.id} icVerified={p.icVerified} icFrontUrl={p.icFrontUrl} icBackUrl={p.icBackUrl} icNumber={p.icNumber} />
         )}
@@ -184,7 +180,7 @@ function ProviderRow({
         {p.isLocum && p.locumVerified && (
           <span className="text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded-full font-medium">🩺 Locum ✓</span>
         )}
-        <ProviderActions profileId={p.id} userId={p.userId} verifiedByAdmin={p.verifiedByAdmin} isActive={p.isActive} bgCheck={p.bgCheck} />
+        <ProviderActions profileId={p.id} userId={p.userId} verifiedByAdmin={p.verifiedByAdmin} isActive={p.isActive} />
       </div>
     </div>
   )
