@@ -9,12 +9,12 @@ const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-700',
   confirmed: 'bg-blue-100 text-blue-700',
   in_progress: 'bg-orange-100 text-orange-700',
-  completed: 'bg-[#E0E7FF] text-[#3730A3]',
+  completed: 'bg-teal-100 text-teal-700',
   cancelled: 'bg-red-100 text-red-700',
 }
 const STATUS_LABELS: Record<string, string> = {
-  pending: 'Menunggu', confirmed: 'Disahkan', in_progress: 'Berjalan',
-  completed: 'Selesai', cancelled: 'Dibatalkan',
+  pending: 'Pending', confirmed: 'Confirmed', in_progress: 'In Progress',
+  completed: 'Completed', cancelled: 'Cancelled',
 }
 
 export default async function AdminCustomerDetailPage({ params }: { params: Promise<{ userId: string }> }) {
@@ -69,9 +69,9 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
 
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Maklumat Pengguna</h2>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">User Information</h2>
           <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2 text-gray-600"><Heart className="w-4 h-4 text-[#F43F5E]" /> {user.full_name}</div>
+            <div className="flex items-center gap-2 text-gray-600"><Heart className="w-4 h-4 text-rose-500" /> {user.full_name}</div>
             {user.phone && <div className="flex items-center gap-2 text-gray-600"><Phone className="w-4 h-4" /> {user.phone}</div>}
             {profile?.location_city && (
               <div className="flex items-center gap-2 text-gray-600">
@@ -79,7 +79,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
               </div>
             )}
             <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="w-4 h-4" /> Daftar: {new Date(user.created_at).toLocaleDateString('ms-MY')}
+              <Calendar className="w-4 h-4" /> Registered: {new Date(user.created_at).toLocaleDateString('en-MY')}
             </div>
             {profile?.mobility_status && (
               <div className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full inline-block">
@@ -93,19 +93,19 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Statistik</h2>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Statistics</h2>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500">Jumlah booking</span>
+              <span className="text-gray-500">Total bookings</span>
               <span className="font-semibold">{bookings.length}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Booking selesai</span>
+              <span className="text-gray-500">Completed bookings</span>
               <span className="font-semibold">{bookings.filter(b => b.status === 'completed').length}</span>
             </div>
             <div className="flex justify-between border-t border-gray-100 pt-2">
-              <span className="text-gray-500">Jumlah dibelanjakan</span>
-              <span className="font-bold text-[#6366F1]">RM{totalSpent.toFixed(2)}</span>
+              <span className="text-gray-500">Total spent</span>
+              <span className="font-bold text-teal-600">RM{totalSpent.toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -113,23 +113,23 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
 
       {profile?.health_conditions && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 text-sm">
-          <p className="font-semibold text-amber-800 mb-1">Kondisi Kesihatan</p>
+          <p className="font-semibold text-amber-800 mb-1">Health Conditions</p>
           <p className="text-amber-700">{profile.health_conditions}</p>
         </div>
       )}
 
       <section>
         <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <ShoppingBag className="w-4 h-4" /> Sejarah Booking ({bookings.length})
+          <ShoppingBag className="w-4 h-4" /> Booking History ({bookings.length})
         </h2>
         <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
           {bookings.map(b => (
             <Link key={b.id} href={`/booking/${b.id}`}
-              className="flex items-center gap-4 px-4 py-3 hover:bg-[#EEF2FF] transition-colors">
-              <div className="text-xs font-mono text-[#6366F1] w-28">{b.bookingCode}</div>
+              className="flex items-center gap-4 px-4 py-3 hover:bg-teal-50 transition-colors">
+              <div className="text-xs font-mono text-teal-600 w-28">{b.bookingCode}</div>
               <div className="flex-1 text-sm text-gray-900">{b.providerName}</div>
               <div className="text-xs text-gray-500">
-                {new Date(b.scheduledDate).toLocaleDateString('ms-MY')} · {b.startTime}
+                {new Date(b.scheduledDate).toLocaleDateString('en-MY')} · {b.startTime}
               </div>
               <div className="text-sm font-semibold text-gray-900 w-20 text-right">RM{b.totalAmount.toFixed(0)}</div>
               <span className={`text-xs px-2 py-1 rounded-full font-medium w-24 text-center ${STATUS_COLORS[b.status] ?? 'bg-gray-100 text-gray-600'}`}>
@@ -138,7 +138,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
             </Link>
           ))}
           {bookings.length === 0 && (
-            <div className="p-8 text-center text-sm text-gray-400">Tiada booking lagi</div>
+            <div className="p-8 text-center text-sm text-gray-400">No bookings yet</div>
           )}
         </div>
       </section>

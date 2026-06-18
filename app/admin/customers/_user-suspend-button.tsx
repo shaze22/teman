@@ -25,7 +25,7 @@ export default function UserSuspendButton({ userId, isActive }: { userId: string
           ? 'border-red-200 text-red-600 hover:bg-red-50'
           : 'border-blue-200 text-blue-600 hover:bg-blue-50'
       }`}>
-      {loading ? '...' : isActive ? 'Suspend' : 'Aktifkan'}
+      {loading ? '...' : isActive ? 'Suspend' : 'Activate'}
     </button>
   )
 }

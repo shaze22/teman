@@ -42,7 +42,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <form action="/api/auth/signout" method="POST">
             <button className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/8 transition-colors">
               <LogOut className="w-4 h-4" />
-              Log Keluar
+              Sign Out
             </button>
           </form>
         </div>

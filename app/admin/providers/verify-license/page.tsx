@@ -19,7 +19,6 @@ export default async function VerifyLicensePage() {
 
   if (admin?.role !== 'super_admin') redirect('/dashboard')
 
-  // Fetch pending license verifications
   const { data: pending } = await supabaseAdmin
     .from('professional_licenses')
     .select(`
@@ -37,7 +36,6 @@ export default async function VerifyLicensePage() {
     .order('created_at', { ascending: true })
     .limit(50)
 
-  // Fetch recently verified
   const { data: verified } = await supabaseAdmin
     .from('professional_licenses')
     .select(`
@@ -51,16 +49,15 @@ export default async function VerifyLicensePage() {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Semakan Sijil Profesional</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Professional License Review</h1>
         <p className="text-sm text-slate-500 mt-1">
-          {pending?.length ?? 0} permohonan menunggu pengesahan
+          {pending?.length ?? 0} applications pending review
         </p>
       </div>
 
-      {/* Pending */}
       {pending && pending.length > 0 ? (
         <div className="space-y-4 mb-12">
-          <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Menunggu Semakan</h2>
+          <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Pending Review</h2>
           {pending.map((lic: any) => {
             const provider = lic.provider
             const profile = provider?.provider_profiles?.[0]
@@ -79,22 +76,22 @@ export default async function VerifyLicensePage() {
                         {provider?.role?.replace('locum_', '').replace('_', ' ').toUpperCase()}
                       </div>
                       <div className="text-xs text-slate-400 mt-1">
-                        {new Date(lic.created_at).toLocaleDateString('ms-MY')}
+                        {new Date(lic.created_at).toLocaleDateString('en-MY')}
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <div className="text-xs text-slate-400 mb-0.5">Jenis Sijil</div>
+                      <div className="text-xs text-slate-400 mb-0.5">License Type</div>
                       <div className="font-medium text-slate-900">{licInfo?.label ?? lic.license_type}</div>
                       <div className="text-xs text-slate-500">{licInfo?.issuedBy}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-slate-400 mb-0.5">Nombor Pendaftaran</div>
+                      <div className="text-xs text-slate-400 mb-0.5">Registration No.</div>
                       <div className="font-mono font-medium text-slate-900">{lic.license_number}</div>
                       {lic.expiry_date && (
-                        <div className="text-xs text-slate-500">Tamat: {new Date(lic.expiry_date).toLocaleDateString('ms-MY')}</div>
+                        <div className="text-xs text-slate-500">Expires: {new Date(lic.expiry_date).toLocaleDateString('en-MY')}</div>
                       )}
                     </div>
                   </div>
@@ -103,25 +100,25 @@ export default async function VerifyLicensePage() {
                     {licInfo?.checkUrl && (
                       <a href={licInfo.checkUrl} target="_blank" rel="noopener noreferrer"
                         className="text-xs text-teal-600 hover:underline border border-teal-200 rounded px-2 py-1">
-                        Semak di {licInfo.issuedBy}
+                        Verify at {licInfo.issuedBy}
                       </a>
                     )}
                     {lic.license_url && (
                       <a href={lic.license_url} target="_blank" rel="noopener noreferrer"
                         className="text-xs text-blue-600 hover:underline border border-blue-200 rounded px-2 py-1">
-                        Lihat Sijil
+                        View License
                       </a>
                     )}
                     {profile?.ic_url && (
                       <a href={profile.ic_url} target="_blank" rel="noopener noreferrer"
                         className="text-xs text-slate-600 hover:underline border border-slate-200 rounded px-2 py-1">
-                        Lihat IC
+                        View IC
                       </a>
                     )}
                     {profile?.selfie_url && (
                       <a href={profile.selfie_url} target="_blank" rel="noopener noreferrer"
                         className="text-xs text-slate-600 hover:underline border border-slate-200 rounded px-2 py-1">
-                        Lihat Selfie
+                        View Selfie
                       </a>
                     )}
                   </div>
@@ -134,23 +131,22 @@ export default async function VerifyLicensePage() {
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-500 mb-12">
-          Tiada permohonan sijil menunggu pengesahan.
+          No license applications pending review.
         </div>
       )}
 
-      {/* Recently verified */}
       {verified && verified.length > 0 && (
         <div>
-          <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide mb-4">Baru Disahkan</h2>
+          <h2 className="font-semibold text-slate-700 text-sm uppercase tracking-wide mb-4">Recently Verified</h2>
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Nama</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Sijil</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Nombor</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Name</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">License</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Number</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Status</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Tarikh</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">Date</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -164,13 +160,13 @@ export default async function VerifyLicensePage() {
                     <td className="px-4 py-3 font-mono text-slate-700">{lic.license_number}</td>
                     <td className="px-4 py-3">
                       {lic.verified ? (
-                        <span className="text-xs font-medium bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5">Lulus</span>
+                        <span className="text-xs font-medium bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5">Approved</span>
                       ) : (
-                        <span className="text-xs font-medium bg-red-100 text-red-700 rounded-full px-2 py-0.5">Tolak</span>
+                        <span className="text-xs font-medium bg-red-100 text-red-700 rounded-full px-2 py-0.5">Rejected</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-slate-500 text-xs">
-                      {lic.verified_at ? new Date(lic.verified_at).toLocaleDateString('ms-MY') : '-'}
+                      {lic.verified_at ? new Date(lic.verified_at).toLocaleDateString('en-MY') : '-'}
                     </td>
                   </tr>
                 ))}

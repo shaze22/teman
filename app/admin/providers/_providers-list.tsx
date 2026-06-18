@@ -76,14 +76,14 @@ export default function ProvidersListClient({ providers }: { providers: Provider
         <section className="mb-8">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-orange-600 uppercase tracking-wider">
-              Menunggu Pengesahan Admin ({pending.length})
+              Pending Admin Verification ({pending.length})
             </h2>
             <div className="flex items-center gap-2">
               <button
                 onClick={toggleAll}
                 className="text-xs px-3 py-1.5 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
               >
-                {allPendingSelected ? 'Nyahpilih Semua' : 'Pilih Semua'}
+                {allPendingSelected ? 'Deselect All' : 'Select All'}
               </button>
               {selected.size > 0 && (
                 <button
@@ -92,7 +92,7 @@ export default function ProvidersListClient({ providers }: { providers: Provider
                   className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors font-semibold"
                 >
                   {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-                  Sahkan Dipilih ({selected.size})
+                  Verify Selected ({selected.size})
                 </button>
               )}
             </div>
@@ -113,14 +113,14 @@ export default function ProvidersListClient({ providers }: { providers: Provider
 
       <section>
         <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-          Semua Provider ({providers.length})
+          All Providers ({providers.length})
         </h2>
         <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
           {providers.map(p => (
             <ProviderRow key={p.id} provider={p} checked={selected.has(p.id)} onToggle={() => toggleOne(p.id)} />
           ))}
           {providers.length === 0 && (
-            <div className="p-8 text-center text-sm text-gray-400">Tiada provider lagi</div>
+            <div className="p-8 text-center text-sm text-gray-400">No providers yet</div>
           )}
         </div>
       </section>
@@ -162,8 +162,8 @@ function ProviderRow({
           <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
             <span>{p.email}</span>
             <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{p.locationCity}</span>
-            <span className="flex items-center gap-1"><Star className="w-3 h-3 text-yellow-400" fill="currentColor" />{p.ratingAvg > 0 ? p.ratingAvg.toFixed(1) : 'Baru'}</span>
-            <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{p.totalBookings} booking</span>
+            <span className="flex items-center gap-1"><Star className="w-3 h-3 text-yellow-400" fill="currentColor" />{p.ratingAvg > 0 ? p.ratingAvg.toFixed(1) : 'New'}</span>
+            <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{p.totalBookings} bookings</span>
           </div>
         </div>
       </Link>
@@ -204,14 +204,14 @@ function LocumVerifyActions({ profileId, certType, certUrl }: { profileId: strin
   return (
     <div className="flex items-center gap-1">
       <a href={certUrl} target="_blank" rel="noreferrer"
-        className="text-xs text-teal-600 underline hover:text-teal-800">{certType ?? 'Sijil'}</a>
+        className="text-xs text-teal-600 underline hover:text-teal-800">{certType ?? 'Certificate'}</a>
       <button onClick={() => act('approve')} disabled={loading}
         className="flex items-center gap-1 px-2 py-1 bg-teal-600 text-white text-xs font-medium rounded-lg hover:bg-teal-700 disabled:opacity-60">
         {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />} Locum ✓
       </button>
       <button onClick={() => act('reject')} disabled={loading}
         className="px-2 py-1 bg-red-100 text-red-600 text-xs font-medium rounded-lg hover:bg-red-200 disabled:opacity-60">
-        Tolak
+        Reject
       </button>
     </div>
   )

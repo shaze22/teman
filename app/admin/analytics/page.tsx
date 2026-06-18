@@ -12,7 +12,6 @@ export default async function AdminAnalyticsPage() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString()
   const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).toISOString()
-  const startOf3Months = new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString()
 
   const [
     { count: totalProviders },
@@ -24,7 +23,7 @@ export default async function AdminAnalyticsPage() {
     { count: disputedBookings },
     { count: verifiedProviders },
     { count: icVerifiedProviders },
-    { count: ngoVerifiedProviders },
+    { count: licenseVerifiedProviders },
     { count: newProvidersThisMonth },
     { count: newCustomersThisMonth },
     { count: bookingsThisMonth },
@@ -36,7 +35,6 @@ export default async function AdminAnalyticsPage() {
     { count: activeSOS },
     { count: resolvedSOS },
     { data: topProviders },
-    { data: skillDist },
     { data: stateDist },
   ] = await Promise.all([
     supabaseAdmin.from('provider_profiles').select('*', { count: 'exact', head: true }),
@@ -65,7 +63,6 @@ export default async function AdminAnalyticsPage() {
       .eq('is_active', true)
       .order('total_bookings', { ascending: false })
       .limit(5),
-    supabaseAdmin.from('provider_skills').select('skill_category'),
     supabaseAdmin.from('provider_profiles').select('location_state').eq('is_active', true),
   ])
 
@@ -74,105 +71,90 @@ export default async function AdminAnalyticsPage() {
   const lastMonthRevenue = (revenueLastMonth ?? []).reduce((s, b) => s + parseFloat(String(b.platform_fee ?? 0)), 0)
   const revenueGrowth = lastMonthRevenue > 0 ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : null
   const bookingGrowth = (bookingsLastMonth ?? 0) > 0 ? (((bookingsThisMonth ?? 0) - (bookingsLastMonth ?? 0)) / (bookingsLastMonth ?? 1)) * 100 : null
-
   const completionRate = (totalBookings ?? 0) > 0 ? (((completedBookings ?? 0) / (totalBookings ?? 1)) * 100).toFixed(1) : '0'
 
-  // Skill distribution
-  const skillCount: Record<string, number> = {}
-  ;(skillDist ?? []).forEach((s: any) => {
-    skillCount[s.skill_category] = (skillCount[s.skill_category] ?? 0) + 1
-  })
-  const topSkills = Object.entries(skillCount).sort((a, b) => b[1] - a[1]).slice(0, 6)
-
-  // State distribution
   const stateCount: Record<string, number> = {}
   ;(stateDist ?? []).forEach((s: any) => {
     if (s.location_state) stateCount[s.location_state] = (stateCount[s.location_state] ?? 0) + 1
   })
   const topStates = Object.entries(stateCount).sort((a, b) => b[1] - a[1]).slice(0, 6)
 
-  const SKILL_LABELS: Record<string, string> = {
-    cooking: 'Memasak', sewing: 'Menjahit', massage: 'Urut', elderly_care: 'Jaga Orang Tua',
-    cleaning: 'Bersih Rumah', teaching: 'Mengajar', companionship: 'Teman Berbual',
-    shopping: 'Membeli-belah', other: 'Lain-lain',
-  }
-
   return (
     <div className="p-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-[#6366F1]" />
-            Analitik Platform
+            <BarChart3 className="w-6 h-6 text-teal-600" />
+            Platform Analytics
           </h1>
-          <p className="text-sm text-gray-500 mt-1">Statistik dan laporan prestasi SenioCare</p>
+          <p className="text-sm text-gray-500 mt-1">SenioCare performance statistics and reports</p>
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-400">
           <Calendar className="w-4 h-4" />
-          <span>Dikemas kini: {now.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+          <span>Updated: {now.toLocaleDateString('en-MY', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
         </div>
       </div>
 
       {/* Revenue overview */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-gradient-to-br from-[#6366F1] to-[#4F46E5] rounded-2xl p-6 text-white">
+        <div className="bg-gradient-to-br from-[#0D9488] to-teal-700 rounded-2xl p-6 text-white">
           <div className="flex items-center gap-2 mb-2 opacity-80">
             <DollarSign className="w-4 h-4" />
-            <span className="text-sm font-medium">Jumlah Hasil (Platform Fee)</span>
+            <span className="text-sm font-medium">Total Revenue (Platform Fee)</span>
           </div>
           <div className="text-3xl font-bold">RM{totalRevenue.toFixed(0)}</div>
-          <div className="text-xs opacity-70 mt-1">Sepanjang masa</div>
+          <div className="text-xs opacity-70 mt-1">All time</div>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
           <div className="flex items-center gap-2 mb-2 text-gray-500">
             <TrendingUp className="w-4 h-4 text-emerald-500" />
-            <span className="text-sm font-medium">Hasil Bulan Ini</span>
+            <span className="text-sm font-medium">This Month's Revenue</span>
           </div>
           <div className="text-3xl font-bold text-gray-900">RM{thisMonthRevenue.toFixed(0)}</div>
           {revenueGrowth !== null && (
             <div className={`text-xs mt-1 font-medium ${revenueGrowth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-              {revenueGrowth >= 0 ? '▲' : '▼'} {Math.abs(revenueGrowth).toFixed(1)}% vs bulan lepas
+              {revenueGrowth >= 0 ? '▲' : '▼'} {Math.abs(revenueGrowth).toFixed(1)}% vs last month
             </div>
           )}
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
           <div className="flex items-center gap-2 mb-2 text-gray-500">
             <DollarSign className="w-4 h-4 text-blue-500" />
-            <span className="text-sm font-medium">Hasil Bulan Lepas</span>
+            <span className="text-sm font-medium">Last Month's Revenue</span>
           </div>
           <div className="text-3xl font-bold text-gray-900">RM{lastMonthRevenue.toFixed(0)}</div>
-          <div className="text-xs text-gray-400 mt-1">Bulan sebelumnya</div>
+          <div className="text-xs text-gray-400 mt-1">Previous month</div>
         </div>
       </div>
 
       {/* User stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard icon={Users} label="Jumlah Provider" value={String(totalProviders ?? 0)} sub={`+${newProvidersThisMonth ?? 0} bulan ini`} color="bg-[#EEF2FF] text-[#6366F1]" />
-        <StatCard icon={Users} label="Jumlah Pelanggan" value={String(totalCustomers ?? 0)} sub={`+${newCustomersThisMonth ?? 0} bulan ini`} color="bg-[#FFF1F2] text-[#F43F5E]" />
-        <StatCard icon={CheckCircle} label="Provider Verified" value={String(verifiedProviders ?? 0)} sub={`IC: ${icVerifiedProviders ?? 0} · NGO: ${ngoVerifiedProviders ?? 0}`} color="bg-emerald-50 text-emerald-600" />
-        <StatCard icon={ShoppingBag} label="Jumlah Booking" value={String(totalBookings ?? 0)} sub={`+${bookingsThisMonth ?? 0} bulan ini`} color="bg-blue-50 text-blue-600" />
+        <StatCard icon={Users} label="Total Providers" value={String(totalProviders ?? 0)} sub={`+${newProvidersThisMonth ?? 0} this month`} color="bg-teal-50 text-teal-600" />
+        <StatCard icon={Users} label="Total Customers" value={String(totalCustomers ?? 0)} sub={`+${newCustomersThisMonth ?? 0} this month`} color="bg-rose-50 text-rose-600" />
+        <StatCard icon={CheckCircle} label="Verified Providers" value={String(verifiedProviders ?? 0)} sub={`IC: ${icVerifiedProviders ?? 0} · Licensed: ${licenseVerifiedProviders ?? 0}`} color="bg-emerald-50 text-emerald-600" />
+        <StatCard icon={ShoppingBag} label="Total Bookings" value={String(totalBookings ?? 0)} sub={`+${bookingsThisMonth ?? 0} this month`} color="bg-blue-50 text-blue-600" />
       </div>
 
       {/* Booking breakdown */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <MiniStat label="Selesai" value={String(completedBookings ?? 0)} sub={`${completionRate}% kadar`} color="text-emerald-600" bg="bg-emerald-50" />
-        <MiniStat label="Dibatalkan" value={String(cancelledBookings ?? 0)} color="text-red-600" bg="bg-red-50" />
-        <MiniStat label="Menunggu" value={String(pendingBookings ?? 0)} color="text-yellow-600" bg="bg-yellow-50" />
+        <MiniStat label="Completed" value={String(completedBookings ?? 0)} sub={`${completionRate}% rate`} color="text-emerald-600" bg="bg-emerald-50" />
+        <MiniStat label="Cancelled" value={String(cancelledBookings ?? 0)} color="text-red-600" bg="bg-red-50" />
+        <MiniStat label="Pending" value={String(pendingBookings ?? 0)} color="text-yellow-600" bg="bg-yellow-50" />
         <MiniStat label="Disputed" value={String(disputedBookings ?? 0)} color="text-orange-600" bg="bg-orange-50" urgent={(disputedBookings ?? 0) > 0} />
       </div>
 
-      {/* Booking growth + SOS */}
+      {/* Growth + SOS */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <div className="flex items-center gap-2 mb-3 text-gray-500">
-            <TrendingUp className="w-4 h-4 text-[#6366F1]" />
-            <span className="text-sm font-semibold text-gray-700">Pertumbuhan Booking</span>
+            <TrendingUp className="w-4 h-4 text-teal-600" />
+            <span className="text-sm font-semibold text-gray-700">Booking Growth</span>
           </div>
           <div className="text-3xl font-bold text-gray-900">{bookingsThisMonth ?? 0}</div>
-          <div className="text-xs text-gray-500 mt-1">Booking bulan ini</div>
+          <div className="text-xs text-gray-500 mt-1">Bookings this month</div>
           {bookingGrowth !== null && (
             <div className={`text-sm font-semibold mt-2 ${bookingGrowth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-              {bookingGrowth >= 0 ? '▲' : '▼'} {Math.abs(bookingGrowth).toFixed(1)}% vs bulan lepas ({bookingsLastMonth ?? 0})
+              {bookingGrowth >= 0 ? '▲' : '▼'} {Math.abs(bookingGrowth).toFixed(1)}% vs last month ({bookingsLastMonth ?? 0})
             </div>
           )}
         </div>
@@ -180,18 +162,18 @@ export default async function AdminAnalyticsPage() {
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle className="w-4 h-4 text-red-500" />
-            <span className="text-sm font-semibold text-gray-700">Insiden SOS</span>
+            <span className="text-sm font-semibold text-gray-700">SOS Incidents</span>
           </div>
           <div className="text-3xl font-bold text-gray-900">{totalSOS ?? 0}</div>
-          <div className="text-xs text-gray-500 mt-1">Jumlah keseluruhan</div>
+          <div className="text-xs text-gray-500 mt-1">Total</div>
           <div className="flex gap-4 mt-3">
             <div>
               <span className="text-lg font-bold text-red-600">{activeSOS ?? 0}</span>
-              <span className="text-xs text-gray-400 ml-1">aktif</span>
+              <span className="text-xs text-gray-400 ml-1">active</span>
             </div>
             <div>
               <span className="text-lg font-bold text-emerald-600">{resolvedSOS ?? 0}</span>
-              <span className="text-xs text-gray-400 ml-1">selesai</span>
+              <span className="text-xs text-gray-400 ml-1">resolved</span>
             </div>
           </div>
         </div>
@@ -199,100 +181,71 @@ export default async function AdminAnalyticsPage() {
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <div className="flex items-center gap-2 mb-3">
             <Star className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm font-semibold text-gray-700">Kadar Penyelesaian</span>
+            <span className="text-sm font-semibold text-gray-700">Completion Rate</span>
           </div>
           <div className="text-3xl font-bold text-gray-900">{completionRate}%</div>
-          <div className="text-xs text-gray-500 mt-1">Booking berjaya diselesaikan</div>
+          <div className="text-xs text-gray-500 mt-1">Bookings successfully completed</div>
           <div className="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#6366F1] rounded-full transition-all"
+              className="h-full bg-[#0D9488] rounded-full transition-all"
               style={{ width: `${completionRate}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* Top providers */}
+      {/* Top providers + State distribution */}
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white rounded-2xl border border-gray-100">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-            <Heart className="w-4 h-4 text-[#6366F1]" />
-            <h3 className="font-semibold text-gray-900">Top Provider (Paling Ramai Booking)</h3>
+            <Heart className="w-4 h-4 text-teal-600" />
+            <h3 className="font-semibold text-gray-900">Top Providers (Most Bookings)</h3>
           </div>
           <div className="divide-y divide-gray-50">
             {(topProviders ?? []).length === 0 ? (
-              <div className="px-6 py-6 text-sm text-gray-400 text-center">Tiada data</div>
+              <div className="px-6 py-6 text-sm text-gray-400 text-center">No data</div>
             ) : (
               (topProviders ?? []).map((p: any, i: number) => (
                 <div key={p.id} className="px-6 py-3 flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full bg-[#EEF2FF] text-[#6366F1] text-xs font-bold flex items-center justify-center flex-shrink-0">
+                  <span className="w-6 h-6 rounded-full bg-teal-50 text-teal-600 text-xs font-bold flex items-center justify-center flex-shrink-0">
                     {i + 1}
                   </span>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-gray-900 truncate">{p.users?.full_name}</div>
                     <div className="text-xs text-gray-400">
-                      ⭐ {parseFloat(String(p.rating_avg)) > 0 ? parseFloat(String(p.rating_avg)).toFixed(1) : 'Baru'} · {p.total_reviews} ulasan
+                      ⭐ {parseFloat(String(p.rating_avg)) > 0 ? parseFloat(String(p.rating_avg)).toFixed(1) : 'New'} · {p.total_reviews} reviews
                     </div>
                   </div>
-                  <span className="text-sm font-bold text-[#6366F1]">{p.total_bookings} booking</span>
+                  <span className="text-sm font-bold text-teal-600">{p.total_bookings} bookings</span>
                 </div>
               ))
             )}
           </div>
         </div>
 
-        <div className="space-y-4">
-          {/* Skill distribution */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
-            <h3 className="font-semibold text-gray-900 mb-4">Taburan Kemahiran Provider</h3>
-            {topSkills.length === 0 ? (
-              <p className="text-sm text-gray-400">Tiada data</p>
-            ) : (
-              <div className="space-y-2.5">
-                {topSkills.map(([skill, count]) => {
-                  const total = (skillDist ?? []).length || 1
-                  const pct = ((count / total) * 100).toFixed(0)
-                  return (
-                    <div key={skill}>
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="font-medium text-gray-700">{SKILL_LABELS[skill] ?? skill}</span>
-                        <span className="text-gray-400">{count} ({pct}%)</span>
-                      </div>
-                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#6366F1] rounded-full" style={{ width: `${pct}%` }} />
-                      </div>
+        <div className="bg-white rounded-2xl border border-gray-100 p-5">
+          <h3 className="font-semibold text-gray-900 mb-4">State Distribution (Providers)</h3>
+          {topStates.length === 0 ? (
+            <p className="text-sm text-gray-400">No data</p>
+          ) : (
+            <div className="space-y-2.5">
+              {topStates.map(([state, count]) => {
+                const total = (stateDist ?? []).length || 1
+                const pct = ((count / total) * 100).toFixed(0)
+                return (
+                  <div key={state}>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="font-medium text-gray-700">{state}</span>
+                      <span className="text-gray-400">{count} ({pct}%)</span>
                     </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* State distribution */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
-            <h3 className="font-semibold text-gray-900 mb-4">Taburan Negeri (Provider)</h3>
-            {topStates.length === 0 ? (
-              <p className="text-sm text-gray-400">Tiada data</p>
-            ) : (
-              <div className="space-y-2.5">
-                {topStates.map(([state, count]) => {
-                  const total = (stateDist ?? []).length || 1
-                  const pct = ((count / total) * 100).toFixed(0)
-                  return (
-                    <div key={state}>
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="font-medium text-gray-700">{state}</span>
-                        <span className="text-gray-400">{count} ({pct}%)</span>
-                      </div>
-                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#F43F5E] rounded-full" style={{ width: `${pct}%` }} />
-                      </div>
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-[#0D9488] rounded-full" style={{ width: `${pct}%` }} />
                     </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -311,7 +264,7 @@ function StatCard({
       </div>
       <div className="text-2xl font-bold text-gray-900">{value}</div>
       <div className="text-xs text-gray-500 mt-0.5">{label}</div>
-      {sub && <div className="text-xs text-[#6366F1] mt-1 font-medium">{sub}</div>}
+      {sub && <div className="text-xs text-teal-600 mt-1 font-medium">{sub}</div>}
     </div>
   )
 }

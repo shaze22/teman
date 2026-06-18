@@ -20,7 +20,7 @@ export default function LicenseVerifyActions({ licenseId, providerId, providerNa
 
   const handle = async (action: 'approve' | 'reject') => {
     if (action === 'reject' && !rejectReason.trim()) {
-      setError('Sila nyatakan sebab penolakan.')
+      setError('Please provide a rejection reason.')
       return
     }
     setLoading(action); setError('')
@@ -31,10 +31,10 @@ export default function LicenseVerifyActions({ licenseId, providerId, providerNa
         body: JSON.stringify({ licenseId, providerId, action, rejectionReason: rejectReason }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error || 'Tindakan gagal.'); setLoading(null); return }
+      if (!res.ok) { setError(data.error || 'Action failed.'); setLoading(null); return }
       router.refresh()
     } catch {
-      setError('Ralat rangkaian.')
+      setError('Network error.')
       setLoading(null)
     }
   }
@@ -46,18 +46,18 @@ export default function LicenseVerifyActions({ licenseId, providerId, providerNa
       {showRejectForm ? (
         <div className="space-y-3">
           <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)}
-            placeholder="Sebab penolakan (diwajibkan — akan dihantar kepada provider)"
+            placeholder="Rejection reason (required — will be sent to provider)"
             rows={3}
             className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400" />
           <div className="flex gap-2">
             <button onClick={() => handle('reject')} disabled={loading === 'reject'}
               className="flex items-center gap-1.5 bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50">
               {loading === 'reject' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
-              Hantar Penolakan
+              Submit Rejection
             </button>
             <button onClick={() => { setShowRejectForm(false); setRejectReason('') }}
               className="text-sm text-slate-500 px-4 py-2 rounded-lg hover:bg-slate-200">
-              Batal
+              Cancel
             </button>
           </div>
         </div>
@@ -66,12 +66,12 @@ export default function LicenseVerifyActions({ licenseId, providerId, providerNa
           <button onClick={() => handle('approve')} disabled={!!loading}
             className="flex items-center gap-1.5 bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-emerald-700 disabled:opacity-50">
             {loading === 'approve' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
-            Lulus Sijil
+            Approve License
           </button>
           <button onClick={() => setShowRejectForm(true)} disabled={!!loading}
             className="flex items-center gap-1.5 bg-white border border-red-300 text-red-600 text-sm font-medium px-4 py-2 rounded-lg hover:bg-red-50 disabled:opacity-50">
             <XCircle className="w-3.5 h-3.5" />
-            Tolak
+            Reject
           </button>
         </div>
       )}

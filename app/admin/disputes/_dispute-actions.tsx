@@ -24,7 +24,7 @@ export default function DisputeActions({ disputeId, currentStatus }: { disputeId
   }
 
   if (currentStatus === 'resolved' || currentStatus === 'closed') {
-    return <span className="text-xs text-gray-400 italic">Selesai</span>
+    return <span className="text-xs text-gray-400 italic">Resolved</span>
   }
 
   return (
@@ -33,31 +33,31 @@ export default function DisputeActions({ disputeId, currentStatus }: { disputeId
         <div className="flex gap-2 flex-wrap">
           <button onClick={() => update('investigating')} disabled={!!loading || currentStatus === 'investigating'}
             className="px-3 py-1.5 text-xs bg-yellow-100 text-yellow-700 rounded-lg font-medium hover:bg-yellow-200 disabled:opacity-40 transition-colors">
-            {loading === 'investigating' ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Sedang Disiasat'}
+            {loading === 'investigating' ? <Loader2 className="w-3 h-3 animate-spin inline" /> : 'Investigating'}
           </button>
           <button onClick={() => setShowForm(true)}
-            className="px-3 py-1.5 text-xs bg-[#6366F1] text-white rounded-lg font-medium hover:bg-[#4F46E5] transition-colors">
-            Selesaikan
+            className="px-3 py-1.5 text-xs bg-[#0D9488] text-white rounded-lg font-medium hover:bg-teal-700 transition-colors">
+            Resolve
           </button>
           <button onClick={() => update('closed')} disabled={!!loading}
             className="px-3 py-1.5 text-xs bg-gray-100 text-gray-600 rounded-lg font-medium hover:bg-gray-200 disabled:opacity-40 transition-colors">
-            Tutup
+            Close
           </button>
         </div>
       ) : (
         <div className="space-y-2 bg-gray-50 rounded-xl p-3">
           <textarea value={resolution} onChange={e => setResolution(e.target.value)}
-            placeholder="Resolusi untuk pelanggan..." rows={2}
-            className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#6366F1] resize-none" />
+            placeholder="Resolution for customer..." rows={2}
+            className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 resize-none" />
           <textarea value={adminNotes} onChange={e => setAdminNotes(e.target.value)}
-            placeholder="Nota admin (tidak ditunjuk kepada pengguna)..." rows={2}
-            className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#6366F1] resize-none" />
+            placeholder="Admin notes (not shown to users)..." rows={2}
+            className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 resize-none" />
           <div className="flex gap-2">
             <button onClick={() => update('resolved')} disabled={!!loading}
               className="flex-1 px-3 py-1.5 text-xs bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-40 flex items-center justify-center gap-1">
-              {loading === 'resolved' ? <Loader2 className="w-3 h-3 animate-spin" /> : null} Selesai
+              {loading === 'resolved' ? <Loader2 className="w-3 h-3 animate-spin" /> : null} Resolved
             </button>
-            <button onClick={() => setShowForm(false)} className="px-3 py-1.5 text-xs bg-gray-100 text-gray-600 rounded-lg font-medium">Batal</button>
+            <button onClick={() => setShowForm(false)} className="px-3 py-1.5 text-xs bg-gray-100 text-gray-600 rounded-lg font-medium">Cancel</button>
           </div>
         </div>
       )}

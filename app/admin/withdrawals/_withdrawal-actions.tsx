@@ -33,7 +33,7 @@ export default function WithdrawalActions({ id }: { id: string }) {
         className="flex items-center justify-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-xl font-medium text-sm hover:bg-emerald-600 disabled:opacity-50 transition-colors"
       >
         {loading === 'approved' ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-        Lulus
+        Approve
       </button>
 
       {!showReject ? (
@@ -42,13 +42,13 @@ export default function WithdrawalActions({ id }: { id: string }) {
           disabled={!!loading}
           className="flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-xl font-medium text-sm hover:bg-red-100 disabled:opacity-50 transition-colors"
         >
-          <XCircle className="w-4 h-4" /> Tolak
+          <XCircle className="w-4 h-4" /> Reject
         </button>
       ) : (
         <div className="space-y-2">
           <textarea
             value={notes} onChange={e => setNotes(e.target.value)}
-            placeholder="Sebab ditolak (pilihan)..."
+            placeholder="Rejection reason (optional)..."
             rows={2}
             className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-red-300 resize-none"
           />
@@ -59,13 +59,13 @@ export default function WithdrawalActions({ id }: { id: string }) {
               className="flex-1 flex items-center justify-center gap-1 bg-red-500 text-white px-3 py-1.5 rounded-lg font-medium text-xs hover:bg-red-600 disabled:opacity-50 transition-colors"
             >
               {loading === 'rejected' ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-              Tolak
+              Reject
             </button>
             <button
               onClick={() => { setShowReject(false); setNotes('') }}
               className="px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50"
             >
-              Batal
+              Cancel
             </button>
           </div>
         </div>

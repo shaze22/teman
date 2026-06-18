@@ -32,19 +32,19 @@ export default function ProviderActions({ profileId, userId, verifiedByAdmin, is
         <button
           onClick={() => update({ verifiedByAdmin: true })}
           disabled={loading}
-          title="Sahkan (Admin)"
+          title="Verify (Admin)"
           className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500 text-white text-xs font-medium rounded-lg hover:bg-emerald-600 disabled:opacity-50 transition-colors"
         >
-          <CheckCircle className="w-3.5 h-3.5" /> Sahkan
+          <CheckCircle className="w-3.5 h-3.5" /> Verify
         </button>
       ) : (
         <button
           onClick={() => update({ verifiedByAdmin: false })}
           disabled={loading}
-          title="Batalkan pengesahan"
+          title="Unverify"
           className="flex items-center gap-1 px-3 py-1.5 border border-gray-200 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
         >
-          <XCircle className="w-3.5 h-3.5" /> Batal Verify
+          <XCircle className="w-3.5 h-3.5" /> Unverify
         </button>
       )}
 
@@ -52,7 +52,7 @@ export default function ProviderActions({ profileId, userId, verifiedByAdmin, is
         <button
           onClick={() => update({ suspend: true })}
           disabled={loading}
-          title="Suspend akaun"
+          title="Suspend account"
           className="flex items-center gap-1 px-3 py-1.5 border border-red-200 text-red-600 text-xs font-medium rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
         >
           <ShieldOff className="w-3.5 h-3.5" /> Suspend
@@ -61,10 +61,10 @@ export default function ProviderActions({ profileId, userId, verifiedByAdmin, is
         <button
           onClick={() => update({ suspend: false })}
           disabled={loading}
-          title="Aktifkan semula"
+          title="Activate account"
           className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors"
         >
-          <ShieldCheck className="w-3.5 h-3.5" /> Aktifkan
+          <ShieldCheck className="w-3.5 h-3.5" /> Activate
         </button>
       )}
     </div>
