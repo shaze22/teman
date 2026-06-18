@@ -14,16 +14,15 @@ export async function POST(request: NextRequest) {
   if (!profileId || !action) return NextResponse.json({ message: 'Missing fields' }, { status: 400 })
 
   if (action === 'approve') {
-    await supabaseAdmin.from('single_mother_profiles').update({
-      locum_verified: true,
-      locum_verified_at: new Date().toISOString(),
+    await supabaseAdmin.from('provider_profiles').update({
+      license_verified: true,
+      license_verified_at: new Date().toISOString(),
     }).eq('id', profileId)
   } else if (action === 'reject') {
-    await supabaseAdmin.from('single_mother_profiles').update({
-      is_locum: false,
-      locum_verified: false,
-      locum_cert_url: null,
-      locum_cert_type: null,
+    await supabaseAdmin.from('provider_profiles').update({
+      license_verified: false,
+      license_url: null,
+      license_type: null,
     }).eq('id', profileId)
   }
 

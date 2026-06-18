@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   if (!code) return NextResponse.json({ valid: false }, { status: 400 })
 
   const { data } = await supabaseAdmin
-    .from('single_mother_profiles')
+    .from('provider_profiles')
     .select('user_id')
     .eq('referral_code', code)
     .maybeSingle()

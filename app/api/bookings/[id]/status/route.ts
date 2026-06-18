@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { stripe } from '@/lib/stripe'
 import { z } from 'zod'
 import { notifyBookingStatusChange, notifyFundsReleased } from '@/lib/notifications'
+import { getProviderAmount } from '@/lib/services'
 import {
   sendBookingConfirmedCustomer,
   sendBookingCancelledBoth,
@@ -19,31 +20,32 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ message: 'Perlu log masuk' }, { status: 401 })
+  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
   const parsed = schema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ message: 'Data tidak sah' }, { status: 400 })
+  if (!parsed.success) return NextResponse.json({ message: 'Invalid data' }, { status: 400 })
 
   const { status, cancellationReason } = parsed.data
 
   const { data: booking } = await supabaseAdmin
     .from('bookings')
     .select(`
-      customer_id, provider_id, status, booking_code, scheduled_date, start_time, total_amount, provider_price, payment_status, payment_method,
+      customer_id, provider_id, status, booking_code, scheduled_date, start_time,
+      total_amount, provider_price, payment_status, payment_method, service_type, funds_released,
       customer:users!bookings_customer_id_fkey(full_name),
       provider:users!bookings_provider_id_fkey(full_name, phone)
     `)
     .eq('id', id)
     .single()
 
-  if (!booking) return NextResponse.json({ message: 'Booking tidak dijumpai' }, { status: 404 })
+  if (!booking) return NextResponse.json({ message: 'Booking not found' }, { status: 404 })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const b = booking as any
   const isProvider = b.provider_id === user.id
   const isCustomer = b.customer_id === user.id
-  if (!isProvider && !isCustomer) return NextResponse.json({ message: 'Akses ditolak' }, { status: 403 })
+  if (!isProvider && !isCustomer) return NextResponse.json({ message: 'Access denied' }, { status: 403 })
 
   const now = new Date().toISOString()
   const update: Record<string, unknown> = { status, updated_at: now }
@@ -59,7 +61,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     update.cancelled_by = user.id
     update.cancellation_reason = cancellationReason ?? null
 
-    // Process refund if booking was paid
     if (b.payment_status === 'paid' && b.payment_method === 'stripe') {
       const sessionDate = new Date(`${b.scheduled_date}T${b.start_time ?? '00:00'}`)
       const hoursUntil = (sessionDate.getTime() - Date.now()) / 3_600_000
@@ -88,7 +89,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             await supabaseAdmin.from('payments').update({ status: 'refunded' }).eq('booking_id', id)
           }
         } catch (err) {
-          console.error('[status/cancel] refund error:', err)
+          console.error('[status/cancel] Stripe refund failed:', err)
+          // Non-fatal: booking is cancelled but refund may need manual processing
         }
       }
     }
@@ -97,7 +99,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const { error } = await supabaseAdmin.from('bookings').update(update).eq('id', id)
   if (error) return NextResponse.json({ message: error.message }, { status: 500 })
 
-  // Referral reward trigger on provider's first completed booking
+  // Referral reward on provider's first completed booking
   if (status === 'completed') {
     const { data: reward } = await supabaseAdmin
       .from('referral_rewards')
@@ -118,39 +120,33 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         const refereeCredit = parseFloat(String(reward.referee_amount))
         const referrerCredit = parseFloat(String(reward.referrer_amount))
 
-        // Credit referee (new companion)
-        const { data: refProfile } = await supabaseAdmin
-          .from('single_mother_profiles').select('id, earnings_total').eq('user_id', b.provider_id).single()
-        if (refProfile) {
-          const refBal = parseFloat(String(refProfile.earnings_total ?? 0)) + refereeCredit
-          await Promise.all([
-            supabaseAdmin.from('single_mother_profiles').update({ earnings_total: refBal }).eq('id', refProfile.id),
-            supabaseAdmin.from('wallet_transactions').insert({
-              id: crypto.randomUUID(), user_id: b.provider_id, type: 'credit',
-              amount: refereeCredit, balance_after: refBal,
-              reference_type: 'referral', reference_id: reward.id,
-              description: 'Bonus referral sesi pertama anda selesai!',
-              created_at: creditNow,
-            }),
-          ])
-        }
+        // Get current wallet balance for referee
+        const { data: refLastTx } = await supabaseAdmin
+          .from('wallet_transactions').select('balance_after')
+          .eq('user_id', b.provider_id).order('created_at', { ascending: false }).limit(1).maybeSingle()
+        const refBal = parseFloat(String(refLastTx?.balance_after ?? 0)) + refereeCredit
 
-        // Credit referrer
-        const { data: rerProfile } = await supabaseAdmin
-          .from('single_mother_profiles').select('id, earnings_total').eq('user_id', reward.referrer_id).single()
-        if (rerProfile) {
-          const rerBal = parseFloat(String(rerProfile.earnings_total ?? 0)) + referrerCredit
-          await Promise.all([
-            supabaseAdmin.from('single_mother_profiles').update({ earnings_total: rerBal }).eq('id', rerProfile.id),
-            supabaseAdmin.from('wallet_transactions').insert({
-              id: crypto.randomUUID(), user_id: reward.referrer_id, type: 'credit',
-              amount: referrerCredit, balance_after: rerBal,
-              reference_type: 'referral', reference_id: reward.id,
-              description: `Komisen referral rakan anda selesai sesi pertama!`,
-              created_at: creditNow,
-            }),
-          ])
-        }
+        await supabaseAdmin.from('wallet_transactions').insert({
+          id: crypto.randomUUID(), user_id: b.provider_id, type: 'credit',
+          amount: refereeCredit, balance_after: refBal,
+          reference_type: 'referral', reference_id: reward.id,
+          description: 'Referral bonus — first session completed!',
+          created_at: creditNow,
+        })
+
+        // Get current wallet balance for referrer
+        const { data: rerLastTx } = await supabaseAdmin
+          .from('wallet_transactions').select('balance_after')
+          .eq('user_id', reward.referrer_id).order('created_at', { ascending: false }).limit(1).maybeSingle()
+        const rerBal = parseFloat(String(rerLastTx?.balance_after ?? 0)) + referrerCredit
+
+        await supabaseAdmin.from('wallet_transactions').insert({
+          id: crypto.randomUUID(), user_id: reward.referrer_id, type: 'credit',
+          amount: referrerCredit, balance_after: rerBal,
+          reference_type: 'referral', reference_id: reward.id,
+          description: 'Referral commission — your referral completed their first session!',
+          created_at: creditNow,
+        })
 
         await supabaseAdmin.from('referral_rewards')
           .update({ status: 'credited', booking_id: id, credited_at: creditNow })
@@ -159,32 +155,37 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
   }
 
-  // Auto-release escrow when booking is completed
-  if (status === 'completed' && b.payment_status === 'paid') {
-    const providerNet = parseFloat(String(b.provider_price)) * 0.85
-    const { data: provProfile } = await supabaseAdmin
-      .from('single_mother_profiles')
-      .select('id, earnings_total')
-      .eq('user_id', b.provider_id)
-      .single()
+  // Auto-release escrow when booking is completed (guard: not already released)
+  if (status === 'completed' && b.payment_status === 'paid' && !b.funds_released) {
+    const providerNet = getProviderAmount(b.service_type, parseFloat(String(b.provider_price)))
 
-    if (provProfile) {
-      const balanceAfter = parseFloat(String(provProfile.earnings_total ?? 0)) + providerNet
-      await Promise.all([
-        supabaseAdmin.from('bookings').update({ funds_released: true, funds_released_at: now }).eq('id', id),
-        supabaseAdmin.from('single_mother_profiles').update({ earnings_total: balanceAfter }).eq('id', provProfile.id),
-        supabaseAdmin.from('wallet_transactions').insert({
-          id: crypto.randomUUID(),
-          user_id: b.provider_id,
-          type: 'credit',
-          amount: providerNet,
-          balance_after: balanceAfter,
-          reference_type: 'booking',
-          reference_id: id,
-          description: `Pendapatan booking #${b.booking_code}`,
-          created_at: now,
-        }),
-      ])
+    const { data: lastTx } = await supabaseAdmin
+      .from('wallet_transactions').select('balance_after')
+      .eq('user_id', b.provider_id).order('created_at', { ascending: false }).limit(1).maybeSingle()
+    const balanceAfter = parseFloat(String(lastTx?.balance_after ?? 0)) + providerNet
+
+    const [releaseRes, walletRes] = await Promise.all([
+      supabaseAdmin.from('bookings').update({ funds_released: true, funds_released_at: now }).eq('id', id),
+      supabaseAdmin.from('wallet_transactions').insert({
+        id: crypto.randomUUID(),
+        user_id: b.provider_id,
+        type: 'credit',
+        amount: providerNet,
+        balance_after: balanceAfter,
+        reference_type: 'booking',
+        reference_id: id,
+        description: `Earnings from booking #${b.booking_code}`,
+        created_at: now,
+      }),
+    ])
+
+    if (releaseRes.error || walletRes.error) {
+      console.error('[status/auto-release] Failed:', releaseRes.error ?? walletRes.error)
+    } else {
+      // Update denormalized earnings on provider_profiles (non-fatal)
+      void supabaseAdmin.from('provider_profiles')
+        .update({ earnings_total: balanceAfter, updated_at: now })
+        .eq('user_id', b.provider_id)
       notifyFundsReleased({ bookingId: id, bookingCode: b.booking_code, providerId: b.provider_id, amount: providerNet }).catch(() => {})
     }
   }
@@ -199,7 +200,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const customerName = b.customer?.full_name ?? ''
   const providerName = b.provider?.full_name ?? ''
 
-  // Fire-and-forget: in-app + email
   notifyBookingStatusChange({
     bookingId: id, bookingCode: b.booking_code, status,
     customerId: b.customer_id, providerId: b.provider_id,

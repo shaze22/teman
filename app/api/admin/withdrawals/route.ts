@@ -7,16 +7,22 @@ import { z } from 'zod'
 export async function GET() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || !(await isAdmin(user.id))) return NextResponse.json({ message: 'Akses ditolak' }, { status: 403 })
+  if (!user || !(await isAdmin(user.id))) return NextResponse.json({ message: 'Access denied' }, { status: 403 })
 
+  // Batch fetch users to avoid N+1
   const { data } = await supabaseAdmin
     .from('withdrawal_requests')
-    .select('id, amount, bank_name, account_number, account_holder, status, notes, created_at, processed_at, provider_id')
+    .select(`
+      id, amount, bank_name, account_number, account_holder, status, notes, created_at, processed_at, provider_id,
+      provider:users!withdrawal_requests_provider_id_fkey(full_name)
+    `)
     .order('created_at', { ascending: false })
 
-  const enriched = await Promise.all((data ?? []).map(async (w: any) => {
-    const { data: u } = await supabaseAdmin.from('users').select('full_name').eq('id', w.provider_id).single()
-    return { ...w, providerName: u?.full_name ?? w.provider_id }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const enriched = (data ?? []).map((w: any) => ({
+    ...w,
+    providerName: w.provider?.full_name ?? w.provider_id,
+    provider: undefined,
   }))
 
   return NextResponse.json(enriched)
@@ -31,11 +37,11 @@ const schema = z.object({
 export async function PATCH(request: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || !(await isAdmin(user.id))) return NextResponse.json({ message: 'Akses ditolak' }, { status: 403 })
+  if (!user || !(await isAdmin(user.id))) return NextResponse.json({ message: 'Access denied' }, { status: 403 })
 
   const body = await request.json()
   const parsed = schema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ message: 'Data tidak sah' }, { status: 400 })
+  if (!parsed.success) return NextResponse.json({ message: 'Invalid data' }, { status: 400 })
 
   const { id, action, notes } = parsed.data
   const now = new Date().toISOString()
@@ -46,8 +52,8 @@ export async function PATCH(request: NextRequest) {
     .eq('id', id)
     .single()
 
-  if (!wr) return NextResponse.json({ message: 'Permohonan tidak dijumpai' }, { status: 404 })
-  if (wr.status !== 'pending') return NextResponse.json({ message: 'Permohonan sudah diproses' }, { status: 400 })
+  if (!wr) return NextResponse.json({ message: 'Request not found' }, { status: 404 })
+  if (wr.status !== 'pending') return NextResponse.json({ message: 'Request already processed' }, { status: 400 })
 
   await supabaseAdmin
     .from('withdrawal_requests')
@@ -55,32 +61,29 @@ export async function PATCH(request: NextRequest) {
     .eq('id', id)
 
   if (action === 'approved') {
-    const { data: profile } = await supabaseAdmin
-      .from('single_mother_profiles')
-      .select('id, earnings_total')
+    // Get current wallet balance from last transaction
+    const { data: lastTx } = await supabaseAdmin
+      .from('wallet_transactions')
+      .select('balance_after')
       .eq('user_id', wr.provider_id)
-      .single()
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-    if (profile) {
-      const newBalance = parseFloat(String(profile.earnings_total)) - parseFloat(String(wr.amount))
-      await Promise.all([
-        supabaseAdmin
-          .from('single_mother_profiles')
-          .update({ earnings_total: Math.max(0, newBalance), updated_at: now })
-          .eq('id', profile.id),
-        supabaseAdmin.from('wallet_transactions').insert({
-          id: crypto.randomUUID(),
-          user_id: wr.provider_id,
-          type: 'debit',
-          amount: wr.amount,
-          balance_after: Math.max(0, newBalance),
-          reference_type: 'withdrawal',
-          reference_id: id,
-          description: `Pengeluaran diluluskan`,
-          created_at: now,
-        }),
-      ])
-    }
+    const currentBalance = parseFloat(String(lastTx?.balance_after ?? 0))
+    const newBalance = Math.max(0, currentBalance - parseFloat(String(wr.amount)))
+
+    await supabaseAdmin.from('wallet_transactions').insert({
+      id: crypto.randomUUID(),
+      user_id: wr.provider_id,
+      type: 'debit',
+      amount: wr.amount,
+      balance_after: newBalance,
+      reference_type: 'withdrawal',
+      reference_id: id,
+      description: 'Withdrawal approved',
+      created_at: now,
+    })
   }
 
   return NextResponse.json({ success: true })

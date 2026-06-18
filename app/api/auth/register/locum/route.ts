@@ -32,37 +32,37 @@ export async function POST(req: NextRequest) {
 
     // Input validation
     if (!role || !fullName || !email || !password || !locationState || !locationCity) {
-      return NextResponse.json({ error: 'Maklumat wajib tidak lengkap.' }, { status: 400 })
+      return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 })
     }
     if (!PROVIDER_ROLES.includes(role as never)) {
-      return NextResponse.json({ error: 'Peranan tidak sah.' }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid role.' }, { status: 400 })
     }
     if (password.length < 8) {
-      return NextResponse.json({ error: 'Kata laluan mesti sekurang-kurangnya 8 aksara.' }, { status: 400 })
+      return NextResponse.json({ error: 'Password must be at least 8 characters.' }, { status: 400 })
     }
     if (!providerConsent) {
-      return NextResponse.json({ error: 'Persetujuan diperlukan.' }, { status: 400 })
+      return NextResponse.json({ error: 'Consent is required.' }, { status: 400 })
     }
     if (!icFile || !selfieFile) {
-      return NextResponse.json({ error: 'IC dan selfie diperlukan.' }, { status: 400 })
+      return NextResponse.json({ error: 'IC and selfie are required.' }, { status: 400 })
     }
 
     // File size validation
     if (icFile.size > MAX_FILE_SIZE || selfieFile.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: 'Saiz fail melebihi had 10MB.' }, { status: 400 })
+      return NextResponse.json({ error: 'File size exceeds 10MB limit.' }, { status: 400 })
     }
     if (licenseFile && licenseFile.size > 20 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Saiz sijil melebihi had 20MB.' }, { status: 400 })
+      return NextResponse.json({ error: 'Certificate file size exceeds 20MB limit.' }, { status: 400 })
     }
 
     // MIME validation
     if (!ALLOWED_MIME.includes(icFile.type) || !ALLOWED_MIME.includes(selfieFile.type)) {
-      return NextResponse.json({ error: 'Jenis fail tidak dibenarkan. Guna JPG, PNG, atau PDF.' }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid file type. Use JPG, PNG, or PDF.' }, { status: 400 })
     }
 
     const requiresLicense = ['locum_nurse', 'locum_physio', 'locum_care_aide'].includes(role)
     if (requiresLicense && (!licenseType || !licenseNumber)) {
-      return NextResponse.json({ error: 'Maklumat sijil profesional diperlukan.' }, { status: 400 })
+      return NextResponse.json({ error: 'Professional license details are required.' }, { status: 400 })
     }
 
     // Server-side Gemini verification (do NOT trust client)
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
 
     if (!geminiResult.faceMatch || !geminiResult.icAuthentic || !geminiResult.isAdult) {
       return NextResponse.json({
-        error: 'Pengesahan IC + selfie gagal.',
+        error: 'IC and selfie verification failed.',
         issues: geminiResult.issues,
       }, { status: 422 })
     }
@@ -92,9 +92,9 @@ export async function POST(req: NextRequest) {
 
     if (authError || !authData.user) {
       if (authError?.message?.includes('already')) {
-        return NextResponse.json({ error: 'E-mel ini sudah didaftarkan.' }, { status: 409 })
+        return NextResponse.json({ error: 'This email is already registered.' }, { status: 409 })
       }
-      return NextResponse.json({ error: authError?.message ?? 'Gagal mencipta akaun.' }, { status: 500 })
+      return NextResponse.json({ error: authError?.message ?? 'Failed to create account.' }, { status: 500 })
     }
 
     const userId = authData.user.id
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
 
     if (userError) {
       await supabaseAdmin.auth.admin.deleteUser(userId)
-      return NextResponse.json({ error: 'Gagal menyimpan maklumat pengguna.' }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to save user record.' }, { status: 500 })
     }
 
     // Upload IC to storage
@@ -153,9 +153,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Create provider_profiles record
+    const profileId = crypto.randomUUID()
     const { error: profileError } = await supabaseAdmin
       .from('provider_profiles')
       .insert({
+        id: profileId,
         user_id: userId,
         full_name: fullName,
         location_state: locationState,
@@ -170,23 +172,15 @@ export async function POST(req: NextRequest) {
         license_type: licenseType || null,
         license_url: licenseUrl,
         license_expiry: licenseExpiry || null,
-        license_verified: false,  // must be manually verified by admin
+        license_verified: false,
         provider_consent: true,
         provider_consent_at: new Date().toISOString(),
         is_active: true,
-        is_available: false,  // not available until license verified (for locum) or always true (companion)
+        is_available: !requiresLicense,
       })
 
     if (profileError) {
       console.error('Provider profile creation failed:', profileError)
-    }
-
-    // For non-locum roles (medical_escort, companion), set is_available = true immediately
-    if (!requiresLicense) {
-      await supabaseAdmin
-        .from('provider_profiles')
-        .update({ is_available: true })
-        .eq('user_id', userId)
     }
 
     // If license provided, insert into professional_licenses table
@@ -233,7 +227,8 @@ export async function POST(req: NextRequest) {
     if (servicesToCreate.length > 0) {
       await supabaseAdmin.from('provider_pricing').insert(
         servicesToCreate.map(svc => ({
-          provider_id: userId,
+          id: crypto.randomUUID(),
+          profile_id: profileId,
           service_type: svc,
           pricing_type: defaultPriceMap[svc]?.type ?? 'per_session',
           price: defaultPriceMap[svc]?.price ?? 50,
@@ -242,13 +237,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Notify admin of new professional registration (for license review)
+    // Notify provider of pending license review
     if (requiresLicense) {
       await supabaseAdmin.from('notifications').insert({
-        user_id: userId,  // we'll also need to notify admin — use a separate admin notification
+        user_id: userId,
         type: 'registration_pending',
-        title: 'Pendaftaran Diterima',
-        message: `Terima kasih ${fullName}. Sijil anda sedang disemak oleh admin. Proses biasanya 1-3 hari bekerja.`,
+        title: 'Registration Received',
+        message: `Thank you ${fullName}. Your license is being reviewed by our admin team. This usually takes 1-3 business days.`,
         sent_via: ['in_app'],
       })
     }
@@ -258,12 +253,12 @@ export async function POST(req: NextRequest) {
       userId,
       requiresLicenseVerification: requiresLicense,
       message: requiresLicense
-        ? 'Pendaftaran berjaya. Sijil anda sedang disemak. Kami akan maklumkan melalui e-mel.'
-        : 'Pendaftaran berjaya! Anda boleh mula menerima tempahan.',
+        ? 'Registration successful. Your license is under review. We will notify you via email.'
+        : 'Registration successful! You can start accepting bookings.',
     })
 
   } catch (err) {
     console.error('/api/auth/register/locum error:', err)
-    return NextResponse.json({ error: 'Ralat pelayan. Sila cuba lagi.' }, { status: 500 })
+    return NextResponse.json({ error: 'Server error. Please try again.' }, { status: 500 })
   }
 }

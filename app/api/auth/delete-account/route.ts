@@ -7,8 +7,12 @@ export async function DELETE() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Delete auth user via admin (cascades to DB via RLS/triggers or FK)
-  const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id)
+  // Soft delete only — healthcare records are Class A data, never hard delete
+  const { error } = await supabaseAdmin
+    .from('users')
+    .update({ status: 'suspended', updated_at: new Date().toISOString() })
+    .eq('id', user.id)
+
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   await supabase.auth.signOut()

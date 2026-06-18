@@ -13,23 +13,23 @@ export async function GET() {
   if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
 
   let { data: profile } = await supabaseAdmin
-    .from('single_mother_profiles')
+    .from('provider_profiles')
     .select('id, referral_code')
     .eq('user_id', user.id)
     .single()
 
   if (!profile) return NextResponse.json({ message: 'Profile not found' }, { status: 404 })
 
-  // Generate code lazily for existing companions
+  // Generate code lazily for existing providers without one
   if (!profile.referral_code) {
     let code = generateReferralCode()
     for (let i = 0; i < 10; i++) {
       const { data: existing } = await supabaseAdmin
-        .from('single_mother_profiles').select('id').eq('referral_code', code).maybeSingle()
+        .from('provider_profiles').select('id').eq('referral_code', code).maybeSingle()
       if (!existing) break
       code = generateReferralCode()
     }
-    await supabaseAdmin.from('single_mother_profiles')
+    await supabaseAdmin.from('provider_profiles')
       .update({ referral_code: code }).eq('id', profile.id)
     profile = { ...profile, referral_code: code }
   }

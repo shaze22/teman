@@ -4,7 +4,6 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { z } from 'zod'
 
 const schema = z.object({
-  profileId: z.string().uuid(),
   slots: z.array(z.object({
     id: z.string(),
     dayOfWeek: z.number().int().min(0).max(6),
@@ -16,31 +15,30 @@ const schema = z.object({
 export async function PUT(request: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ message: 'Perlu log masuk' }, { status: 401 })
+  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
   const parsed = schema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ message: 'Data tidak sah' }, { status: 400 })
+  if (!parsed.success) return NextResponse.json({ message: 'Invalid data' }, { status: 400 })
 
-  const { profileId, slots } = parsed.data
+  const { slots } = parsed.data
 
-  // Verify ownership
+  // Get provider profile id (used as FK in provider_availabilities)
   const { data: profile } = await supabaseAdmin
-    .from('single_mother_profiles')
+    .from('provider_profiles')
     .select('id')
-    .eq('id', profileId)
     .eq('user_id', user.id)
     .single()
-  if (!profile) return NextResponse.json({ message: 'Akses ditolak' }, { status: 403 })
+  if (!profile) return NextResponse.json({ message: 'Provider profile not found' }, { status: 404 })
 
   // Replace all recurring slots
-  await supabaseAdmin.from('provider_availabilities').delete().eq('profile_id', profileId).eq('is_recurring', true)
+  await supabaseAdmin.from('provider_availabilities').delete().eq('profile_id', profile.id).eq('is_recurring', true)
 
   if (slots.length > 0) {
     const { error } = await supabaseAdmin.from('provider_availabilities').insert(
       slots.map(s => ({
         id: crypto.randomUUID(),
-        profile_id: profileId,
+        profile_id: profile.id,
         day_of_week: s.dayOfWeek,
         start_time: s.startTime,
         end_time: s.endTime,

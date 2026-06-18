@@ -5,10 +5,15 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ message: 'Perlu log masuk' }, { status: 401 })
+  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
 
   const { code, amount } = await request.json()
-  if (!code) return NextResponse.json({ message: 'Kod promo diperlukan' }, { status: 400 })
+  if (!code) return NextResponse.json({ message: 'Promo code is required' }, { status: 400 })
+
+  const parsedAmount = typeof amount === 'number' ? amount : parseFloat(String(amount))
+  if (isNaN(parsedAmount) || parsedAmount <= 0) {
+    return NextResponse.json({ message: 'Invalid booking amount' }, { status: 400 })
+  }
 
   const now = new Date().toISOString()
   const { data: promo } = await supabaseAdmin
@@ -18,16 +23,18 @@ export async function POST(request: NextRequest) {
     .eq('is_active', true)
     .single()
 
-  if (!promo) return NextResponse.json({ message: 'Kod promo tidak sah atau telah tamat' }, { status: 400 })
-  if (promo.valid_until && promo.valid_until < now) return NextResponse.json({ message: 'Kod promo telah tamat tempoh' }, { status: 400 })
-  if (promo.max_uses != null && promo.uses_count >= promo.max_uses) return NextResponse.json({ message: 'Kod promo telah habis digunakan' }, { status: 400 })
-  if (amount < parseFloat(String(promo.min_amount))) {
-    return NextResponse.json({ message: `Minimum pembelian RM${parseFloat(String(promo.min_amount)).toFixed(0)} untuk kod ini` }, { status: 400 })
+  if (!promo) return NextResponse.json({ message: 'Invalid or expired promo code' }, { status: 400 })
+  if (promo.valid_until && promo.valid_until < now) return NextResponse.json({ message: 'Promo code has expired' }, { status: 400 })
+  if (promo.max_uses != null && promo.uses_count >= promo.max_uses) return NextResponse.json({ message: 'Promo code has reached its usage limit' }, { status: 400 })
+
+  const minAmount = parseFloat(String(promo.min_amount ?? 0))
+  if (parsedAmount < minAmount) {
+    return NextResponse.json({ message: `Minimum booking amount RM${minAmount.toFixed(0)} required for this code` }, { status: 400 })
   }
 
   const discount = promo.discount_type === 'percentage'
-    ? Math.min(amount * (parseFloat(String(promo.discount_value)) / 100), amount)
-    : Math.min(parseFloat(String(promo.discount_value)), amount)
+    ? Math.min(parsedAmount * (parseFloat(String(promo.discount_value)) / 100), parsedAmount)
+    : Math.min(parseFloat(String(promo.discount_value)), parsedAmount)
 
   return NextResponse.json({
     valid: true,

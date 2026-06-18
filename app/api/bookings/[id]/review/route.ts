@@ -13,11 +13,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ message: 'Perlu log masuk' }, { status: 401 })
+  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
   const parsed = schema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ message: 'Data tidak sah' }, { status: 400 })
+  if (!parsed.success) return NextResponse.json({ message: 'Invalid data' }, { status: 400 })
 
   const { rating, comment } = parsed.data
 
@@ -27,19 +27,19 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     .eq('id', id)
     .single()
 
-  if (!booking) return NextResponse.json({ message: 'Booking tidak dijumpai' }, { status: 404 })
+  if (!booking) return NextResponse.json({ message: 'Booking not found' }, { status: 404 })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const b = booking as any
-  if (b.customer_id !== user.id) return NextResponse.json({ message: 'Hanya pelanggan boleh beri ulasan' }, { status: 403 })
-  if (b.status !== 'completed') return NextResponse.json({ message: 'Booking belum selesai' }, { status: 400 })
+  if (b.customer_id !== user.id) return NextResponse.json({ message: 'Only the customer can leave a review' }, { status: 403 })
+  if (b.status !== 'completed') return NextResponse.json({ message: 'Booking is not completed' }, { status: 400 })
 
   const { data: existing } = await supabaseAdmin
     .from('reviews')
     .select('id')
     .eq('booking_id', id)
     .single()
-  if (existing) return NextResponse.json({ message: 'Ulasan sudah diberikan' }, { status: 409 })
+  if (existing) return NextResponse.json({ message: 'Review already submitted' }, { status: 409 })
 
   const now = new Date().toISOString()
 
@@ -54,15 +54,18 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   })
   if (reviewError) return NextResponse.json({ message: reviewError.message }, { status: 500 })
 
+  // Update provider rating aggregate (limit to recent 1000 reviews for performance)
   const { data: allReviews } = await supabaseAdmin
     .from('reviews')
     .select('rating')
     .eq('reviewee_id', b.provider_id)
+    .order('created_at', { ascending: false })
+    .limit(1000)
 
   if (allReviews && allReviews.length > 0) {
     const avg = allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length
     await supabaseAdmin
-      .from('single_mother_profiles')
+      .from('provider_profiles')
       .update({ rating_avg: parseFloat(avg.toFixed(1)), total_reviews: allReviews.length, updated_at: now })
       .eq('user_id', b.provider_id)
   }

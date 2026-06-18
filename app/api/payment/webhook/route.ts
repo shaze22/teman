@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { stripe } from '@/lib/stripe'
 import { sendPaymentReceiptCustomer, sendPaymentNotifyProvider } from '@/lib/email'
 import { createNotification } from '@/lib/notifications'
+import { getProviderAmount } from '@/lib/services'
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
@@ -30,7 +31,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    // Update payment + booking
+    // Idempotency: skip if booking already confirmed
+    const { data: existingBooking } = await supabaseAdmin
+      .from('bookings')
+      .select('id, payment_status, service_type')
+      .eq('id', bookingId)
+      .single()
+
+    if (existingBooking?.payment_status === 'paid') {
+      console.info('[payment/webhook] Already processed, skipping:', bookingId)
+      return NextResponse.json({ ok: true })
+    }
+
     const { data: payment } = await supabaseAdmin
       .from('payments')
       .select('id')
@@ -38,21 +50,26 @@ export async function POST(request: NextRequest) {
       .single()
 
     const now = new Date().toISOString()
-    await Promise.all([
+    const [paymentResult, bookingResult] = await Promise.all([
       payment
         ? supabaseAdmin.from('payments').update({ status: 'paid' }).eq('id', payment.id)
-        : Promise.resolve(),
+        : Promise.resolve({ error: null }),
       supabaseAdmin
         .from('bookings')
         .update({ status: 'confirmed', payment_status: 'paid', payment_method: 'stripe', updated_at: now })
         .eq('id', bookingId),
     ])
 
-    // Fetch booking details for emails
+    if (paymentResult.error || bookingResult.error) {
+      console.error('[payment/webhook] DB update failed:', paymentResult.error ?? bookingResult.error)
+      return NextResponse.json({ message: 'Database update failed' }, { status: 500 })
+    }
+
+    // Fetch booking details for notifications/emails
     const { data: booking } = await supabaseAdmin
       .from('bookings')
       .select(`
-        booking_code, scheduled_date, total_amount, provider_price, customer_id, provider_id,
+        booking_code, scheduled_date, total_amount, provider_price, service_type, customer_id, provider_id,
         customer:users!bookings_customer_id_fkey(full_name),
         provider:users!bookings_provider_id_fkey(full_name)
       `)
@@ -75,15 +92,14 @@ export async function POST(request: NextRequest) {
       const customerName = b.customer?.full_name ?? ''
       const providerName = b.provider?.full_name ?? ''
       const totalAmount = parseFloat(String(b.total_amount))
-      const providerAmount = parseFloat(String(b.provider_price)) * 0.85
+      const providerAmount = getProviderAmount(b.service_type, parseFloat(String(b.provider_price)))
 
-      // In-app notification to provider
       if (providerId) {
         createNotification({
           userId: providerId,
           type: 'booking_confirmed',
-          title: 'Booking Baru Disahkan',
-          message: `${customerName} telah membuat booking #${b.booking_code}. Pembayaran berjaya diterima.`,
+          title: 'New Booking Confirmed',
+          message: `${customerName} booked #${b.booking_code}. Payment received.`,
           actionUrl: `/booking/${bookingId}`,
           data: { bookingId },
         }).catch(() => {})

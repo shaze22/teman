@@ -5,7 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ message: 'Perlu log masuk' }, { status: 401 })
+  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
 
   const sub = await request.json()
   const { endpoint, keys: { p256dh, auth } } = sub
@@ -19,8 +19,17 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+
   const { endpoint } = await request.json()
-  await supabaseAdmin.from('push_subscriptions').delete().eq('endpoint', endpoint)
+  // Scope deletion to current user to prevent unauthorized removal
+  await supabaseAdmin.from('push_subscriptions')
+    .delete()
+    .eq('endpoint', endpoint)
+    .eq('user_id', user.id)
+
   return NextResponse.json({ ok: true })
 }
 

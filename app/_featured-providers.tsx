@@ -4,10 +4,10 @@ import { Star, MapPin, ShieldCheck, Stethoscope } from 'lucide-react'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
 const ROLE_BADGE: Record<string, { label: string; color: string }> = {
-  locum_nurse:    { label: 'Jururawat Berlesen', color: 'bg-blue-50 text-blue-700' },
-  locum_physio:   { label: 'Fisioterapi', color: 'bg-purple-50 text-purple-700' },
-  locum_care_aide:{ label: 'Pembantu Penjagaan', color: 'bg-orange-50 text-orange-700' },
-  medical_escort: { label: 'Pendamping Perubatan', color: 'bg-red-50 text-red-700' },
+  locum_nurse:    { label: 'Licensed Nurse', color: 'bg-blue-50 text-blue-700' },
+  locum_physio:   { label: 'Physiotherapist', color: 'bg-purple-50 text-purple-700' },
+  locum_care_aide:{ label: 'Home Care Aide', color: 'bg-orange-50 text-orange-700' },
+  medical_escort: { label: 'Medical Escort', color: 'bg-red-50 text-red-700' },
   companion:      { label: 'Companion', color: 'bg-teal-50 text-teal-700' },
 }
 
@@ -26,10 +26,10 @@ export default async function FeaturedProviders({ lang: _ }: { lang?: string }) 
       <section className="py-16 md:py-24 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10">
-            <span className="text-xs font-semibold tracking-widest text-teal-600 uppercase">Provider Pilihan</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-3">Profesional Berdedikasi</h2>
+            <span className="text-xs font-semibold tracking-widest text-teal-600 uppercase">Featured Providers</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-3">Dedicated Professionals</h2>
             <p className="text-gray-500 max-w-lg mx-auto">
-              Dipilih berdasarkan penilaian pelanggan, kelayakan profesional, dan rekod perkhidmatan.
+              Selected based on customer ratings, professional qualifications, and service record.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -38,14 +38,14 @@ export default async function FeaturedProviders({ lang: _ }: { lang?: string }) 
                 <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center mb-3">
                   <Stethoscope className="w-6 h-6 text-teal-500" />
                 </div>
-                <p className="text-sm text-gray-400 font-medium">Provider sedang didaftarkan</p>
-                <p className="text-xs text-gray-300 mt-1">Segera hadir</p>
+                <p className="text-sm text-gray-400 font-medium">Providers being onboarded</p>
+                <p className="text-xs text-gray-300 mt-1">Coming soon</p>
               </div>
             ))}
           </div>
           <div className="text-center mt-10">
             <Link href="/register" className="inline-flex items-center gap-2 text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors border border-teal-200 px-5 py-2.5 rounded-full hover:bg-teal-50">
-              Daftar sebagai Provider →
+              Register as Provider →
             </Link>
           </div>
         </div>
@@ -73,10 +73,10 @@ export default async function FeaturedProviders({ lang: _ }: { lang?: string }) 
     <section className="py-24 px-4 bg-white">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-14">
-          <span className="text-xs font-semibold tracking-widest text-teal-600 uppercase">Provider Pilihan</span>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-3">Profesional Berdedikasi</h2>
+          <span className="text-xs font-semibold tracking-widest text-teal-600 uppercase">Featured Providers</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-3">Dedicated Professionals</h2>
           <p className="text-gray-500 max-w-lg mx-auto">
-            Dipilih berdasarkan penilaian pelanggan, kelayakan profesional, dan rekod perkhidmatan.
+            Selected based on customer ratings, professional qualifications, and service record.
           </p>
         </div>
 
@@ -132,15 +132,15 @@ export default async function FeaturedProviders({ lang: _ }: { lang?: string }) 
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-400" fill="currentColor" />
                       <span className="text-sm font-bold text-gray-900">
-                        {parseFloat(String(p.rating_avg ?? 0)) > 0 ? parseFloat(String(p.rating_avg)).toFixed(1) : 'Baru'}
+                        {parseFloat(String(p.rating_avg ?? 0)) > 0 ? parseFloat(String(p.rating_avg)).toFixed(1) : 'New'}
                       </span>
                     </div>
                     {(p.total_reviews ?? 0) > 0 && (
-                      <span className="text-xs text-gray-400">({p.total_reviews} ulasan)</span>
+                      <span className="text-xs text-gray-400">({p.total_reviews} reviews)</span>
                     )}
                     {lowestPrice !== null && (
                       <span className="ml-auto font-bold text-teal-600 text-base">
-                        Dari RM{lowestPrice.toFixed(0)}
+                        From RM{lowestPrice.toFixed(0)}
                       </span>
                     )}
                   </div>
@@ -154,12 +154,12 @@ export default async function FeaturedProviders({ lang: _ }: { lang?: string }) 
                     )}
                     {p.license_verified && (
                       <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full font-medium">
-                        ✓ Sijil Disahkan
+                        ✓ License Verified
                       </span>
                     )}
                     {p.ic_verified && !p.license_verified && (
                       <span className="text-xs bg-teal-50 text-teal-700 px-2 py-1 rounded-full font-medium">
-                        ✓ IC Disahkan
+                        ✓ ID Verified
                       </span>
                     )}
                   </div>
@@ -167,7 +167,7 @@ export default async function FeaturedProviders({ lang: _ }: { lang?: string }) 
 
                 <div className="px-5 pb-5">
                   <div className="w-full text-center py-2.5 bg-teal-50 text-teal-700 text-sm font-semibold rounded-xl group-hover:bg-teal-600 group-hover:text-white transition-colors">
-                    Lihat Profil
+                    View Profile
                   </div>
                 </div>
               </Link>
@@ -180,7 +180,7 @@ export default async function FeaturedProviders({ lang: _ }: { lang?: string }) 
             href="/search"
             className="inline-flex items-center gap-2 text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors"
           >
-            Lihat Semua Provider →
+            View All Providers →
           </Link>
         </div>
       </div>

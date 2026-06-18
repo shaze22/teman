@@ -38,10 +38,10 @@ export async function POST(request: NextRequest) {
   const selfieFile    = form.get('selfie') as File | null
 
   if (!userId || !fullName || !email || !phone || !locationState || !locationCity) {
-    return NextResponse.json({ message: 'Data tidak lengkap' }, { status: 400 })
+    return NextResponse.json({ message: 'Missing required fields' }, { status: 400 })
   }
   if (!icFrontFile || !selfieFile) {
-    return NextResponse.json({ message: 'IC dan selfie diperlukan' }, { status: 400 })
+    return NextResponse.json({ message: 'IC and selfie are required' }, { status: 400 })
   }
 
   // Server-side Gemini verification — never trust client's geminiPassed claim
@@ -54,10 +54,10 @@ export async function POST(request: NextRequest) {
     geminiConfidence = result.confidence ?? null
     geminiFaceMatch = result.faceMatch ?? null
     if (!(result.faceMatch && result.icAuthentic && result.isAdult)) {
-      return NextResponse.json({ message: 'Pengesahan identiti gagal. Sila cuba semula dengan gambar yang lebih jelas.' }, { status: 422 })
+      return NextResponse.json({ message: 'Identity verification failed. Please retry with clearer photos.' }, { status: 422 })
     }
   } catch {
-    return NextResponse.json({ message: 'Pengesahan identiti gagal. Cuba lagi.' }, { status: 500 })
+    return NextResponse.json({ message: 'Identity verification failed. Please try again.' }, { status: 500 })
   }
 
   try {
