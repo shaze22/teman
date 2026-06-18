@@ -4,23 +4,23 @@ import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { notifyNewBooking } from '@/lib/notifications'
 import { sendBookingNewProvider } from '@/lib/email'
+import { getPlatformFee, getProviderAmount } from '@/lib/services'
+
+const LOCUM_TYPES = ['nursing', 'physiotherapy', 'home_care']
 
 const schema = z.object({
   providerId: z.string(),
   serviceType: z.enum(['nursing', 'physiotherapy', 'home_care', 'medical_escort', 'riadah', 'ibadah', 'makan']),
   scheduledDate: z.string(),
   startTime: z.string(),
-  durationHours: z.number().int().min(1),
+  durationHours: z.number().int().min(1).max(24),
   locationAddress: z.string().optional(),
   requirements: z.string().optional(),
   recipientName: z.string().optional(),
-  providerPrice: z.number().positive(),
-  platformFee: z.number().nonnegative(),
-  totalAmount: z.number().positive(),
   paymentMethod: z.enum(['stripe', 'cash']).default('stripe'),
   promoCode: z.string().optional(),
-  discountAmount: z.number().default(0),
-  creditUsed: z.number().default(0),
+  discountAmount: z.number().nonnegative().default(0),
+  creditUsed: z.number().nonnegative().default(0),
 })
 
 export async function POST(request: NextRequest) {
@@ -41,13 +41,43 @@ export async function POST(request: NextRequest) {
 
   const { data: providerProfile, error: ppError } = await supabaseAdmin
     .from('provider_profiles')
-    .select('user_id')
+    .select('id, user_id, ic_verified, license_verified, is_active, is_available')
     .eq('user_id', data.providerId)
     .single()
 
   if (ppError || !providerProfile) {
     return NextResponse.json({ message: 'Provider not found' }, { status: 404 })
   }
+
+  if (!providerProfile.is_active || !providerProfile.ic_verified) {
+    return NextResponse.json({ message: 'Provider is not verified or inactive' }, { status: 403 })
+  }
+
+  if (!providerProfile.is_available) {
+    return NextResponse.json({ message: 'Provider is not available for bookings' }, { status: 409 })
+  }
+
+  if (LOCUM_TYPES.includes(data.serviceType) && !providerProfile.license_verified) {
+    return NextResponse.json({ message: 'Provider license not verified for this service type' }, { status: 403 })
+  }
+
+  // Server-side price computation — reject client-supplied amounts
+  const { data: pricing, error: pricingError } = await supabaseAdmin
+    .from('provider_pricing')
+    .select('price')
+    .eq('profile_id', providerProfile.id)
+    .eq('service_type', data.serviceType)
+    .eq('is_active', true)
+    .single()
+
+  if (pricingError || !pricing) {
+    return NextResponse.json({ message: 'Provider does not offer this service' }, { status: 400 })
+  }
+
+  const baseAmount = Number(pricing.price) * data.durationHours
+  const platformFee = getPlatformFee(data.serviceType, baseAmount)
+  const providerPrice = getProviderAmount(data.serviceType, baseAmount)
+  const totalAmount = Math.max(0, baseAmount - data.discountAmount - data.creditUsed)
 
   // Server-generated booking code prevents client spoofing
   const bookingCode = 'BK' + Date.now().toString(36).toUpperCase()
@@ -67,9 +97,9 @@ export async function POST(request: NextRequest) {
       requirements: data.requirements ?? null,
       recipient_name: data.recipientName ?? null,
       booked_by_care_center: !!(data.recipientName),
-      provider_price: data.providerPrice,
-      platform_fee: data.platformFee,
-      total_amount: data.totalAmount,
+      provider_price: providerPrice,
+      platform_fee: platformFee,
+      total_amount: totalAmount,
       payment_method: data.paymentMethod,
       promo_code: data.promoCode ?? null,
       discount_amount: data.discountAmount,

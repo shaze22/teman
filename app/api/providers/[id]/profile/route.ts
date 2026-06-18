@@ -17,10 +17,16 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
       .eq('is_active', true),
   ])
 
-  const activeServiceTypes = (pricingRes.data ?? []).map((p) => p.service_type as string)
+  const LOCUM_TYPES = ['nursing', 'physiotherapy', 'home_care']
+  const profile = profileRes.data
+  const allPricedTypes = (pricingRes.data ?? []).map((p) => p.service_type as string)
+  const activeServiceTypes = allPricedTypes.filter((st) => {
+    if (LOCUM_TYPES.includes(st)) return profile?.license_verified === true
+    return profile?.ic_verified === true
+  })
 
   return NextResponse.json({
-    ...(profileRes.data ?? {}),
+    ...(profile ?? {}),
     activeServiceTypes,
   })
 }

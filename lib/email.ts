@@ -8,13 +8,13 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 function base(content: string) {
   return `<!DOCTYPE html>
 <html lang="ms">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teman</title></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SenioCare</title></head>
 <body style="margin:0;padding:0;background:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;padding:40px 16px">
     <tr><td align="center">
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
         <!-- Header -->
-        <tr><td style="background:#6366F1;border-radius:16px 16px 0 0;padding:24px 32px">
+        <tr><td style="background:#0D9488;border-radius:16px 16px 0 0;padding:24px 32px">
           <span style="color:#fff;font-size:22px;font-weight:700">🤝 SenioCare</span>
         </td></tr>
         <!-- Body -->
@@ -31,7 +31,7 @@ function base(content: string) {
 </body></html>`
 }
 
-function btn(href: string, label: string, color = '#6366F1') {
+function btn(href: string, label: string, color = '#0D9488') {
   return `<a href="${href}" style="display:inline-block;background:${color};color:#fff;font-weight:600;font-size:15px;padding:14px 28px;border-radius:12px;text-decoration:none;margin-top:20px">${label}</a>`
 }
 
@@ -55,8 +55,13 @@ export function sendBookingNewProvider(opts: {
   totalAmount: number
 }) {
   const SERVICE: Record<string, string> = {
-    job: 'Teman Kerja / Penjagaan', food: 'Teman Makan',
-    learning: 'Teman Belajar', business: 'Teman Bisnes',
+    nursing: 'Jururawat Berlesen',
+    physiotherapy: 'Fisioterapi Berdaftar',
+    home_care: 'Pembantu Penjagaan',
+    medical_escort: 'Pendamping Perubatan',
+    riadah: 'Riadah Bersama',
+    ibadah: 'Ibadah Bersama',
+    makan: 'Makan Bersama',
   }
   const html = base(`
     <h2 style="color:#111827;margin:0 0 8px">Booking Baru!</h2>
@@ -91,7 +96,7 @@ export function sendBookingConfirmedCustomer(opts: {
   }
   const waRow = opts.providerPhone ? `
     <tr><td style="padding:12px 0;border-bottom:1px solid #F3F4F6" colspan="2">
-      <a href="https://wa.me/${fmtWA(opts.providerPhone)}?text=${encodeURIComponent(`Hai! Saya ${opts.customerName} - booking Teman #${opts.bookingCode} pada ${new Date(opts.scheduledDate).toLocaleDateString('ms-MY')} 😊`)}"
+      <a href="https://wa.me/${fmtWA(opts.providerPhone)}?text=${encodeURIComponent(`Hai! Saya ${opts.customerName} - booking SenioCare #${opts.bookingCode} pada ${new Date(opts.scheduledDate).toLocaleDateString('ms-MY')} 😊`)}"
         style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;font-weight:600;font-size:13px;padding:10px 20px;border-radius:10px;text-decoration:none">
         WhatsApp ${opts.providerName.split(' ')[0]}
       </a>
@@ -100,14 +105,14 @@ export function sendBookingConfirmedCustomer(opts: {
     <h2 style="color:#111827;margin:0 0 8px">Booking Disahkan! ✅</h2>
     <p style="color:#6B7280;margin:0 0 20px">Hai ${opts.customerName}, booking anda telah diterima oleh ${opts.providerName}.</p>
     <table style="width:100%;border-collapse:collapse;font-size:14px">
-      <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Teman</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${opts.providerName}</td></tr>
+      <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Provider</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${opts.providerName}</td></tr>
       <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Tarikh</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${new Date(opts.scheduledDate).toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</td></tr>
       <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">No. Booking</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${opts.bookingCode}</td></tr>
-      <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Jumlah</td><td style="padding:8px 0;font-weight:700;text-align:right;color:#6366F1">RM${opts.totalAmount.toFixed(2)}</td></tr>
+      <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Jumlah</td><td style="padding:8px 0;font-weight:700;text-align:right;color:#0D9488">RM${opts.totalAmount.toFixed(2)}</td></tr>
       ${waRow}
     </table>
     <p style="color:#6B7280;font-size:13px;margin:16px 0 0">Sila lengkapkan pembayaran untuk mengesahkan tempahan anda.</p>
-    ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Bayar Sekarang', '#6366F1')}
+    ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Bayar Sekarang')}
   `)
   return sendEmail(opts.to, `✅ Booking Disahkan ${opts.providerName}`, html)
 }
@@ -147,13 +152,13 @@ export function sendPaymentReceiptCustomer(opts: {
     <h2 style="color:#111827;margin:0 0 8px">Pembayaran Berjaya! 🎉</h2>
     <p style="color:#6B7280;margin:0 0 20px">Terima kasih ${opts.customerName}! Pembayaran anda telah diterima.</p>
     <table style="width:100%;border-collapse:collapse;font-size:14px">
-      <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Teman</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${opts.providerName}</td></tr>
+      <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Provider</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${opts.providerName}</td></tr>
       <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Tarikh Sesi</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${new Date(opts.scheduledDate).toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</td></tr>
       <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">No. Booking</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${opts.bookingCode}</td></tr>
-      <tr><td style="padding:8px 0;color:#6B7280">Jumlah Dibayar</td><td style="padding:8px 0;font-weight:700;text-align:right;color:#6366F1;font-size:18px">RM${opts.totalAmount.toFixed(2)}</td></tr>
+      <tr><td style="padding:8px 0;color:#6B7280">Jumlah Dibayar</td><td style="padding:8px 0;font-weight:700;text-align:right;color:#0D9488;font-size:18px">RM${opts.totalAmount.toFixed(2)}</td></tr>
     </table>
     <p style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px;color:#166534;font-size:13px;margin:20px 0 0">
-      ✅ Booking anda telah disahkan sepenuhnya. Teman anda akan hadir pada tarikh yang ditetapkan.
+      ✅ Booking anda telah disahkan sepenuhnya. Pengasuh anda akan hadir pada tarikh yang ditetapkan.
     </p>
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Lihat Booking')}
   `)
@@ -176,7 +181,7 @@ export function sendPaymentNotifyProvider(opts: {
       <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Pelanggan</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${opts.customerName}</td></tr>
       <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">Tarikh Sesi</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${new Date(opts.scheduledDate).toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</td></tr>
       <tr><td style="padding:8px 0;color:#6B7280;border-bottom:1px solid #F3F4F6">No. Booking</td><td style="padding:8px 0;font-weight:600;text-align:right;border-bottom:1px solid #F3F4F6">${opts.bookingCode}</td></tr>
-      <tr><td style="padding:8px 0;color:#6B7280">Pendapatan Anda</td><td style="padding:8px 0;font-weight:700;text-align:right;color:#6366F1;font-size:18px">RM${opts.providerAmount.toFixed(2)}</td></tr>
+      <tr><td style="padding:8px 0;color:#6B7280">Pendapatan Anda</td><td style="padding:8px 0;font-weight:700;text-align:right;color:#0D9488;font-size:18px">RM${opts.providerAmount.toFixed(2)}</td></tr>
     </table>
     <p style="color:#6B7280;font-size:13px;margin:16px 0 0">Sila bersedia dan hadir pada tarikh yang ditetapkan.</p>
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Lihat Booking')}
@@ -239,7 +244,7 @@ export function sendBookingReminder(opts: {
       <p style="margin:0;font-size:13px;color:#4B5563;"><strong>Masa:</strong> ${opts.startTime}</p>
     </div>
     <p style="color:#6B7280;font-size:13px;">
-      ${isProvider ? 'Pastikan anda bersedia dan hadir tepat pada masa.' : 'Pastikan anda bersedia untuk menerima Meal Companion anda.'}
+      ${isProvider ? 'Pastikan anda bersedia dan hadir tepat pada masa.' : 'Pastikan anda bersedia untuk menerima pengasuh anda.'}
     </p>
     ${btn(`${APP_URL}/booking/${opts.bookingId}`, 'Lihat Booking')}
   `)

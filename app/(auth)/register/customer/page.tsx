@@ -77,7 +77,7 @@ const initial: FormData = {
   locationPostcode: '',
   mobilityStatus: 'independent',
   dietaryRequirements: [],
-  needs: ['job'],
+  needs: [],
   emergencyName: '',
   emergencyRelation: '',
   emergencyPhone: '',
@@ -93,10 +93,13 @@ export default function CustomerRegisterPage() {
 
   const STEPS = [rc.step0, rc.step1, rc.step2, rc.step3]
   const NEEDS = [
-    { id: 'job', label: rc.needJob },
-    { id: 'food', label: rc.needFood },
-    { id: 'learning', label: rc.needLearning },
-    { id: 'business', label: rc.needBusiness },
+    { id: 'nursing', label: 'Perlukan Jururawat / Penjagaan Klinikal' },
+    { id: 'physiotherapy', label: 'Perlukan Fisioterapi' },
+    { id: 'home_care', label: 'Perlukan Pembantu Penjagaan Harian' },
+    { id: 'medical_escort', label: 'Perlukan Pendamping ke Hospital / Klinik' },
+    { id: 'riadah', label: 'Teman Riadah & Senaman' },
+    { id: 'ibadah', label: 'Teman Ibadah (Masjid, Solat, Quran)' },
+    { id: 'makan', label: 'Teman Makan Bersama' },
   ]
 
   const [step, setStep] = useState(0)
@@ -205,8 +208,8 @@ export default function CustomerRegisterPage() {
     <div className="min-h-screen bg-[#F8FAFC] px-4 py-12">
       <div className="max-w-lg mx-auto">
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
-          <Heart className="w-8 h-8 text-[#6366F1]" fill="currentColor" />
-          <span className="text-2xl font-bold text-[#6366F1]">SenioCare</span>
+          <Heart className="w-8 h-8 text-[#0D9488]" fill="currentColor" />
+          <span className="text-2xl font-bold text-[#0D9488]">SenioCare</span>
         </Link>
 
         {/* Google quick register */}
@@ -462,10 +465,10 @@ export default function CustomerRegisterPage() {
                 <div className="space-y-3">
                   {([
                     [cA, setCA, 'Saya TIDAK akan menggunakan platform SenioCare untuk menjalankan sebarang aktiviti penipuan, scam, ugutan, atau aktiviti yang menyalahi undang-undang Malaysia. Saya sedar bahawa tindakan sedemikian boleh dilaporkan kepada pihak berkuasa.'],
-                    [cB, setCB, 'Saya faham bahawa SenioCare adalah platform makan bersama warga emas. Saya TIDAK akan menghubungi atau menggunakan Meal Companion untuk sebarang tujuan selain sesi makan yang telah ditempah dan dibayar.'],
-                    [cC, setCC, 'Saya faham dan bersetuju untuk membayar bil makan Meal Companion secara terus di restoran semasa sesi. Booking fee yang dibayar hanya untuk masa companion, dan TIDAK merangkumi kos makanan companion.'],
+                    [cB, setCB, 'Saya faham bahawa SenioCare adalah platform penghubung locum dan pengasuh profesional untuk warga emas. Saya TIDAK akan menghubungi atau menggunakan provider untuk sebarang tujuan selain perkhidmatan yang telah ditempah dan dibayar.'],
+                    [cC, setCC, 'Saya faham bahawa semua provider SenioCare adalah kontraktor bebas bertauliah. Sebarang keperluan perubatan kecemasan mestilah menghubungi 999. SenioCare TIDAK memberi nasihat perubatan.'],
                     [cD, setCD, form.isForSelf
-                      ? 'Saya berjanji akan berkelakuan sopan dan menghormati Meal Companion semasa setiap sesi. Sebarang gangguan seksual, ugutan, atau perlakuan tidak senonoh boleh menyebabkan akaun saya digantung serta-merta dan dilaporkan kepada polis.'
+                      ? 'Saya berjanji akan berkelakuan sopan dan menghormati semua provider SenioCare semasa setiap sesi. Sebarang gangguan, ugutan, atau perlakuan tidak senonoh boleh menyebabkan akaun saya digantung serta-merta dan dilaporkan kepada polis.'
                       : 'Saya berjanji bahawa warga emas yang saya uruskan akan dipastikan berkelakuan sopan semasa sesi. Sebarang aduan terhadap pihak kami boleh menyebabkan akaun ini digantung serta-merta.'],
                     [cE, setCE, 'Saya bersetuju dengan Terma Perkhidmatan dan Dasar Privasi SenioCare. Saya faham bahawa SenioCare berhak menamatkan akaun saya pada bila-bila masa jika terma dilanggar, tanpa pampasan.'],
                     [cF, setCF, 'Saya mengesahkan bahawa semua maklumat yang diberikan dalam borang ini adalah benar, tepat dan terkini. Saya bertanggungjawab sepenuhnya atas kesahihan maklumat ini.'],
